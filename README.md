@@ -9,7 +9,7 @@ Hệ thống xử lý và phân tích dữ liệu lớn (Big Data Pipeline) cho 
 ```text
 .
 ├── README.md
-├── .gitignore
+├── .gitignore                      # Bỏ qua tệp không cần thiết(các tệp trong đây không đẩy lên github)
 ├── requirements.txt                # Chỉ ghi dependency đã xác nhận
 ├── configs/                        # Cấu hình mẫu, không chứa mật khẩu/token
 │   └── config.example.yaml
