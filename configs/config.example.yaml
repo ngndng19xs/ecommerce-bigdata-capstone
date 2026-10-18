@@ -1,0 +1,53 @@
+# ==============================================================================
+# Configuration Template (Cấu hình mẫu, KHÔNG chứa mật khẩu/token)
+# Copy file này thành `configs/config.yaml` hoặc cấu hình qua biến môi trường.
+# ==============================================================================
+
+app:
+  name: "ecommerce-bigdata-capstone"
+  environment: "development" # development | staging | production
+  log_level: "INFO"
+
+spark:
+  master: "local[*]"
+  app_name: "EcommerceClickstreamPipeline"
+  driver_memory: "4g"
+  executor_memory: "4g"
+  warehouse_dir: "spark-warehouse"
+  shuffle_partitions: 8
+  log_level: "WARN"
+
+kafka:
+  bootstrap_servers:
+    - "localhost:9092"
+  topics:
+    clickstream_raw: "ecommerce.clickstream.raw"
+    clickstream_alerts: "ecommerce.clickstream.alerts"
+  consumer:
+    group_id: "ecommerce-capstone-consumer-group"
+    auto_offset_reset: "latest"
+  producer:
+    acks: "1"
+    retries: 3
+    playback_speed_multiplier: 1.0
+
+storage:
+  raw_data_dir: "data/raw"
+  processed_data_dir: "data/processed"
+  checkpoint_dir: "checkpoint"
+  benchmark_dir: "results/benchmark"
+  metrics_dir: "results/metrics"
+  figures_dir: "results/figures"
+
+hive:
+  database: "ecommerce_db"
+  table_events: "fact_events"
+  table_sessions: "dim_sessions"
+  table_funnel: "agg_funnel_metrics"
+
+ml:
+  target_column: "is_purchased"
+  random_seed: 42
+  train_ratio: 0.8
+  cv_folds: 3
+  model_save_path: "results/models"

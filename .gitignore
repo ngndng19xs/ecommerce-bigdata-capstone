@@ -1,0 +1,125 @@
+# ==============================================================================
+# Git Ignore Configuration for E-commerce Big Data Capstone
+# ==============================================================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment Variables & Sensitive Credentials
+.env
+.env.*
+!.env.example
+secrets/
+*.pem
+*.key
+*.token
+configs/local.yaml
+configs/secrets.yaml
+configs/*_secret*.yaml
+
+# Data Directory (Local temporary data; do not commit actual datasets)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Big Data Formats & Compressed Files
+*.parquet
+*.orc
+*.avro
+*.csv
+*.tsv
+*.jsonl
+*.gz
+*.tar
+*.zip
+*.7z
+*.rar
+
+# Apache Spark / Hadoop / Hive Artifacts
+metastore_db/
+derby.log
+spark-warehouse/
+warehouse/
+checkpoint/
+checkpoint_dir/
+*.checkpoint/
+.sparkStaging/
+spark-events/
+winutils.exe
+hadoop.dll
+
+# Kafka & Zookeeper Logs / State
+kafka-logs/
+zookeeper/
+*.snapshot
+*.log
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints/
+*-checkpoint.ipynb
+
+# Unit Test / Coverage Reports
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+htmlcov/
+test-reports/
+
+# IDEs and Code Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
