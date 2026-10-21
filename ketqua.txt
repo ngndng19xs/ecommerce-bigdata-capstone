@@ -1,0 +1,86 @@
+2026-10-21 23:02:57,426 WARN util.Utils: Your hostname, localhost.localdomain resolves to a loopback address: 127.0.0.1; using 192.168.1.19 instead (on interface enp0s3)
+2026-10-21 23:02:57,426 WARN util.Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+2026-10-21 23:02:57,746 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+2026-10-21 23:03:01,156 WARN conf.HiveConf: HiveConf of name hive.stats.jdbc.timeout does not exist
+2026-10-21 23:03:01,157 WARN conf.HiveConf: HiveConf of name hive.stats.retries.wait does not exist
+Spark master: local[*], Application Id: local-1792591379556
+spark.sql.session.timeZone	UTC
+Time taken: 1.9 seconds, Fetched 1 row(s)
+Time taken: 0.311 seconds
+25	1	0	1	9
+Time taken: 3.333 seconds, Fetched 1 row(s)
+cart	8
+purchase	6
+remove_from_cart	1
+view	10
+Time taken: 1.448 seconds, Fetched 4 row(s)
+Time taken: 0.086 seconds
+Time taken: 0.327 seconds
+S1	2019-10-01	true	false	false	true	false	false	false
+S2	2019-10-01	true	true	false	true	true	false	false
+S3	2019-10-01	true	true	true	true	true	true	false
+S4	2019-10-01	true	true	true	true	true	true	false
+S5	2019-10-02	false	false	false	false	false	true	true
+S6	2019-10-02	true	true	false	true	true	false	false
+S7	2019-10-02	true	true	true	true	true	true	false
+S8	2019-10-02	true	true	false	true	true	true	true
+S9	2019-10-02	true	true	true	true	true	true	false
+Time taken: 3.401 seconds, Fetched 9 row(s)
+Time taken: 0.155 seconds
+2019-10-01	4	3	2	0.75	0.6667	0.5	0.25	0.3333	0	1
+2019-10-02	4	4	2	1.0	0.5	0.5	0.0	0.5	2	0
+Time taken: 2.806 seconds, Fetched 2 row(s)
+8	7	4	0.875	0.5714	0.5	0.125	0.4286	2	1
+Time taken: 2.713 seconds, Fetched 1 row(s)
+8	7	6
+Time taken: 1.386 seconds, Fetched 1 row(s)
+S5	false	false	true	false	false
+S8	true	true	true	true	false
+Time taken: 2.78 seconds, Fetched 2 row(s)
+S1	2	2	0	0	0
+S2	3	1	1	1	0
+S3	3	1	1	0	1
+S4	3	1	1	0	1
+S5	1	0	0	0	1
+S6	2	1	1	0	0
+S7	4	1	2	0	1
+S8	3	1	1	0	1
+S9	3	1	1	0	1
+Time taken: 1.227 seconds, Fetched 9 row(s)
+2.67	3	4
+Time taken: 1.389 seconds, Fetched 1 row(s)
+1 (bounce)	1
+2-3	7
+4+	1
+Time taken: 1.856 seconds, Fetched 3 row(s)
+S1	60
+S2	300
+S3	600
+S4	900
+S5	0
+S6	60
+S7	180
+S8	120
+S9	120
+Time taken: 1.143 seconds, Fetched 9 row(s)
+260.0	120	900
+Time taken: 1.174 seconds, Fetched 1 row(s)
+true	4	3.25	450.0
+false	5	2.2	108.0
+Time taken: 1.933 seconds, Fetched 2 row(s)
+samsung	2	2	2	1.0	1.0	1.0	1050.0
+apple	4	2	1	0.5	0.5	0.25	1000.0
+xiaomi	2	2	0	1.0	0.0	0.0	150.0
+unknown	0	0	0	NULL	NULL	NULL	50.0
+Time taken: 1.986 seconds, Fetched 4 row(s)
+apple	4	3	2	0.75	0.6667	0.5
+samsung	3	3	3	1.0	1.0	1.0
+xiaomi	2	2	0	1.0	0.0	0.0
+unknown	0	0	0	NULL	NULL	NULL
+Time taken: 2.333 seconds, Fetched 4 row(s)
+true	true	true	true	true	true
+Time taken: 1.538 seconds, Fetched 1 row(s)
+9	9	9
+Time taken: 1.603 seconds, Fetched 1 row(s)
