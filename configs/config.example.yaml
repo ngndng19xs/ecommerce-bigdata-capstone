@@ -51,3 +51,19 @@ ml:
   train_ratio: 0.8
   cv_folds: 3
   model_save_path: "results/models"
+  sample_csv: "data/raw/sample_nov_1pct.csv"
+  session_features_path: "data/processed/ml/session_features"
+  model_path: "data/processed/ml/lr_model"
+  metrics_path: "results/metrics/lr_metrics.json"
+  k_events: 5
+  split:
+    train: 0.70
+    val: 0.15
+    test: 0.15
+  lr:
+    max_iter: 50
+    reg_param: 0.01
+  threshold_grid:
+    start: 0.05
+    stop: 0.95
+    step: 0.01

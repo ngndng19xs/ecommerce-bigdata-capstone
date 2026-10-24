@@ -1,0 +1,40 @@
+{
+  "AUC_val": 0.7269,
+  "AUC_test": 0.7491,
+  "threshold": 0.67,
+  "F1_val": 0.4406,
+  "F1_test": 0.4473,
+  "precision_test": 0.4543,
+  "recall_test": 0.4406,
+  "confusion": {
+    "tp": 189,
+    "fp": 227,
+    "fn": 240,
+    "tn": 3329
+  },
+  "split_dates": {
+    "train": {
+      "start": "2019-11-01",
+      "end": "2019-11-20"
+    },
+    "val": {
+      "start": "2019-11-21",
+      "end": "2019-11-24"
+    },
+    "test": {
+      "start": "2019-11-25",
+      "end": "2019-11-29"
+    }
+  },
+  "k_events": 5,
+  "session_counts": {
+    "train": 24949,
+    "val": 3037,
+    "test": 3985
+  },
+  "pos_label_rates": {
+    "train": 0.079,
+    "val": 0.1044,
+    "test": 0.1077
+  }
+}
