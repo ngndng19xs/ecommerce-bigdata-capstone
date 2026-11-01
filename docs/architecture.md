@@ -1,80 +1,193 @@
-# Kiến Trúc Hệ Thống (System Architecture)
+# Kiến Trúc Hệ Thống – E-Commerce Clickstream Big Data Pipeline
 
-## 1. Tổng Quan Dự Án
-Dự án **E-commerce Big Data Capstone** xây dựng một hệ thống xử lý dữ liệu lớn (Big Data Pipeline) toàn diện cho luồng sự kiện clickstream của sàn thương mại điện tử. Hệ thống kết hợp cả xử lý theo lô (Batch Processing) và xử lý luồng thời gian thực (Stream Processing), hỗ trợ phân tích hành vi người dùng, phễu chuyển đổi (conversion funnel), và mô hình học máy (Machine Learning) dự đoán ý định mua hàng.
+## 1. Tổng Quan
+
+Dự án xây dựng hệ thống xử lý dữ liệu lớn cho luồng sự kiện clickstream thương mại điện tử REES46 (~100M+ sự kiện, Oct–Nov 2019).
+
+Kiến trúc theo mô hình **Lambda Architecture rút gọn**, kết hợp ba tầng xử lý:
+
+- **Batch Layer**: Xử lý hàng loạt với Apache Spark trên HDFS.
+- **Speed Layer**: Xử lý luồng với Kafka + Spark Structured Streaming (phát lại dữ liệu lịch sử).
+- **ML Layer**: Dự đoán hành vi người dùng với Spark MLlib.
+
+> **Lưu ý:**
+> - Tầng Streaming sử dụng dữ liệu lịch sử phát lại (history replay), KHÔNG phải sự kiện trực tiếp từ website.
+> - Hệ thống chưa có Serving Layer hợp nhất kết quả batch và streaming. Kết quả mỗi tầng được lưu độc lập trên HDFS.
 
 ---
 
-## 2. Mô Hình Kiến Trúc (Architecture Overview)
+## 2. Kiến Trúc Hai VM
 
-Hệ thống được thiết kế theo mô hình **Hybrid / Lambda Architecture**, gồm 4 tầng chính:
+Dự án triển khai trên **hai VM độc lập**, mỗi VM có HDFS riêng:
+
+```text
+┌─────────────────────────────────┐     ┌─────────────────────────────────┐
+│          VM-A (Data)            │     │        VM-B (Stream & ML)       │
+│                                 │     │                                 │
+│  HDFS-A (NameNode riêng)        │     │  HDFS-B (NameNode riêng)        │
+│  ├── /data/raw/                 │     │  ├── /data/curated/ (từ A)      │
+│  ├── /data/curated/             │     │  ├── /data/streaming/           │
+│  ├── /data/analytics/           │     │  ├── /data/ml/                  │
+│  └── /data/metadata/            │     │  └── /data/metadata/            │
+│                                 │     │                                 │
+│  Ingestion → ETL → Hive →      │     │  Kafka Producer → Streaming →   │
+│  Batch Analytics → Benchmark    │     │  ML Pipeline → Demo             │
+│                                 │     │                                 │
+└────────────┬────────────────────┘     └─────────────────────────────────┘
+             │                                       ▲
+             │  Parquet export (Shared Folder / SCP)  │
+             └───────────────────────────────────────┘
+```
+
+- Hai VM dùng **cùng quy ước đường dẫn HDFS** nhưng **không chia sẻ NameNode**.
+- Git Repository dùng chung trên GitHub.
+- Dữ liệu HDFS **không được đồng bộ qua GitHub**.
+
+---
+
+## 3. Sơ Đồ Kiến Trúc Tổng Thể
 
 ```mermaid
 flowchart TD
     subgraph Data_Sources["1. Data Sources & Ingestion"]
-        A1["E-commerce Clickstream Raw Data<br/>(CSV / JSON)"] --> B1["src/ingestion<br/>Validation & Ingestion"]
+        A1["REES46 Clickstream CSV<br/>(~100M+ events, Oct-Nov 2019, UTC)"] --> B1["src/ingestion<br/>Validation & Ingestion"]
     end
 
-    subgraph Streaming_Layer["2. Speed / Streaming Layer"]
-        B1 --> C1["src/streaming/producer<br/>Kafka Event Replay Producer"]
-        C1 --> C2["Apache Kafka Broker<br/>Topic: ecommerce.clickstream.raw"]
-        C2 --> C3["src/streaming/consumer<br/>Spark Structured Streaming"]
-        C3 --> C4["Real-time Alerts & Windowed Metrics"]
-    end
-
-    subgraph Batch_Layer["3. Batch & Storage Layer"]
-        B1 --> D1["data/raw<br/>Local Raw Store"]
-        D1 --> D2["src/batch/etl<br/>PySpark Clean & Normalization"]
-        D2 --> D3["data/processed<br/>Optimized Parquet Files"]
-        D3 --> D4["sql/hive<br/>Hive Data Warehouse<br/>(fact_events, dim_sessions)"]
+    subgraph Batch_Layer["2. Batch Layer (VM-A)"]
+        B1 --> D1["HDFS /data/raw/ecommerce_events"]
+        D1 --> D2["src/batch/etl<br/>PySpark Clean & Normalize"]
+        D2 --> D3["HDFS /data/curated/events_cleaned<br/>(Parquet, partitioned by event_date)"]
+        D2 --> DQ["HDFS /data/curated/_quarantine/<br/>invalid_events"]
+        D3 --> D4["sql/hive<br/>Hive External Tables<br/>(fact_events, dim_sessions)"]
         D4 --> D5["sql/analytics<br/>Funnel, Session & Brand Analysis"]
+        D5 --> DA["HDFS /data/analytics/"]
     end
 
-    subgraph ML_Layer["4. Machine Learning & Serving"]
-        D3 --> E1["src/ml/dataset<br/>Sessionization & Labelling"]
+    subgraph Streaming_Layer["3. Speed Layer (VM-B)"]
+        D3 -.->|"Parquet transfer A→B"| C1["src/streaming/producer<br/>Kafka Event Replay"]
+        C1 --> C2["Apache Kafka<br/>Topic: ecommerce.clickstream.raw"]
+        C2 --> C3["src/streaming/consumer<br/>Spark Structured Streaming"]
+        C3 --> C4["HDFS /data/streaming/"]
+    end
+
+    subgraph ML_Layer["4. ML Layer (VM-B)"]
+        D3 -.->|"Parquet transfer A→B"| E1["src/ml/dataset<br/>Session Dataset & Label"]
         E1 --> E2["src/ml/features<br/>Feature Engineering"]
-        E2 --> E3["src/ml/training<br/>Spark MLlib Training"]
-        E3 --> E4["src/ml/evaluation<br/>Model Evaluation & Metrics"]
+        E2 --> E3["src/ml/training<br/>Spark MLlib"]
+        E3 --> E4["src/ml/evaluation<br/>Metrics & Model"]
+        E4 --> E5["HDFS /data/ml/"]
     end
 
-    subgraph Presentation["5. Presentation & Reports"]
-        D5 --> F1["src/visualization<br/>Charts & Dashboards"]
-        E4 --> F2["results/metrics & figures"]
-        F1 --> G1["reports/<br/>Final Capstone Defense Report"]
+    subgraph Presentation["5. Visualization & Reports"]
+        DA --> F1["src/visualization"]
+        E5 --> F2["results/metrics & figures"]
+        F1 --> G1["reports/<br/>Capstone Defense"]
         F2 --> G1
     end
 ```
 
 ---
 
-## 3. Các Thành Phần Chi Tiết
+## 4. Chi Tiết Từng Tầng
 
-### 3.1. Ingestion (`src/ingestion/`)
-- Kiểm tra tính toàn vẹn (schema validation), kiểm tra định dạng và nạp dữ liệu thô ban đầu.
-- Ghi nhận metadata về kích thước tập dữ liệu, số bản ghi và phân vùng dự kiến.
+### 4.1. Ingestion (`src/ingestion/`)
 
-### 3.2. Batch Processing Layer (`src/batch/`)
-- **`etl/`**: PySpark ETL pipeline thực hiện làm sạch dữ liệu (xử lý giá trị thiếu, ép kiểu dữ liệu timestamp, loại bỏ duplicate), chuẩn hóa và lưu trữ dưới định dạng Parquet nén (Snappy/ZSTD) có phân vùng (`partitionBy: year, month, event_type`).
-- **`analytics/`**: Phân tích tổng hợp hiệu năng xử lý, benchmark tốc độ giữa các định dạng (CSV vs Parquet) và tài nguyên tính toán.
+| Thành phần | Chi tiết |
+|---|---|
+| Nguồn dữ liệu | REES46 E-Commerce Clickstream (Kaggle) |
+| Định dạng gốc | CSV (~100M+ sự kiện) |
+| Khoảng thời gian | October – November 2019 |
+| Timezone | UTC |
+| Đích | HDFS `/data/raw/ecommerce_events` |
 
-### 3.3. Streaming Layer (`src/streaming/`)
-- **`producer/`**: Giả lập phát lại (playback) dữ liệu clickstream theo timestamp thực tế hoặc gia tốc thời gian gửi vào Apache Kafka.
-- **`consumer/`**: Spark Structured Streaming đọc từ Kafka topic, thực hiện tính toán cửa sổ trượt (sliding / tumbling window) để phát hiện xu hướng giỏ hàng và bất thường.
+### 4.2. Batch Processing (`src/batch/`)
 
-### 3.4. SQL & Data Warehouse Layer (`sql/`)
-- **`hive/`**: Chứa DDL tạo cơ sở dữ liệu, bảng ngoại vi (external table), bảng nội vi (managed table), và cấu hình partition cho Apache Hive.
-- **`analytics/`**: Các truy vấn SQL phân tích nghiệp vụ:
-  - Phân tích phễu chuyển đổi: `view` -> `cart` -> `purchase`.
-  - Phân tích phiên truy cập (Sessionization): độ dài phiên, số sự kiện trung bình trên mỗi phiên.
-  - Phân tích thương hiệu (Brand) và danh mục (Category) có tỷ lệ chuyển đổi cao nhất.
+- **ETL** (`src/batch/etl/`): Làm sạch, chuẩn hóa kiểu dữ liệu, khử trùng lặp.
+  - Dữ liệu sạch → `/data/curated/events_cleaned` (Parquet, partitioned by `event_date` UTC).
+  - Dữ liệu lỗi → `/data/curated/_quarantine/invalid_events`.
+- **Hive** (`sql/hive/`): Bảng external trỏ vào Parquet trên HDFS.
+- **Analytics** (`src/batch/analytics/`, `sql/analytics/`): Phân tích phễu chuyển đổi, session, product performance.
+- **Benchmark** (`results/benchmark/`): Đo hiệu năng CSV vs Parquet.
 
-### 3.5. Machine Learning Layer (`src/ml/`)
-- **`dataset/`**: Tổng hợp dữ liệu cấp phiên (Session-level dataset) và gán nhãn dự đoán (`is_purchased`: 0/1).
-- **`features/`**: Trích xuất đặc trưng hành vi trước thời điểm quyết định (thời gian xem, số lượng mặt hàng thêm vào giỏ, độ đa dạng danh mục, thời điểm trong ngày).
-- **`training/`**: Huấn luyện các mô hình phân loại với Spark MLlib (Logistic Regression, Random Forest, GBTClassifier) có Cross-Validation.
-- **`evaluation/`**: Đánh giá bằng ROC-AUC, PR-AUC, F1-Score và lưu kết quả vào `results/metrics/`.
+### 4.3. Streaming (`src/streaming/`)
 
-### 3.6. Visualization & Reporting (`src/visualization/`, `reports/`)
-- Tạo các biểu đồ thống kê chất lượng cao cho báo cáo đồ án.
-- Cung cấp dashboard (Streamlit / Dash / Grafana) nếu được kích hoạt.
-- Toàn bộ kết quả thử nghiệm được lưu vết rõ ràng phục vụ việc bảo vệ đồ án tốt nghiệp.
+- **Producer** (`src/streaming/producer/`): Đọc Parquet curated, phát lại sự kiện lịch sử vào Kafka topic theo thứ tự thời gian.
+- **Consumer** (`src/streaming/consumer/`): Spark Structured Streaming đọc Kafka, tính toán chỉ số theo cửa sổ thời gian, ghi kết quả vào HDFS `/data/streaming/`.
+- **Lưu ý**: Đây là streaming dữ liệu lịch sử phát lại, KHÔNG phải sự kiện trực tiếp từ website.
+
+### 4.4. Machine Learning (`src/ml/`)
+
+- **Input**: Parquet curated từ Batch Layer.
+- **Dataset** (`src/ml/dataset/`): Tạo dataset cấp phiên, gán nhãn `is_purchased`.
+- **Features** (`src/ml/features/`): Trích xuất đặc trưng trước prediction point (tránh data leakage).
+- **Training** (`src/ml/training/`): Spark MLlib, chia train/test theo thời gian (time-based split).
+- **Evaluation** (`src/ml/evaluation/`): AUC-ROC, F1-score, Precision, Recall.
+- **Output**: Model và metrics trên HDFS `/data/ml/`.
+
+### 4.5. Visualization & Reporting (`src/visualization/`, `reports/`)
+
+- Biểu đồ tĩnh (Matplotlib/Seaborn) cho báo cáo.
+- Dashboard tương tác nếu nhóm triển khai.
+- Kết quả thử nghiệm lưu vết phục vụ bảo vệ đồ án.
+
+---
+
+## 5. Đường Dẫn HDFS Thống Nhất
+
+Cả hai VM sử dụng cùng cấu trúc đường dẫn logic (theo HDFS của Người A):
+
+```text
+/data/
+├── raw/
+│   └── ecommerce_events/              # Dữ liệu thô CSV đã nạp
+├── curated/
+│   ├── events_cleaned/                # Parquet sạch (partitioned by event_date)
+│   └── _quarantine/
+│       └── invalid_events/            # Bản ghi không hợp lệ
+├── analytics/
+│   ├── conversion_funnel/
+│   ├── session_summary/
+│   └── product_performance/
+├── streaming/
+│   ├── events/
+│   ├── aggregations/
+│   └── checkpoints/
+├── ml/
+│   ├── features/
+│   │   └── session_features/
+│   ├── datasets/
+│   │   ├── train/
+│   │   └── test/
+│   ├── models/
+│   └── evaluation/
+└── metadata/
+    ├── manifests/
+    └── quality_reports/
+```
+
+---
+
+## 6. Luồng Dữ Liệu End-to-End
+
+1. **Nạp dữ liệu**: CSV (REES46) → HDFS raw (VM-A).
+2. **ETL**: Raw → Clean/Validate → Curated Parquet + Quarantine (VM-A).
+3. **Hive**: Tạo external table trỏ vào curated Parquet (VM-A).
+4. **Analytics**: Truy vấn Hive/Spark SQL → Kết quả analytics trên HDFS (VM-A).
+5. **Chuyển dữ liệu**: Curated Parquet từ VM-A → VM-B (Shared Folder / SCP).
+6. **Streaming**: Curated Parquet → Kafka Producer → Kafka → Spark Streaming → HDFS streaming (VM-B).
+7. **ML**: Curated Parquet → Session Features → Train/Test Split → MLlib → Model + Metrics (VM-B).
+
+---
+
+## 7. Công Nghệ Sử Dụng
+
+| Thành phần | Công nghệ |
+|---|---|
+| Distributed Storage | HDFS (Hadoop Distributed File System) |
+| Batch Processing | Apache Spark (PySpark) |
+| Data Warehouse | Apache Hive |
+| Message Broker | Apache Kafka |
+| Stream Processing | Spark Structured Streaming |
+| Machine Learning | Spark MLlib |
+| Ngôn ngữ chính | Python / PySpark |
+| Quản lý mã nguồn | Git + GitHub |
