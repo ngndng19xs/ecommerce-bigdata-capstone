@@ -21,25 +21,42 @@
 
 ## 2. Schema Gốc (9 trường)
 
-| # | Tên trường | Kiểu dữ liệu | Mô tả |
-|---|-----------|---------------|-------|
-| 1 | `event_time` | Timestamp (UTC) | Thời điểm xảy ra sự kiện |
-| 2 | `event_type` | String | Loại sự kiện: `view`, `cart`, `remove_from_cart`, `purchase` |
-| 3 | `product_id` | Long | ID sản phẩm |
-| 4 | `category_id` | Long | ID danh mục |
-| 5 | `category_code` | String (nullable) | Mã danh mục phân cấp |
-| 6 | `brand` | String (nullable) | Tên thương hiệu |
-| 7 | `price` | Double | Giá sản phẩm |
-| 8 | `user_id` | Long | ID người dùng |
-| 9 | `user_session` | String (nullable) | ID phiên truy cập |
+| **#** | **Tên trường**  | **Kiểu dữ liệu**  | **Nullable** | **Mô tả**                                                    |
+| ----- | --------------- | ----------------- | ------------ | ------------------------------------------------------------ |
+| 1     | `event_time`    | Timestamp (UTC)   | Không*       | Thời điểm xảy ra sự kiện                                     |
+| 2     | `event_type`    | String            | Không*       | Loại sự kiện: `view`, `cart`, `remove_from_cart`, `purchase` |
+| 3     | `product_id`    | Long              | Không*       | ID sản phẩm                                                  |
+| 4     | `category_id`   | Long              | Không*       | ID danh mục                                                  |
+| 5     | `category_code` | String            | Có           | Mã danh mục phân cấp                                         |
+| 6     | `brand`         | String            | Có           | Tên thương hiệu                                              |
+| 7     | `price`         | Double            | Không*       | Giá sản phẩm                                                 |
+| 8     | `user_id`       | Long              | Không*       | ID người dùng                                                |
+| 9     | `user_session`  | String            | Có           | ID phiên truy cập                                            |
+
+**Quy ước Schema:**
+
+- Schema trên là schema logic thống nhất của dữ liệu sau khi chuyển đổi kiểu dữ liệu.
+- Dữ liệu Raw được giữ nguyên theo định dạng nguồn CSV.
+- Khi đọc dữ liệu Raw, các trường có thể được tiếp nhận dưới dạng String; việc chuyển đổi sang kiểu dữ liệu chuẩn được thực hiện trong quá trình xử lý.
+- `category_code`, `brand` và `user_session` được cho phép nhận giá trị NULL.
+- Các trường còn lại được xác định là không NULL theo schema dự kiến. Việc kiểm tra và xử lý các giá trị không hợp lệ được thực hiện trong bước Data Quality và Cleaning.
 
 ---
 
 ## 3. Quy Ước Thời Gian
 
-- `event_time` theo **UTC**.
-- `event_date` được tính từ UTC (`event_time` cast to date).
-- Phân vùng Parquet theo `event_date`.
+- `event_time` được thống nhất theo **UTC (Coordinated Universal Time)**.
+- Kiểu dữ liệu chuẩn của `event_time` là `Timestamp`.
+- Không tự động chuyển đổi `event_time` sang múi giờ địa phương trong quá trình xử lý.
+- `event_date` được tạo bằng cách lấy phần ngày từ `event_time` theo UTC (`event_time` cast to date).
+- Dữ liệu Parquet được phân vùng theo `event_date`.
+- Định dạng phân vùng: `event_date=YYYY-MM-DD`.
+- Apache Spark Session phải sử dụng timezone UTC để đảm bảo tính nhất quán khi chuyển đổi Timestamp và tạo `event_date`.
+
+Cấu hình Spark:
+
+```python
+.config("spark.sql.session.timeZone", "UTC")
 
 ---
 
@@ -47,9 +64,11 @@
 
 ### 4.1. Raw → Curated
 
-- **Raw** giữ nguyên tại `/data/raw/ecommerce_events` để phục vụ đối chiếu.
-- **Dữ liệu sạch** tại `/data/curated/events_cleaned`.
-- **Bản ghi không hợp lệ** tại `/data/curated/_quarantine/invalid_events`.
+- **Raw:** Giữ nguyên dữ liệu nguồn tại HDFS-VMA /data/raw/ecommerce_events để phục vụ đối chiếu và tái xử lý.
+- **Curated:** Dữ liệu đã được xử lý và làm sạch sẽ được lưu tại HDFS-VMA /data/curated/events_cleaned.
+- **Quarantine:** Bản ghi không hợp lệ được lưu tại HDFS-A /data/curated/_quarantine/invalid_events.
+- HDFS trên VM-A là hệ thống lưu trữ nguồn do Người A phụ trách.
+- VM-B sử dụng HDFS riêng làm hệ thống lưu trữ đích. Việc bàn giao dữ liệu từ VM-A sang VM-B được thực hiện thông qua cơ chế truyền file đã thống nhất giữa hai thành viên.
 
 ### 4.2. Xử lý trường đặc biệt
 
