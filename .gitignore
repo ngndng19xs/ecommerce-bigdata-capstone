@@ -8,9 +8,6 @@ __pycache__/
 *$py.class
 *.so
 
-# C extensions
-*.so
-
 # Distribution / packaging
 .Python
 build/
@@ -51,6 +48,10 @@ configs/local.yaml
 configs/secrets.yaml
 configs/*_secret*.yaml
 
+# Local VM-specific configuration (NEVER commit these)
+/configs/config.yaml
+/configs/config.local.yaml
+
 # Data Directory (Local temporary data; do not commit actual datasets)
 data/raw/*
 !data/raw/.gitkeep
@@ -82,6 +83,12 @@ checkpoint_dir/
 spark-events/
 winutils.exe
 hadoop.dll
+
+# Spark ML models & checkpoints
+/results/models/
+/models/
+/checkpoints/
+/streaming-checkpoints/
 
 # Kafka & Zookeeper Logs / State
 kafka-logs/

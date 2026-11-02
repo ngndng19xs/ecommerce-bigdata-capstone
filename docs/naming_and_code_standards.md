@@ -1,116 +1,212 @@
-# Quy Chuẩn Đặt Tên & Viết Mã Nguồn (Naming & Coding Standards)
+# Quy Chuẩn Đặt Tên và Viết Mã Nguồn
 
-Tài liệu này xác định các quy tắc cốt lõi giúp các thành viên trong nhóm thống nhất phong cách lập trình, duy trì chất lượng mã nguồn cao và hạn chế xung đột khi hợp nhất mã.
+Tài liệu này xác định các quy tắc đặt tên file, biến, hàm, class, quy chuẩn viết code, Git workflow và review cho nhóm 2 người.
 
 ---
 
-## 1. Quy Chuẩn Đặt Tên (Naming Conventions)
+## 1. Python
 
-### 1.1. Thư Mục và Tệp Tin
-| Loại đối tượng | Quy tắc | Ví dụ |
+### 1.1. Quy tắc đặt tên
+
+| Đối tượng | Quy tắc | Ví dụ |
 |---|---|---|
-| Module/File Python | `snake_case.py` | `clean_events.py`, `kafka_producer.py` |
-| File cấu hình | `snake_case.yaml` / `.json` | `config.example.yaml`, `spark_conf.yaml` |
-| File SQL | `số_thứ_tự_tên_nhiệm_vụ.sql` | `01_create_database.sql`, `02_funnel_analysis.sql` |
-| File Notebooks | `tiền_tố_mục_đích.ipynb` | `01_eda_clickstream.ipynb`, `02_feature_test.ipynb` |
-| File Shell Script | `snake_case.sh` | `run_batch_etl.sh`, `start_streaming.sh` |
+| File / Module | `snake_case` | `clean_events.py` |
+| Hàm / Method | `snake_case` | `load_raw_data()` |
+| Biến | `snake_case` | `event_count` |
+| Hằng số | `UPPER_SNAKE_CASE` | `MAX_RETRY_COUNT` |
+| Class | `PascalCase` | `SparkSessionBuilder` |
+| Package / Thư mục | `snake_case` | `batch/etl/` |
 
-### 1.2. Python Code Standards (PEP 8)
-- **Tên Class**: `PascalCase` (ví dụ: `ClickstreamCleaner`, `SessionFeatureExtractor`).
-- **Tên Hàm / Phương thức**: `snake_case` (ví dụ: `load_raw_data()`, `compute_conversion_rate()`).
-- **Biến thường**: `snake_case` (ví dụ: `event_timestamp`, `user_session_id`).
-- **Hằng số**: `UPPER_SNAKE_CASE` (ví dụ: `DEFAULT_DATE_FORMAT`, `MAX_RETRIES`).
-- **Biến Private / Protected**: Bắt đầu bằng dấu gạch dưới `_protected_variable`.
+### 1.2. Tiêu chuẩn viết code
 
-### 1.3. SQL & Data Warehouse (Hive)
-- **Từ khóa SQL**: Viết IN HOA (`SELECT`, `INSERT INTO`, `WHERE`, `GROUP BY`, `PARTITIONED BY`).
-- **Tên Database / Schema**: `snake_case` (ví dụ: `ecommerce_db`).
-- **Tiền tố bảng (Data Modeling)**:
-  - Bảng sự kiện (Fact table): `fact_` (ví dụ: `fact_clickstream_events`).
-  - Bảng chiều (Dimension table): `dim_` (ví dụ: `dim_users`, `dim_products`).
-  - Bảng tổng hợp (Aggregate table): `agg_` (ví dụ: `agg_funnel_daily`, `agg_brand_performance`).
+- **Tuân thủ PEP 8** – Sử dụng `black` để format, `flake8` để lint.
+- **Docstring**: Mỗi module và hàm quan trọng phải có docstring mô tả mục đích, tham số và giá trị trả về.
 
-### 1.4. Apache Kafka
-- **Topic**: Quy ước `domain.entity.datatype` (ví dụ: `ecommerce.clickstream.raw`, `ecommerce.events.deadletter`).
-- **Consumer Group**: Tiền tố mô tả dịch vụ (ví dụ: `ecommerce-capstone-spark-streaming`).
+  ```python
+  def clean_events(df: DataFrame, config: dict) -> DataFrame:
+      """Làm sạch và chuẩn hóa DataFrame sự kiện clickstream.
 
----
+      Args:
+          df: DataFrame chứa sự kiện thô từ HDFS.
+          config: Dictionary cấu hình từ config.yaml.
 
-## 2. Tiêu Chuẩn Viết Mã Nguồn (Code Standards)
+      Returns:
+          DataFrame đã được làm sạch, sẵn sàng ghi Parquet.
+      """
+  ```
 
-### 2.1. Type Hinting & Docstrings
-Tất cả các hàm và phương thức dùng chung trong `src/` bắt buộc phải có Type Annotations và Docstring:
+- **Import**: Sắp xếp theo thứ tự: standard library → third-party → local modules.
+- **Không hardcode**: Đường dẫn HDFS, mật khẩu, token phải đọc từ file cấu hình hoặc biến môi trường.
+- **Không hardcode mật khẩu hoặc token** vào mã nguồn.
+- **Type hints**: Khuyến khích sử dụng type annotation cho hàm.
+- **Ưu tiên module Python có thể chạy lại** thay vì chỉ dùng notebook.
 
-```python
-from pyspark.sql import DataFrame
-from typing import List, Optional
+### 1.3. PySpark Best Practices
 
-def clean_clickstream_events(
-    df: DataFrame, 
-    required_columns: List[str],
-    drop_null_sessions: bool = True
-) -> DataFrame:
-    """Làm sạch và chuẩn hóa dữ liệu sự kiện clickstream.
+1. **Không sử dụng `df.collect()` hoặc `df.toPandas()` trên tập dữ liệu lớn**: Chỉ dùng khi dữ liệu đã được tổng hợp thành kích thước nhỏ.
+2. **Khai báo Explicit Schema**: Hạn chế dùng `inferSchema=True` trên production pipeline.
+3. **Partitioning hợp lý**: Không phân mảnh partition quá nhỏ (tránh Small File Problem).
+4. **Broadcast Join**: Sử dụng `broadcast(small_df)` khi join bảng Fact lớn với bảng Dimension nhỏ (< 50MB).
 
-    Parameters
-    ----------
-    df : DataFrame
-        PySpark DataFrame chứa dữ liệu thô.
-    required_columns : List[str]
-        Danh sách các cột bắt buộc không được thiếu schema.
-    drop_null_sessions : bool, optional
-        Cờ loại bỏ các bản ghi không có user_session, mặc định là True.
-
-    Returns
-    -------
-    DataFrame
-        DataFrame đã được làm sạch và chuẩn hóa timestamp.
-    """
-    ...
-```
-
-### 2.2. PySpark Best Practices
-1. **Không sử dụng `df.collect()` hoặc `df.toPandas()` trên tập dữ liệu lớn**: Chỉ dùng khi dữ liệu đã được tổng hợp (aggregate) thành kích thước nhỏ để vẽ đồ thị hoặc lưu metrics.
-2. **Khai báo Explicit Schema**: Hạn chế dùng `inferSchema=True` trên production pipeline để tránh quét lại dữ liệu toàn bộ và gây chậm hiệu năng.
-3. **Partitioning hợp lý**: Không phân mảnh partition quá nhỏ (tránh Small File Problem) và không để partition vượt quá 200MB - 1GB.
-4. **Broadcast Join**: Sử dụng `broadcast(small_df)` khi kết hợp bảng Fact lớn với bảng Dimension nhỏ (< 50MB).
-
-### 2.3. Quản Lý Cấu Hình & Secrets
-- **TUYỆT ĐỐI KHÔNG commit**: Mật khẩu, token, API keys, chuỗi kết nối database vào git.
-- **Sử dụng file cấu hình**: Đọc tham số từ file cấu hình `configs/` và nạp biến môi trường thông qua thư viện `python-dotenv`.
-
-### 2.4. Logging Thay Vì Print
-Sử dụng module `logging` chuẩn của Python để hỗ trợ phân cấp log và lưu vết:
+### 1.4. Logging thay vì print
 
 ```python
 import logging
-
 logger = logging.getLogger(__name__)
 
 # Đúng
-logger.info("Hoàn thành quá trình ETL. Số bản ghi đã xử lý: %d", record_count)
-logger.warning("Phát hiện %d dòng thiếu thông tin sản phẩm.", missing_count)
+logger.info("Hoàn thành ETL. Số bản ghi: %d", record_count)
 
 # Không dùng
 print("done")
 ```
 
+### 1.5. Quản lý cấu hình & secrets
+
+- **TUYỆT ĐỐI KHÔNG commit**: mật khẩu, token, API keys, chuỗi kết nối database.
+- **Sử dụng file cấu hình**: Đọc tham số từ `configs/config.yaml` và biến môi trường (`python-dotenv`).
+
 ---
 
-## 3. Quy Ước Git & Commit (Git Flow)
+## 2. SQL
 
-### 3.1. Định Dạng Commit Message (Conventional Commits)
-```
-<type>(<scope>): <mô tả ngắn gọn bằng tiếng Anh hoặc tiếng Việt>
-```
-- `feat`: Tính năng mới (ví dụ: `feat(batch): add parquet deduplication step`).
-- `fix`: Sửa lỗi (ví dụ: `fix(streaming): resolve timestamp parsing bug in kafka consumer`).
-- `docs`: Cập nhật tài liệu (ví dụ: `docs: update architecture diagram and acceptance checklist`).
-- `refactor`: Tái cấu trúc mã nguồn không làm thay đổi tính năng.
-- `test`: Bổ sung hoặc chỉnh sửa unit test.
-- `chore`: Cập nhật cấu hình, dependency (`requirements.txt`, `.gitignore`).
+### 2.1. Quy tắc đặt tên
 
-### 3.2. Quy Tắc Nhánh
-- `main`: Nhánh ổn định cao nhất, dùng cho phiên bản báo cáo/bảo vệ.
-- `develop`: Nhánh tích hợp các tính năng chính.
-- `feature/<name>`: Nhánh làm việc của từng thành viên cho từng tính năng độc lập.
+| Đối tượng | Quy tắc | Ví dụ |
+|---|---|---|
+| File SQL | `snake_case` | `create_fact_events.sql` |
+| Database | `snake_case` | `ecommerce_db` |
+| Table (Fact) | `fact_` prefix | `fact_events` |
+| Table (Dimension) | `dim_` prefix | `dim_sessions` |
+| Table (Aggregate) | `agg_` prefix | `agg_funnel_metrics` |
+| Column | `snake_case` | `event_time`, `user_id` |
+
+### 2.2. Tiêu chuẩn viết SQL
+
+- **Từ khóa SQL viết HOA**: `SELECT`, `FROM`, `WHERE`, `JOIN`, `GROUP BY`.
+- **Phân biệt DDL và DML**:
+  - `sql/hive/`: DDL (CREATE DATABASE, CREATE TABLE, ALTER TABLE).
+  - `sql/analytics/`: Truy vấn phân tích (funnel, session, brand).
+- **Không sử dụng `SELECT *`** trong tác vụ xử lý lớn; liệt kê rõ các cột cần thiết.
+- **Tránh hardcode tên bảng** không đúng hợp đồng dữ liệu.
+- **Mỗi file SQL phải có header comment** mô tả mục đích:
+
+  ```sql
+  -- ============================================================================
+  -- File: create_fact_events.sql
+  -- Purpose: Create Hive external table for cleaned clickstream events
+  -- Database: ecommerce_db
+  -- Source: /data/curated/events_cleaned (Parquet, partitioned by event_date)
+  -- Owner: Person A
+  -- ============================================================================
+  ```
+
+---
+
+## 3. Git
+
+### 3.1. Quy tắc đặt tên nhánh
+
+Dành cho task mới:
+
+| Loại nhánh | Mẫu | Ví dụ |
+|---|---|---|
+| Feature mới | `feature/<TaskID>-<mô-tả>` | `feature/S4-repo-standards` |
+| Sửa lỗi | `bugfix/<TaskID>-<mô-tả>` | `bugfix/A3-null-session-fix` |
+| Hotfix | `hotfix/<mô-tả>` | `hotfix/spark-config-fix` |
+
+Một số ví dụ nhánh theo task:
+
+- `feature/A3-etl`
+- `feature/B2-producer`
+- `feature/B4-stream-funnel`
+- `feature/B7-ml-training`
+
+> **Lưu ý:** Các nhánh cũ (`streaming`, `ml-model`, `analytics`, v.v.) không bắt buộc đổi tên.
+
+### 3.2. Quy tắc commit message
+
+```text
+[<TaskID>] <hành-động> <mô-tả-ngắn>
+```
+
+**Ví dụ:**
+
+- `[S4] update repository documentation and standards`
+- `[A3] implement curated parquet ETL pipeline`
+- `[B2] add Kafka event replay producer`
+- `[B6] implement session feature engineering`
+- `[B7] add logistic regression training pipeline`
+
+**Quy tắc:**
+
+- Mỗi commit tập trung vào **một mục đích rõ ràng**.
+- Không trộn lẫn thay đổi nhiều task trong một commit.
+- Viết bằng tiếng Anh, dùng động từ mệnh lệnh (imperative mood).
+
+### 3.3. Quy trình Pull Request
+
+1. **Không push trực tiếp vào `main`.**
+2. Tạo feature branch từ `main` mới nhất.
+3. Commit theo quy tắc trên.
+4. Push feature branch lên GitHub.
+5. Tạo Pull Request với mô tả:
+   - Task ID và tên task.
+   - Danh sách file thay đổi.
+   - Cách chạy / kiểm tra.
+   - Bằng chứng kiểm tra (screenshot, log output).
+6. **Người A review code của B. Người B review code của A.**
+7. Reviewer kiểm tra trước khi approve và merge.
+8. **Main phải luôn ở trạng thái ổn định** – không merge code chưa kiểm tra.
+
+### 3.4. Quy tắc bảo mật Git
+
+- **Không commit**: dữ liệu lớn (CSV, Parquet), file cấu hình chứa mật khẩu/token, file `.env`.
+- **Kiểm tra trước khi commit**: `git diff --cached` để xem những gì sắp commit.
+- **Sử dụng `.gitignore`** đã cấu hình sẵn.
+- Nếu vô tình commit file nhạy cảm, báo ngay cho nhóm để xử lý.
+
+---
+
+## 4. Quyền Sở Hữu Thư Mục
+
+| Thư mục | Phụ trách chính | Ghi chú |
+|---------|-----------------|---------|
+| `src/ingestion/` | Người A | Nạp dữ liệu |
+| `src/batch/` | Người A | ETL và analytics batch |
+| `sql/` | Người A | Hive DDL và truy vấn analytics |
+| Code benchmark | Người A | `src/batch/analytics/`, `results/benchmark/` |
+| `src/streaming/` | Người B | Kafka producer và Spark consumer |
+| `src/ml/` | Người B | Dataset, features, training, eval |
+| `scripts/demo/` | Người B | Kịch bản demo end-to-end |
+| `src/common/` | Chung | Review chéo khi sửa |
+| `configs/` | Chung | Cấu hình mẫu dùng chung |
+| `docs/` | Chung | Tài liệu dự án |
+| `tests/` | Chung | Mỗi người viết test cho phần mình |
+| `README.md` | Chung | Phối hợp cập nhật |
+
+---
+
+## 5. Kiểm Thử và Bàn Giao
+
+### 5.1. Kiểm thử
+
+- Sử dụng `pytest` cho unit test và integration test.
+- Không commit dữ liệu lớn làm test fixture; sử dụng dữ liệu mẫu nhỏ.
+- Không coi việc "job chạy xong không lỗi" là bằng chứng dữ liệu chính xác.
+- Kiểm tra kết quả đầu ra: số dòng, schema, giá trị mẫu.
+- Chạy thử trên dữ liệu mẫu khi có code thực tế.
+
+### 5.2. Bàn giao dữ liệu giữa A và B
+
+- Khi bàn giao Parquet từ A sang B, cần kèm:
+  - **Manifest**: số dòng, số partition, khoảng ngày, schema version.
+  - **Git commit hash** hoặc tag liên quan đến code sinh dữ liệu.
+  - **Checksum** (nếu khả thi).
+- Người nhận kiểm tra đối chiếu trước khi sử dụng.
+
+### 5.3. Review chéo
+
+- Không merge khi chưa được review.
+- Reviewer kiểm tra: logic code, tuân thủ quy chuẩn, không hardcode, có docstring.
+- Nếu phát hiện vấn đề, comment trên PR và yêu cầu sửa trước khi approve.
