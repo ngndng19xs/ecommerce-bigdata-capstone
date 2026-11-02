@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """
-Task P2-B-S2-01: Offline validation utility for Kafka JSON Contract (DRAFT-S2-01).
+Nhiệm vụ P2-B-S2-01: Công cụ kiểm tra hợp lệ ngoại tuyến cho Hợp đồng Kafka JSON (DRAFT-S2-01).
 
-Validates simulated Kafka record batches (JSONL format) without requiring
-active Kafka brokers, Zookeeper, Spark, or HDFS connectivity.
+Thẩm định các lô bản ghi Kafka giả lập (định dạng JSONL) sử dụng JSON Schema Draft 7
+(thông qua jsonschema.Draft7Validator) cùng các quy tắc nghiệp vụ của hợp đồng dữ liệu,
+hoạt động hoàn toàn độc lập, không yêu cầu kết nối Kafka Broker, Zookeeper, Spark hay HDFS.
 
-Usage:
+Cách sử dụng:
     python scripts/validate_kafka_contract.py tests/fixtures/kafka_records_DRAFT.jsonl
+    python scripts/validate_kafka_contract.py tests/fixtures/kafka_records_DRAFT.jsonl --schema đường_dẫn/schema.json
 """
 
 import argparse
@@ -42,13 +44,72 @@ EXPECTED_VALUE_FIELDS = {
     "schema_version",
 }
 
+DEFAULT_SCHEMA_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "src"
+    / "streaming"
+    / "schemas"
+    / "kafka_event_schema_DRAFT.json"
+)
+
 
 class ValidationError(ValueError):
     """Raised when a Kafka record fails contract constraints."""
     pass
 
 
-def validate_event_value(value, schema_dict=None):
+def load_json_schema(schema_path: Path):
+    """Load, parse, and validate a JSON Schema file using Draft7Validator.check_schema().
+
+    Parameters
+    ----------
+    schema_path : Path
+        Path to the JSON schema file.
+
+    Returns
+    -------
+    dict
+        Validated schema dictionary conforming to JSON Schema Draft 7.
+
+    Raises
+    ------
+    FileNotFoundError
+        If schema_path does not exist or is not a file.
+    ImportError
+        If the jsonschema library is missing.
+    ValueError
+        If the schema file is not valid JSON or violates the Draft 7 specification.
+    """
+    path = Path(schema_path)
+    if not path.is_file():
+        raise FileNotFoundError(f"JSON Schema file not found: {path}")
+
+    try:
+        from jsonschema import Draft7Validator
+        from jsonschema.exceptions import SchemaError
+    except ImportError as exc:
+        raise ImportError(
+            f"Missing required library 'jsonschema': {exc}. "
+            "Task P2-B-S2-01 requires 'jsonschema' for Draft 7 validation."
+        ) from exc
+
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            schema_dict = json.load(f)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Failed to parse JSON Schema from {path}: {exc}") from exc
+
+    try:
+        Draft7Validator.check_schema(schema_dict)
+    except SchemaError as exc:
+        raise ValueError(
+            f"Invalid JSON Schema (Draft 7 specification violation) in {path}: {exc.message}"
+        ) from exc
+
+    return schema_dict
+
+
+def validate_event_value(value, schema_dict=None, validator=None):
     """Validate the 'value' payload against DRAFT-S2-01 contract specifications.
 
     Parameters
@@ -56,13 +117,19 @@ def validate_event_value(value, schema_dict=None):
     value : dict
         Deserialized JSON payload representing the event record.
     schema_dict : dict, optional
-        Optional loaded JSON schema. If jsonschema package is available,
-        it will be validated against this schema dictionary as well.
+        Loaded JSON schema dictionary.
+    validator : jsonschema.Draft7Validator, optional
+        Pre-instantiated Draft7Validator instance for performance.
 
     Returns
     -------
     list of str
         List of validation error messages. Empty list if record is valid.
+
+    Raises
+    ------
+    ImportError
+        If schema_dict or validator is provided but jsonschema is not installed.
     """
     errors = []
 
@@ -165,20 +232,26 @@ def validate_event_value(value, schema_dict=None):
         if sv != DRAFT_SCHEMA_VERSION:
             errors.append(f"schema_version '{sv}' does not match expected draft '{DRAFT_SCHEMA_VERSION}'.")
 
-    # Optional: jsonschema library validation if schema_dict provided
-    if schema_dict:
+    # 14. JSON Schema Draft 7 validation
+    if validator is not None:
+        for err in validator.iter_errors(value):
+            errors.append(f"JSONSchema validation: {err.message}")
+    elif schema_dict is not None:
         try:
-            import jsonschema
-            validator = jsonschema.Draft7Validator(schema_dict)
-            for err in validator.iter_errors(value):
-                errors.append(f"JSONSchema validation: {err.message}")
-        except ImportError:
-            pass
+            from jsonschema import Draft7Validator
+        except ImportError as exc:
+            raise ImportError(
+                f"Missing required library 'jsonschema': {exc}. "
+                "Task P2-B-S2-01 requires 'jsonschema' for Draft 7 validation."
+            ) from exc
+        val = Draft7Validator(schema_dict)
+        for err in val.iter_errors(value):
+            errors.append(f"JSONSchema validation: {err.message}")
 
     return errors
 
 
-def validate_kafka_record(record, schema_dict=None):
+def validate_kafka_record(record, schema_dict=None, validator=None):
     """Validate an entire simulated Kafka record containing 'key' and 'value'.
 
     Parameters
@@ -187,6 +260,8 @@ def validate_kafka_record(record, schema_dict=None):
         Simulated Kafka message with 'key' and 'value'.
     schema_dict : dict, optional
         Loaded JSON schema dict.
+    validator : jsonschema.Draft7Validator, optional
+        Pre-instantiated Draft7Validator instance.
 
     Returns
     -------
@@ -204,7 +279,7 @@ def validate_kafka_record(record, schema_dict=None):
     value = record["value"]
 
     # Validate value
-    value_errors = validate_event_value(value, schema_dict=schema_dict)
+    value_errors = validate_event_value(value, schema_dict=schema_dict, validator=validator)
     errors.extend(value_errors)
 
     # Validate key semantics against user_session
@@ -234,23 +309,45 @@ def validate_jsonl_file(file_path: Path, schema_path: Path = None):
     file_path : Path
         Path to the JSONL file.
     schema_path : Path, optional
-        Path to the kafka_event_schema_DRAFT.json file.
+        Path to the kafka_event_schema_DRAFT.json file. Defaults to DEFAULT_SCHEMA_PATH.
 
     Returns
     -------
     tuple (int, int, list)
         (total_lines, valid_lines, failure_details)
+
+    Raises
+    ------
+    FileNotFoundError
+        If schema_path or file_path does not exist.
+    ImportError
+        If jsonschema library is missing.
+    ValueError
+        If schema violates Draft 7 specification.
     """
-    schema_dict = None
-    if schema_path and schema_path.exists():
-        with open(schema_path, "r", encoding="utf-8") as sf:
-            schema_dict = json.load(sf)
+    if schema_path is None:
+        schema_path = DEFAULT_SCHEMA_PATH
+
+    schema_dict = load_json_schema(schema_path)
+
+    try:
+        from jsonschema import Draft7Validator
+        validator = Draft7Validator(schema_dict)
+    except ImportError as exc:
+        raise ImportError(
+            f"Missing required library 'jsonschema': {exc}. "
+            "Task P2-B-S2-01 requires 'jsonschema' for Draft 7 validation."
+        ) from exc
+
+    data_path = Path(file_path)
+    if not data_path.is_file():
+        raise FileNotFoundError(f"JSONL data file not found: {data_path}")
 
     total_lines = 0
     valid_lines = 0
     failures = []
 
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(data_path, "r", encoding="utf-8") as f:
         for line_num, line in enumerate(f, 1):
             line_str = line.strip()
             if not line_str:
@@ -263,7 +360,7 @@ def validate_jsonl_file(file_path: Path, schema_path: Path = None):
                 failures.append((line_num, [f"JSON parsing error: {exc}"]))
                 continue
 
-            record_errors = validate_kafka_record(record, schema_dict=schema_dict)
+            record_errors = validate_kafka_record(record, validator=validator)
             if record_errors:
                 failures.append((line_num, record_errors))
             else:
@@ -282,8 +379,8 @@ def main(argv=None):
     )
     parser.add_argument(
         "--schema",
-        default=str(Path(__file__).resolve().parents[1] / "src" / "streaming" / "schemas" / "kafka_event_schema_DRAFT.json"),
-        help="Optional path to draft JSON Schema file."
+        default=str(DEFAULT_SCHEMA_PATH),
+        help="Path to Draft 7 JSON Schema file. Defaults to src/streaming/schemas/kafka_event_schema_DRAFT.json."
     )
     args = parser.parse_args(argv)
 
@@ -291,11 +388,21 @@ def main(argv=None):
     schema_path = Path(args.schema)
 
     if not jsonl_path.exists():
-        print(f"FAIL: File not found: {jsonl_path}", file=sys.stderr)
+        print(f"FAIL: Data file not found: {jsonl_path}", file=sys.stderr)
         return 1
 
     print(f"=== Validating Kafka Contract: {jsonl_path.name} ===")
-    total, valid, failures = validate_jsonl_file(jsonl_path, schema_path=schema_path)
+    try:
+        total, valid, failures = validate_jsonl_file(jsonl_path, schema_path=schema_path)
+    except FileNotFoundError as exc:
+        print(f"FAIL: Schema file not found: {exc}", file=sys.stderr)
+        return 1
+    except ImportError as exc:
+        print(f"FAIL: Missing dependency: {exc}", file=sys.stderr)
+        return 1
+    except ValueError as exc:
+        print(f"FAIL: Invalid schema (Draft 7 check failed): {exc}", file=sys.stderr)
+        return 1
 
     print(f"Scanned lines: {total}")
     print(f"Valid records: {valid}")
@@ -316,4 +423,3 @@ def main(argv=None):
 
 if __name__ == "__main__":
     sys.exit(main())
-

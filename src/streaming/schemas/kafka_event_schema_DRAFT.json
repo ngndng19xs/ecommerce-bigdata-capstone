@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "KafkaEventSchemaDRAFT",
-  "description": "DRAFT Kafka Event Schema for Task P2-B-S2-01 proposed by Person B (Pending Person A review).",
+  "description": "JSON Schema bản nháp cho sự kiện Kafka thuộc Task P2-B-S2-01 do Người B đề xuất (Chờ Người A phê duyệt).",
   "type": "object",
   "additionalProperties": false,
   "required": [

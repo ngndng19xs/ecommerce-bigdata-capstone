@@ -1,11 +1,14 @@
 """
-Unit tests for Task P2-B-S2-01: Kafka JSON Contract (DRAFT-S2-01).
+Nhiệm vụ P2-B-S2-01: Bộ kiểm thử đơn vị cho Hợp đồng Kafka JSON (DRAFT-S2-01).
 
-Validates schema constraints, timestamp format, event ranking, key semantics,
-and edge cases completely offline without Kafka brokers, Zookeeper, or Spark.
+Kiểm tra tính hợp lệ của các ràng buộc schema, định dạng timestamp UTC, thứ tự ưu tiên sự kiện,
+quy tắc khóa phân vùng (Kafka message key), sự tuân thủ JSON Schema Draft 7, tính toàn vẹn và
+sự tồn tại của đường dẫn schema.
+Hoạt động hoàn toàn ngoại tuyến (offline), không yêu cầu kết nối Kafka Broker, Zookeeper hay Spark.
 """
 
 import json
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -18,6 +21,8 @@ if str(REPO_ROOT) not in sys.path:
 from scripts.validate_kafka_contract import (
     DRAFT_SCHEMA_VERSION,
     EXPECTED_VALUE_FIELDS,
+    load_json_schema,
+    main as validator_main,
     validate_event_value,
     validate_kafka_record,
     validate_jsonl_file,
@@ -25,10 +30,10 @@ from scripts.validate_kafka_contract import (
 
 
 class KafkaContractTest(unittest.TestCase):
-    """Unit test suite for Kafka JSON Contract validation."""
+    """Bộ kiểm thử đơn vị thẩm định Hợp đồng Kafka JSON."""
 
     def setUp(self):
-        """Prepare a baseline valid record for test mutations."""
+        """Chuẩn bị bản ghi mẫu hợp lệ làm cơ sở cho các ca kiểm thử biến dị (mutation)."""
         self.fixtures_dir = REPO_ROOT / "tests" / "fixtures"
         self.fixture_file = self.fixtures_dir / "kafka_records_DRAFT.jsonl"
         self.schema_file = (
@@ -121,7 +126,6 @@ class KafkaContractTest(unittest.TestCase):
 
     # 6. event_type_rank khớp event_type
     def test_06_event_type_rank_mismatch_rejected(self):
-        # Mismatches
         mismatches = [
             ("view", 2),
             ("cart", 1),
@@ -265,7 +269,81 @@ class KafkaContractTest(unittest.TestCase):
         )
         self.assertEqual(total, valid)
 
+    # 16. Kiểm tra phát hiện đường dẫn Schema sai (FileNotFoundError)
+    def test_16_schema_file_not_found_raises(self):
+        non_existent = Path("non_existent_schema_file.json")
+        with self.assertRaises(FileNotFoundError):
+            load_json_schema(non_existent)
+
+        with self.assertRaises(FileNotFoundError):
+            validate_jsonl_file(self.fixture_file, schema_path=non_existent)
+
+    # 17. Kiểm tra phát hiện Schema không hợp lệ bằng Draft7Validator.check_schema()
+    def test_17_invalid_json_schema_fails_check_schema(self):
+        from jsonschema import Draft7Validator
+
+        # 17.1. Đảm bảo schema chính thức của dự án thỏa mãn Draft7Validator.check_schema
+        schema_dict = load_json_schema(self.schema_file)
+        Draft7Validator.check_schema(schema_dict)
+
+        # 17.2. Schema vi phạm Draft 7 specification (ví dụ: type không hợp lệ)
+        invalid_schema = {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "invalid_type_name_that_does_not_exist",
+        }
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tf:
+            json.dump(invalid_schema, tf)
+            tf_path = Path(tf.name)
+
+        try:
+            with self.assertRaises(ValueError) as ctx:
+                load_json_schema(tf_path)
+            self.assertIn("Draft 7 specification violation", str(ctx.exception))
+        finally:
+            tf_path.unlink(missing_ok=True)
+
+    # 18. Kiểm tra phát hiện file Schema bị lỗi cú pháp JSON
+    def test_18_malformed_json_schema_file_raises(self):
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tf:
+            tf.write("{\n  malformed_json: true,\n")
+            tf_path = Path(tf.name)
+
+        try:
+            with self.assertRaises(ValueError) as ctx:
+                load_json_schema(tf_path)
+            self.assertIn("Failed to parse JSON Schema", str(ctx.exception))
+        finally:
+            tf_path.unlink(missing_ok=True)
+
+    # 19. CLI Validator trả về mã lỗi != 0 khi đường dẫn Schema không tồn tại
+    def test_19_cli_fails_on_missing_schema_file(self):
+        exit_code = validator_main([
+            str(self.fixture_file),
+            "--schema",
+            "non_existent_schema_path.json",
+        ])
+        self.assertNotEqual(exit_code, 0, "CLI must return non-zero exit code when schema is missing.")
+
+    # 20. CLI Validator trả về mã lỗi != 0 khi file Schema không hợp lệ (Draft 7 check failed)
+    def test_20_cli_fails_on_invalid_schema_file(self):
+        invalid_schema = {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": 12345,  # Type must be a string or array of strings in Draft 7
+        }
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tf:
+            json.dump(invalid_schema, tf)
+            tf_path = Path(tf.name)
+
+        try:
+            exit_code = validator_main([
+                str(self.fixture_file),
+                "--schema",
+                str(tf_path),
+            ])
+            self.assertNotEqual(exit_code, 0, "CLI must return non-zero exit code when schema is invalid.")
+        finally:
+            tf_path.unlink(missing_ok=True)
+
 
 if __name__ == "__main__":
     unittest.main()
-
