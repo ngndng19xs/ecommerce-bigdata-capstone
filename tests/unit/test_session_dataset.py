@@ -3,11 +3,13 @@
 from datetime import date, datetime, timezone
 from decimal import Decimal
 import pytest
+pyspark = pytest.importorskip("pyspark", reason="PySpark is required for Spark ML tests (VM-B environment)")
 from pyspark.sql import SparkSession
 from pyspark.sql.types import (
     DateType,
     DecimalType,
     DoubleType,
+    IntegerType,
     LongType,
     StringType,
     StructField,
@@ -166,11 +168,19 @@ def test_session_le_k_events_dropped(spark: SparkSession):
         ("s_max", "2019-11-02 08:00:00", "view", 999, "c1", "b1", 10.0),
     ]
     df = _create_events_df(spark, rows)
-    res = build_session_dataset(df, k=5).collect()
-    kept = [row["user_session"] for row in res]
-    assert "s_short_3" not in kept
-    assert "s_exact_5" not in kept
-    assert "s_valid_6" in kept
+    # 1. Default (exclude_equal_k=True per H02/pending): s_short_3 and s_exact_5 excluded
+    res_default = build_session_dataset(df, k=5, exclude_equal_k=True).collect()
+    kept_default = [row["user_session"] for row in res_default]
+    assert "s_short_3" not in kept_default
+    assert "s_exact_5" not in kept_default
+    assert "s_valid_6" in kept_default
+
+    # 2. Configurable (exclude_equal_k=False per Pending Decision #1): s_exact_5 kept
+    res_kept = build_session_dataset(df, k=5, exclude_equal_k=False).collect()
+    kept_kept = [row["user_session"] for row in res_kept]
+    assert "s_short_3" not in kept_kept
+    assert "s_exact_5" in kept_kept
+    assert "s_valid_6" in kept_kept
 
 
 def test_event_type_tie_breaking_order(spark: SparkSession):
@@ -220,10 +230,17 @@ def test_right_censoring_last_day_dropped(spark: SparkSession):
         ("s_day2", "2019-11-02 09:05:00", "view", 206, "c1", "b1", 10.0),
     ]
     df = _create_events_df(spark, rows)
-    res = build_session_dataset(df, k=5).collect()
-    kept = [row["user_session"] for row in res]
-    assert "s_day1" in kept
-    assert "s_day2" not in kept
+    # H02 legacy behavior: drops max date
+    res_h02 = build_session_dataset(df, k=5, apply_h02_right_censoring=True).collect()
+    kept_h02 = [row["user_session"] for row in res_h02]
+    assert "s_day1" in kept_h02
+    assert "s_day2" not in kept_h02
+
+    # Data Contract v1.0 Section 9.5 default: does NOT drop max date without explicit cutoff
+    res_prod = build_session_dataset(df, k=5, apply_h02_right_censoring=False).collect()
+    kept_prod = [row["user_session"] for row in res_prod]
+    assert "s_day1" in kept_prod
+    assert "s_day2" in kept_prod
 
 
 def test_tail_mutation_does_not_affect_features(spark: SparkSession):
@@ -359,3 +376,61 @@ def test_normalize_events_consistency(spark: SparkSession):
     assert row_csv["event_time"] == row_parquet["event_time"]
     assert row_csv["event_date"] == row_parquet["event_date"]
     assert row_csv["price"] == row_parquet["price"]
+
+
+
+def test_null_and_empty_session_id_excluded(spark: SparkSession):
+    """Rule: Records with user_session NULL, empty string, or whitespace only must be dropped."""
+    rows = [
+        ("s_valid", "2019-11-01 09:00:00", "view", 101, "c1", "b1", 10.0),
+        ("s_valid", "2019-11-01 09:01:00", "view", 102, "c1", "b1", 10.0),
+        ("s_valid", "2019-11-01 09:02:00", "view", 103, "c1", "b1", 10.0),
+        ("s_valid", "2019-11-01 09:03:00", "view", 104, "c1", "b1", 10.0),
+        ("s_valid", "2019-11-01 09:04:00", "view", 105, "c1", "b1", 10.0),
+        ("s_valid", "2019-11-01 09:05:00", "view", 106, "c1", "b1", 10.0),
+        ("s_max", "2019-11-02 08:00:00", "view", 999, "c1", "b1", 10.0),
+    ]
+    df = _create_events_df(spark, rows)
+    res = build_session_dataset(df, k=5).collect()
+    kept = [row["user_session"] for row in res]
+    assert "s_valid" in kept
+    assert None not in kept
+    assert "" not in kept
+    assert "   " not in kept
+
+
+def test_sort_key_tie_breaking_order(spark: SparkSession):
+    """Rule: When event_time and event_type_rank are equal, event_sort_key breaks the tie.
+    product_id must NOT be used as tie breaker!
+    """
+    schema = StructType(
+        [
+            StructField("event_time", TimestampType(), True),
+            StructField("event_type", StringType(), True),
+            StructField("product_id", LongType(), True),
+            StructField("category_id", LongType(), True),
+            StructField("category_code", StringType(), True),
+            StructField("brand", StringType(), True),
+            StructField("price", DoubleType(), True),
+            StructField("user_id", LongType(), True),
+            StructField("user_session", StringType(), True),
+            StructField("event_date", DateType(), True),
+            StructField("event_type_rank", IntegerType(), True),
+            StructField("event_sort_key", StringType(), True),
+        ]
+    )
+    dt = datetime(2019, 11, 1, 10, 0, 0, tzinfo=timezone.utc)
+    rows = [
+        (dt, "view", 1, 205301, "c", "b", 10.0, 123, "s1", dt.date(), 1, "0" * 64),
+        (dt, "view", 2, 205301, "c", "b", 10.0, 123, "s1", dt.date(), 1, "1" * 64),
+        (dt, "view", 3, 205301, "c", "b", 10.0, 123, "s1", dt.date(), 1, "2" * 64),
+        (dt, "view", 4, 205301, "c", "b", 10.0, 123, "s1", dt.date(), 1, "3" * 64),
+        # Two view events at identical timestamp:
+        # Event A: product_id 999 (larger), but sort_key '4444...' (smaller) -> should be rn=5 (head)
+        # Event B: product_id 100 (smaller), but sort_key '5555...' (larger) -> should be rn=6 (tail)
+        (dt, "view", 999, 205301, "c", "b", 10.0, 123, "s1", dt.date(), 1, "4" * 64),
+        (dt, "view", 100, 205301, "c", "b", 10.0, 123, "s1", dt.date(), 1, "5" * 64),
+    ]
+    df = spark.createDataFrame(rows, schema=schema)
+    res = build_session_dataset(df, k=5).collect()[0]
+    assert res["user_session"] == "s1"

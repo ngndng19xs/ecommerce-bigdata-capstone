@@ -128,7 +128,7 @@ Chi tiết kiến trúc: [docs/architecture.md](docs/architecture.md)
 | **Vai trò** | Ingestion, ETL, Hive, Batch Analytics, Benchmark | Kafka, Streaming, ML Pipeline, Demo |
 | **NameNode** | Riêng (không chia sẻ với B) | Riêng (không chia sẻ với A) |
 
-- Hai VM dùng **cùng quy ước đường dẫn HDFS** (ví dụ `/data/curated/events_cleaned`) nhưng **không chia sẻ NameNode**.
+- Hai VM dùng **cùng quy ước đường dẫn HDFS** (ví dụ `/data/curated/events`) nhưng **không chia sẻ NameNode**.
 - Dữ liệu HDFS **không được đồng bộ thông qua GitHub**.
 - Xem thêm chi tiết: [docs/architecture.md](docs/architecture.md)
 
@@ -191,15 +191,15 @@ Sau đó chỉnh sửa `configs/config.yaml` theo môi trường VM:
 
 Quy trình khái quát:
 
-1. **A hoàn thành ETL** – dữ liệu sạch tại `/data/curated/events_cleaned` trên HDFS-A.
+1. **A hoàn thành ETL** – dữ liệu sạch tại `/data/curated/events` trên HDFS-A.
 2. **A kiểm tra** – xác nhận số bản ghi, số partition, khoảng ngày.
 3. **A xuất Parquet** từ HDFS sang filesystem local VM-A.
 4. **Chuyển dữ liệu** sang VM-B qua VirtualBox Shared Folder hoặc phương án được nhóm cho phép.
 5. **B kiểm tra checksum** – đối chiếu tính toàn vẹn.
-6. **B đưa vào HDFS-B** tại đúng đường dẫn `/data/curated/events_cleaned`.
+6. **B đưa vào HDFS-B** tại đúng đường dẫn `/data/curated/events`.
 7. **B đối chiếu** – số dòng, số partition, schema và manifest trước khi sử dụng.
 
-> ⚠️ Cẩn thận khi dùng `hdfs dfs -put`: đảm bảo không tạo sai một cấp thư mục (ví dụ `/data/curated/events_cleaned/events_cleaned`).
+> ⚠️ Cẩn thận khi dùng `hdfs dfs -put`: đảm bảo không tạo sai một cấp thư mục (ví dụ `/data/curated/events/events`).
 > ⚠️ Hướng dẫn chi tiết sẽ được cập nhật khi nhóm thực hiện bàn giao lần đầu.
 
 Xem thêm yêu cầu manifest: [docs/data_contract.md](docs/data_contract.md)
