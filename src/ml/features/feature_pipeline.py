@@ -1,6 +1,6 @@
 """Feature engineering and preprocessing pipeline for session classification."""
 
-from typing import List
+from typing import List, Union
 from pyspark.ml.base import Estimator, Transformer
 from pyspark.ml.feature import (
     OneHotEncoder,
@@ -31,7 +31,7 @@ CATEGORICAL_COLS = [
 ]
 
 
-def get_feature_pipeline_stages() -> List[Estimator | Transformer]:
+def get_feature_pipeline_stages() -> List[Union[Estimator, Transformer]]:
     """Build and return feature preprocessing stages.
 
     Stages:

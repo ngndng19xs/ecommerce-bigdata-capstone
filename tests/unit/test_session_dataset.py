@@ -1,6 +1,6 @@
 """Unit tests for session-level dataset building and anti-leakage guarantees."""
 
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from decimal import Decimal
 import pytest
 from pyspark.sql import SparkSession
@@ -47,7 +47,9 @@ def _create_events_df(spark: SparkSession, rows: list):
     for r in rows:
         # Expected tuple: (session, event_time_str, event_type, product_id, cat_code, brand, price)
         session, time_str, event_type, product_id, cat_code, brand, price = r
-        dt = datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")
+        dt = datetime.strptime(
+            time_str, "%Y-%m-%d %H:%M:%S"
+        ).replace(tzinfo=timezone.utc)
         formatted_rows.append(
             (
                 dt,
