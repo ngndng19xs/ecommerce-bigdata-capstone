@@ -19,7 +19,9 @@
 
 ---
 
-## 2. Schema Gốc (9 trường)
+## 2. Schema Dữ liệu
+
+### 2.1. Schema Raw – 9 trường
 
 | **#** | **Tên trường**  | **Kiểu dữ liệu**  | **Nullable** | **Mô tả**                                                    |
 | ----- | --------------- | ----------------- | ------------ | ------------------------------------------------------------ |
@@ -40,6 +42,41 @@
 - Khi đọc dữ liệu Raw, các trường có thể được tiếp nhận dưới dạng String; việc chuyển đổi sang kiểu dữ liệu chuẩn được thực hiện trong quá trình xử lý.
 - `category_code`, `brand` và `user_session` được cho phép nhận giá trị NULL.
 - Các trường còn lại được xác định là không NULL theo schema dự kiến. Việc kiểm tra và xử lý các giá trị không hợp lệ được thực hiện trong bước Data Quality và Cleaning.
+
+### 2.2. Schema sau chuẩn hóa và xử lý ETL – 13 trường
+
+Schema Version: curated-v1.0
+
+| #  | Tên trường        | Kiểu dữ liệu | Spark Nullable | Mô tả                                                                                   |
+| -- | ----------------- | ------------ | -------- | --------------------------------------------------------------------------------------- |
+| 1  | `event_time`      | Timestamp    | Có       | Thời điểm xảy ra sự kiện theo UTC                                                       |
+| 2  | `event_type`      | String       | Có       | Loại sự kiện: `view`, `cart`, `remove_from_cart`, `purchase`                            |
+| 3  | `product_id`      | String       | Có       | ID sản phẩm                                                                             |
+| 4  | `category_id`     | String       | Có       | ID danh mục                                                                             |
+| 5  | `category_code`   | String       | Có       | Mã danh mục phân cấp                                                                    |
+| 6  | `brand`           | String       | Có       | Tên thương hiệu                                                                         |
+| 7  | `price`           | Double       | Có       | Giá sản phẩm                                                                            |
+| 8  | `user_id`         | String       | Có       | ID người dùng                                                                           |
+| 9  | `user_session`    | String       | Có       | ID phiên truy cập                                                                       |
+| 10 | `reject_reason`   | String       | Có       | Lý do bản ghi bị từ chối (Reject), phục vụ kiểm tra dữ liệu không hợp lệ                |
+| 11 | `event_type_rank` | Integer      | Có       | Thứ tự ưu tiên của loại sự kiện, phục vụ sắp xếp khi trùng timestamp                    |
+| 12 | `event_sort_key`  | String       | Có       | Khóa SHA-256 dùng để phân định thứ tự khi `event_time` và `event_type_rank` trùng nhau  |
+| 13 | `event_date`      | Date         | Có       | Ngày xảy ra sự kiện được trích xuất từ `event_time` theo UTC, dùng để phân vùng dữ liệu |
+
+Quy ước Schema:
+- Schema gồm 13 trường, trong đó 9 trường đầu được kế thừa từ dữ liệu Raw và 4 trường cuối được bổ sung trong quá trình ETL.
+- Các trường `product_id`, `category_id`, `user_id` được chuẩn hóa thành String trong DataFrame xử lý.
+- `event_time` sử dụng Timestamp theo UTC.
+- `event_date` được tạo từ `event_time` và sử dụng làm khóa phân vùng Parquet.
+- `reject_reason` được sử dụng để ghi nhận nguyên nhân Reject.
+- `event_type_rank` và `event_sort_key` phục vụ thống nhất thứ tự sự kiện giữa Batch và Streaming.
+- Các trường được khai báo `Nullable = Có` theo Spark Schema thực tế. Quy tắc kiểm tra NULL và phân loại Valid/Rejected được quy định riêng tại mục 4.2.
+
+Quy ước Nullable:
+- Cột Nullable phản ánh thuộc tính nullable được khai báo trong Spark Schema.
+- Việc một trường có Nullable = Có không đồng nghĩa với việc dữ liệu NULL được chấp nhận trong Curated.
+- Điều kiện chấp nhận NULL, thay thế giá trị NULL hoặc Reject bản ghi được quy định tại mục 4.2 – Xử lý trường đặc biệt.
+- Các trường được tạo trong ETL phải tuân thủ điều kiện hợp lệ theo logic xử lý tương ứng.
 
 ---
 
@@ -80,7 +117,6 @@ Cấu hình Spark:
 
 ### 4.2. Xử lý trường đặc biệt
 
-|--------|---------|------------|
 | **Trường hợp** | **Quy tắc xử lý** | **Kết quả** |
 |---|---|---|
 | `brand` NULL/rỗng | Gán giá trị `Unknown` | Giữ trong Curated |
@@ -95,7 +131,7 @@ Cấu hình Spark:
 | CSV sai định dạng | Ghi nhận riêng để kiểm tra, không loại bỏ âm thầm | Theo dõi riêng |
 ---
 
-*Quyết định đối với `price = 0`:**
+**Quyết định đối với `price = 0`:**
 
 Qua khảo sát dữ liệu, nhóm ghi nhận:
 
@@ -116,19 +152,6 @@ Do số lượng bản ghi có `price = 0` tương đối lớn và chưa có đ
 | Sắp xếp chính | `event_time` |
 | Sắp xếp phụ | `event_type_rank` → `event_sort_key` |
 
-### 5.2 Quy ước Event type rank:
-
-| event_type | rank |
-|-----------|------|
-| `view` | 1 |
-| `cart` | 2 |
-| `remove_from_cart` | 3 |
-| `purchase` | 4 |
-
-> Không thay thế quy tắc thứ tự này bằng Kafka arrival time.
-
-Trường event_type_rank được sử dụng để phân định thứ tự giữa các sự kiện có cùng event_time.
-
 ### 5.2. Quy ước event_type_rank
 
 Nhóm thống nhất bảng thứ tự ưu tiên như sau:
@@ -139,6 +162,8 @@ Nhóm thống nhất bảng thứ tự ưu tiên như sau:
 | `cart`             | 2               |
 | `remove_from_cart` | 3               |
 | `purchase`         | 4               |
+
+> Không thay thế quy tắc thứ tự này bằng Kafka arrival time.
 
 Trường `event_type_rank` được sử dụng để phân định thứ tự giữa các sự kiện có cùng `event_time`.
 
@@ -165,7 +190,29 @@ user_session
 Công thức minh họa bằng PySpark:
 
 ```
-from pyspark.sql import functions as Fsource_columns = [    "event_time",    "event_type",    "product_id",    "category_id",    "category_code",    "brand",    "price",    "user_id",    "user_session"]df = df.withColumn(    "event_sort_key",    F.sha2(        F.concat_ws(            "||",            *[                F.coalesce(                    F.col(c).cast("string"),                    "<NULL>"                )                for c in source_columns            ]        ),        256    ))
+from pyspark.sql import functions as F
+
+source_columns = [
+    "event_time", "event_type", "product_id", "category_id",
+    "category_code", "brand", "price", "user_id", "user_session"
+]
+
+df = df.withColumn(
+    "event_sort_key",
+    F.sha2(
+        F.concat_ws(
+            "||",
+            *[
+                F.coalesce(
+                    F.col(c).cast("string"),
+                    F.lit("<NULL>") # Nên dùng F.lit() thay vì string thường
+                )
+                for c in source_columns
+            ]
+        ),
+        256
+    )
+)
 ```
 
 **Quy định:**
@@ -209,15 +256,15 @@ Các phiên có `user_session` NULL vẫn được giữ trong Curated nhưng kh
 
 Tỷ lệ chuyển đổi View → Cart:
 
-\\[ CR\_{View\rightarrow Cart} = \frac{\text{Số phiên có View và Cart sau View}} {\text{Số phiên có View}} \\]
+$$ CR\_{View\rightarrow Cart} = \frac{\text{Số phiên có View và Cart sau View}} {\text{Số phiên có View}} $$
 
 Tỷ lệ chuyển đổi Cart → Purchase:
 
-\\[ CR\_{Cart\rightarrow Purchase} = \frac{\text{Số phiên có đủ View, Cart, Purchase đúng thứ tự}} {\text{Số phiên có View và Cart sau View}} \\]
+$$ CR\_{Cart\rightarrow Purchase} = \frac{\text{Số phiên có đủ View, Cart, Purchase đúng thứ tự}} {\text{Số phiên có View và Cart sau View}} $$
 
 Tỷ lệ chuyển đổi View → Purchase:
 
-\\[ CR\_{View\rightarrow Purchase} = \frac{\text{Số phiên có đủ 3 giai đoạn}} {\text{Số phiên có View}} \\]
+$$ CR\_{View\rightarrow Purchase} = \frac{\text{Số phiên có đủ 3 giai đoạn}} {\text{Số phiên có View}} $$
 
 ### 5.6. Quy tắc xác định ngày của phiên
 
