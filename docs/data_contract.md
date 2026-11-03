@@ -23,6 +23,8 @@
 
 ### 2.1. Schema Raw – 9 trường
 
+Schema Version: raw-v1.0
+
 | **#** | **Tên trường**  | **Kiểu dữ liệu**  | **Nullable** | **Mô tả**                                                    |
 | ----- | --------------- | ----------------- | ------------ | ------------------------------------------------------------ |
 | 1     | `event_time`    | Timestamp (UTC)   | Không*       | Thời điểm xảy ra sự kiện                                     |
@@ -339,7 +341,7 @@ Mỗi lần bàn giao Parquet từ VM-A sang VM-B cần kèm manifest gồm:
 | `partition_count`       | Số thư mục partition                                                                     |
 | `min_event_date_utc`    | Ngày nhỏ nhất trong dữ liệu theo UTC                                                     |
 | `max_event_date_utc`    | Ngày lớn nhất trong dữ liệu theo UTC                                                     |
-| `schema_version`        | Phiên bản schema của bộ dữ liệu                                                          |
+| `schema_version`        | Phiên bản Schema tương ứng với cấu trúc thực tế của bộ dữ liệu được bàn giao.                                                         |
 | `files`                 | Danh sách các file Parquet, gồm đường dẫn, dung lượng và checksum (SHA256) của từng file |
 | `commit_hash`           | Git commit hash hoặc tag của phiên bản code sinh dữ liệu                                 |
 
