@@ -65,6 +65,7 @@ data/processed/*
 *.csv
 *.tsv
 *.jsonl
+!tests/fixtures/*.jsonl
 *.gz
 *.tar
 *.zip
