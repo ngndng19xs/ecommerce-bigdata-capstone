@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT))
 from pyspark.sql import SparkSession
 from src.streaming.consumer.event_consumer import parse_kafka_stream
 from src.streaming.consumer.ledger_sink import commit_local_ledger_batch
+from src.streaming.consumer.funnel_snapshot import publish_funnel_snapshot
 
 
 def main():
@@ -19,6 +20,7 @@ def main():
     parser.add_argument("--topic", required=True)
     parser.add_argument("--ledger", required=True)
     parser.add_argument("--checkpoint", required=True)
+    parser.add_argument("--snapshots")
     parser.add_argument("--max-offsets-per-trigger", type=int, default=100)
     parser.add_argument("--until-caught-up", action="store_true")
     args = parser.parse_args()
@@ -33,6 +35,17 @@ def main():
             or ledger in checkpoint.parents
             or checkpoint in ledger.parents):
         parser.error("Ledger and checkpoint must be separate directories")
+
+    snapshots = None
+    if args.snapshots:
+        snapshots = Path(args.snapshots).expanduser().resolve()
+        for existing in (ledger, checkpoint):
+            if (snapshots == existing
+                    or snapshots in existing.parents
+                    or existing in snapshots.parents):
+                parser.error(
+                    "Snapshots, ledger and checkpoint must be separate directories"
+                )
 
     spark = (
         SparkSession.builder
@@ -67,6 +80,16 @@ def main():
                 "B4_BATCH={} INSERTED_ROWS={}".format(batch_id, inserted),
                 flush=True,
             )
+
+            # Always retry snapshot creation, even if no new rows were inserted.
+            if snapshots is not None:
+                output = publish_funnel_snapshot(
+                    spark, str(ledger), str(snapshots), batch_id
+                )
+                print(
+                    "B4_SNAPSHOT_BATCH={} PATH={}".format(batch_id, output),
+                    flush=True,
+                )
 
         query = (
             parsed.writeStream
