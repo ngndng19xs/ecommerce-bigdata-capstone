@@ -33,8 +33,10 @@ kafka:
   bootstrap_servers:
     - "localhost:9092"
   topics:
-    clickstream_raw: "ecommerce.clickstream.raw"
+    clickstream_raw: "ecommerce_events"      # Production topic per S2 Data Contract
     clickstream_alerts: "ecommerce.clickstream.alerts"
+  schema_version: "kafka-v1.0"
+  schema_file: "src/streaming/schemas/kafka_event_schema_v1.json"
   consumer:
     group_id: "ecommerce-capstone-consumer-group"
     auto_offset_reset: "latest"
@@ -65,7 +67,8 @@ hdfs:
     ecommerce_events: "/data/raw/ecommerce_events"
 
   curated:
-    events_cleaned: "/data/curated/events_cleaned"
+    events: "/data/curated/events"           # Production Curated Parquet per S2
+    events_cleaned: "/data/curated/events_cleaned"  # Intermediate ETL staging
     invalid_events: "/data/curated/_quarantine/invalid_events"
 
   analytics:

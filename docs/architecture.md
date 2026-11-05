@@ -56,7 +56,7 @@ flowchart TD
     subgraph Batch_Layer["2. Batch Layer (VM-A)"]
         B1 --> D1["HDFS /data/raw/ecommerce_events"]
         D1 --> D2["src/batch/etl<br/>PySpark Clean & Normalize"]
-        D2 --> D3["HDFS /data/curated/events_cleaned<br/>(Parquet, partitioned by event_date)"]
+        D2 --> D3["HDFS /data/curated/events<br/>(Parquet, partitioned by event_date)"]
         D2 --> DQ["HDFS /data/curated/_quarantine/<br/>invalid_events"]
         D3 --> D4["sql/hive<br/>Hive External Tables<br/>(fact_events, dim_sessions)"]
         D4 --> D5["sql/analytics<br/>Funnel, Session & Brand Analysis"]
@@ -65,7 +65,7 @@ flowchart TD
 
     subgraph Streaming_Layer["3. Speed Layer (VM-B)"]
         D3 -.->|"Parquet transfer A→B"| C1["src/streaming/producer<br/>Kafka Event Replay"]
-        C1 --> C2["Apache Kafka<br/>Topic: ecommerce.clickstream.raw"]
+        C1 --> C2["Apache Kafka<br/>Topic: ecommerce_events"]
         C2 --> C3["src/streaming/consumer<br/>Spark Structured Streaming"]
         C3 --> C4["HDFS /data/streaming/"]
     end
@@ -103,7 +103,7 @@ flowchart TD
 ### 4.2. Batch Processing (`src/batch/`)
 
 - **ETL** (`src/batch/etl/`): Làm sạch, chuẩn hóa kiểu dữ liệu, khử trùng lặp.
-  - Dữ liệu sạch → `/data/curated/events_cleaned` (Parquet, partitioned by `event_date` UTC).
+  - Dữ liệu sạch → `/data/curated/events` (Parquet, partitioned by `event_date` UTC).
   - Dữ liệu lỗi → `/data/curated/_quarantine/invalid_events`.
 - **Hive** (`sql/hive/`): Bảng external trỏ vào Parquet trên HDFS.
 - **Analytics** (`src/batch/analytics/`, `sql/analytics/`): Phân tích phễu chuyển đổi, session, product performance.
@@ -141,7 +141,7 @@ Cả hai VM sử dụng cùng cấu trúc đường dẫn logic (theo HDFS của
 ├── raw/
 │   └── ecommerce_events/              # Dữ liệu thô CSV đã nạp
 ├── curated/
-│   ├── events_cleaned/                # Parquet sạch (partitioned by event_date)
+│   ├── events/                        # Parquet sạch (partitioned by event_date)
 │   └── _quarantine/
 │       └── invalid_events/            # Bản ghi không hợp lệ
 ├── analytics/
