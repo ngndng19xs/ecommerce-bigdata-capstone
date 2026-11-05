@@ -1,41 +1,59 @@
-"""Session-level dataset generation module for purchase prediction.
+"""Session-level dataset generation module for purchase prediction (Task S2 / ML Contract v1.0).
 
-This module processes raw/curated clickstream events and builds a session-level
-dataset suitable for binary classification (predicting whether a purchase occurs
-in the session after observing the first K events).
+This module processes curated clickstream events from /data/curated/events and builds a session-level
+dataset suitable for binary classification (predicting whether a purchase occurs in the session after
+observing the first N events).
 
-Strict Anti-Data-Leakage Design:
-1. Only the first K events (head: rn <= k) are used to extract features.
-2. The remaining events (tail: rn > k) are used solely to determine the binary label:
-   label = 1 if at least one 'purchase' event occurs in tail, else 0.
-3. Sessions containing any 'purchase' event within the first K events are dropped.
-4. Sessions starting on the final date of the dataset are excluded (right-censoring).
-5. Explicit Exclusions:
-   - Neither 'user_session', 'user_id', 'source_file', 'n_events', nor any overall session
-     duration/timestamps are used as predictive features.
-   - Tail events never leak into feature calculations.
+Strict Anti-Data-Leakage Design (Data Contract v1.0, Section 9):
+1. Ordering: Strictly ordered by (event_time ASC, event_type_rank ASC, event_sort_key ASC).
+   Inherits event_type_rank and event_sort_key directly from Curated Parquet; never uses product_id as tie-breaker.
+2. Prediction Point N: Head consists of events with row_number rn <= N (including event N).
+   Tail consists of events with row_number rn > N.
+3. Feature Isolation: All features are extracted strictly from Head (rn <= N).
+   Tail events and overall session properties (total duration, total events, session end time) never leak into features.
+4. Target Label: Binary label in {0, 1} determined solely from Tail (rn > N):
+   label = 1 if at least one 'purchase' event occurs in Tail, else 0 (for complete sessions).
+5. Early Purchase Exclusion: Sessions with any 'purchase' event occurring at or before event N (rn <= N)
+   are strictly excluded from the ML dataset.
+6. Short Sessions Exclusion: Sessions with fewer than N events (n_events < N) are strictly excluded.
+7. Clean Session ID: Records with null, empty, or whitespace-only user_session are excluded.
 """
 
 import os
-from typing import Dict, Optional
-from pyspark.sql import DataFrame, functions as F, Window
+from typing import Any, Dict, Optional
+from pyspark.sql import DataFrame, Window, functions as F
 from src.common.logger import get_logger
-from src.common.schema import RAW_EVENT_SCHEMA, normalize_events
 from src.common.spark_session import get_spark, load_config
 
 logger = get_logger("build_session_dataset")
 
+# Curated Parquet Production Path per Data Contract S2
+CURATED_PRODUCTION_PATH = "/data/curated/events"
 
-def build_session_dataset(events_df: DataFrame, k: int = 5) -> DataFrame:
-    """Build session-level feature and label DataFrame according to T010 specifications.
+
+def build_session_dataset(
+    events_df: DataFrame,
+    k: int = 5,
+    exclude_equal_k: bool = True,
+    apply_h02_right_censoring: bool = False,
+) -> DataFrame:
+    """Build session-level feature and label DataFrame according to Data Contract v1.0 specifications.
 
     Parameters
     ----------
     events_df : DataFrame
-        Normalized clickstream events DataFrame containing at least:
+        Curated clickstream events DataFrame containing at least:
         event_time, event_type, product_id, category_code, brand, price, user_session.
+        Optionally contains pre-computed event_type_rank and event_sort_key.
     k : int, optional
-        Number of prefix events to observe before making a prediction, default 5.
+        Number of prefix events N to observe before making a prediction, default 5 (TBD parameter).
+    exclude_equal_k : bool, optional
+        Whether to exclude sessions with exactly k events (n_events == k).
+        Contract v1.0 Section 9.4 marks n_events == k as Pending Decision #1 (TBD).
+        Default True (excludes sessions lacking tail observation window; can be set False).
+    apply_h02_right_censoring : bool, optional
+        Whether to apply H02 legacy heuristic right-censoring by dropping the dataset's max date.
+        Default False (Contract v1.0 Section 9.5 marks final date dropping as non-production).
 
     Returns
     -------
@@ -44,37 +62,49 @@ def build_session_dataset(events_df: DataFrame, k: int = 5) -> DataFrame:
     """
     logger.info("Starting build_session_dataset with K = %d", k)
 
-    # 1. Clean: drop null user_session and null event_time; impute null brand and category_code
+    # 1. Clean: drop null, empty, or whitespace user_session, and null event_time
     cleaned_df = events_df.filter(
-        F.col("user_session").isNotNull() & F.col("event_time").isNotNull()
+        F.col("user_session").isNotNull()
+        & (F.trim(F.col("user_session")) != "")
+        & F.col("event_time").isNotNull()
     )
+
+    # Impute missing brand to 'Unknown' per Curated Contract
     cleaned_df = cleaned_df.withColumn(
         "brand",
-        F.when(F.col("brand").isNull(), "Unknown").otherwise(F.col("brand")),
-    ).withColumn(
-        "category_code",
-        F.when(F.col("category_code").isNull(), "Unknown").otherwise(F.col("category_code")),
+        F.when(F.col("brand").isNull() | (F.trim(F.col("brand")) == ""), "Unknown").otherwise(F.trim(F.col("brand"))),
     )
 
-    # Calculate global max date for right-censoring filter
-    max_dataset_date_row = cleaned_df.select(F.max(F.to_date("event_time"))).collect()
-    max_dataset_date = max_dataset_date_row[0][0] if max_dataset_date_row else None
-    logger.info("Global dataset maximum event date (for right-censoring): %s", max_dataset_date)
+    # 2. Deterministic ordering: (event_time ASC, event_type_rank ASC, event_sort_key ASC)
+    # Check if pre-computed event_type_rank and event_sort_key exist in DataFrame
+    cols = cleaned_df.columns
 
-    # 2. Deterministic ordering: event_time ASC, type_rank ASC, product_id ASC
-    # type_rank: view=1 < cart=2 < remove_from_cart=3 < purchase=4, other=99
-    type_rank_col = (
-        F.when(F.col("event_type") == "view", 1)
-        .when(F.col("event_type") == "cart", 2)
-        .when(F.col("event_type") == "remove_from_cart", 3)
-        .when(F.col("event_type") == "purchase", 4)
-        .otherwise(99)
-    )
+    if "event_type_rank" in cols:
+        rank_col = F.col("event_type_rank").asc()
+    else:
+        # Fallback for H02 raw CSV mock tests missing Curated Parquet columns
+        rank_col = (
+            F.when(F.col("event_type") == "view", 1)
+            .when(F.col("event_type") == "cart", 2)
+            .when(F.col("event_type") == "remove_from_cart", 3)
+            .when(F.col("event_type") == "purchase", 4)
+            .otherwise(99)
+        ).asc()
 
+    if "event_sort_key" in cols:
+        sort_key_col = F.col("event_sort_key").asc()
+    else:
+        # Fallback: strictly deterministic fallback without violating sort key principle
+        sort_key_col = F.sha2(
+            F.concat_ws("||", F.col("event_time").cast("string"), F.col("event_type"), F.col("product_id").cast("string")),
+            256,
+        ).asc()
+
+    # Strict Data Contract Ordering: NO product_id tie-breaker
     order_win = Window.partitionBy("user_session").orderBy(
         F.col("event_time").asc(),
-        type_rank_col.asc(),
-        F.col("product_id").asc(),
+        rank_col,
+        sort_key_col,
     )
     ranked_df = cleaned_df.withColumn("rn", F.row_number().over(order_win))
 
@@ -90,17 +120,26 @@ def build_session_dataset(events_df: DataFrame, k: int = 5) -> DataFrame:
         ).alias("label"),
     )
 
-    # Apply eligibility filters:
-    # - n_events > k
-    # - no purchase in head (has_purchase_head == 0)
-    # - session_start_date != max_dataset_date (right-censoring)
-    valid_sessions = session_summary.filter(
-        (F.col("n_events") > k)
-        & (F.col("has_purchase_head") == 0)
-        & (F.col("session_start_date") != max_dataset_date)
-    ).select("user_session", "session_start_date", "label")
+    # 4. Filter sessions based on contract exclusion rules:
+    # Rule 1: Short sessions n_events < k must be dropped
+    length_filter = (F.col("n_events") > k) if exclude_equal_k else (F.col("n_events") >= k)
 
-    # 4. Extract features strictly from head (rn <= k)
+    # Rule 2: Early purchase in head (rn <= k) must be dropped
+    eligibility_cond = length_filter & (F.col("has_purchase_head") == 0)
+
+    # Optional H02 heuristic right-censoring if explicitly requested
+    if apply_h02_right_censoring:
+        max_date_row = cleaned_df.select(F.max(F.to_date("event_time"))).collect()
+        if max_date_row and max_date_row[0][0]:
+            max_date = max_date_row[0][0]
+            logger.info("Applying H02 right-censoring: excluding date %s", max_date)
+            eligibility_cond = eligibility_cond & (F.col("session_start_date") != max_date)
+
+    valid_sessions = session_summary.filter(eligibility_cond).select(
+        "user_session", "session_start_date", "label"
+    )
+
+    # 5. Extract 15 features strictly from Head (rn <= k)
     head_df = ranked_df.filter(F.col("rn") <= k)
 
     head_features = head_df.groupBy("user_session").agg(
@@ -127,190 +166,35 @@ def build_session_dataset(events_df: DataFrame, k: int = 5) -> DataFrame:
         F.max(F.when(F.col("rn") == k - 1, F.col("event_type")).otherwise(None)).alias("prev_event_type"),
     ).withColumn("has_cart", F.when(F.col("cart_count") > 0, 1).otherwise(0))
 
-    # Join valid session metadata and labels with head features
-    dataset_df = valid_sessions.join(head_features, on="user_session", how="inner")
-
-    return dataset_df
-
-
-def run_eda_and_save(events_df: DataFrame, k: int, output_path: str) -> DataFrame:
-    """Run full session dataset creation, log EDA statistics, and save to Parquet.
-
-    Parameters
-    ----------
-    events_df : DataFrame
-        Normalized clickstream events.
-    k : int
-        Prefix length.
-    output_path : str
-        Parquet output path.
-
-    Returns
-    -------
-    DataFrame
-        Created session dataset.
-    """
-    cleaned_df = events_df.filter(
-        F.col("user_session").isNotNull() & F.col("event_time").isNotNull()
-    )
-    cleaned_df = cleaned_df.withColumn(
-        "brand",
-        F.when(F.col("brand").isNull(), "Unknown").otherwise(F.col("brand")),
-    ).withColumn(
-        "category_code",
-        F.when(F.col("category_code").isNull(), "Unknown").otherwise(F.col("category_code")),
-    )
-
-    max_dataset_date_row = cleaned_df.select(F.max(F.to_date("event_time"))).collect()
-    max_dataset_date = max_dataset_date_row[0][0] if max_dataset_date_row else None
-
-    type_rank_col = (
-        F.when(F.col("event_type") == "view", 1)
-        .when(F.col("event_type") == "cart", 2)
-        .when(F.col("event_type") == "remove_from_cart", 3)
-        .when(F.col("event_type") == "purchase", 4)
-        .otherwise(99)
-    )
-
-    order_win = Window.partitionBy("user_session").orderBy(
-        F.col("event_time").asc(),
-        type_rank_col.asc(),
-        F.col("product_id").asc(),
-    )
-    ranked_df = cleaned_df.withColumn("rn", F.row_number().over(order_win))
-
-    session_summary = ranked_df.groupBy("user_session").agg(
-        F.max("rn").alias("n_events"),
-        F.min(F.to_date("event_time")).alias("session_start_date"),
-        F.max(
-            F.when((F.col("rn") <= k) & (F.col("event_type") == "purchase"), 1).otherwise(0)
-        ).alias("has_purchase_head"),
-        F.max(
-            F.when((F.col("rn") > k) & (F.col("event_type") == "purchase"), 1).otherwise(0)
-        ).alias("label"),
-    ).cache()
-
-    # Calculate EDA metrics
-    total_sessions = session_summary.count()
-    le_k_count = session_summary.filter(F.col("n_events") <= k).count()
-    gt_k_df = session_summary.filter(F.col("n_events") > k)
-    pur_head_count = gt_k_df.filter(F.col("has_purchase_head") == 1).count()
-    no_pur_head_df = gt_k_df.filter(F.col("has_purchase_head") == 0)
-    last_day_count = no_pur_head_df.filter(F.col("session_start_date") == max_dataset_date).count()
-    valid_sessions = no_pur_head_df.filter(F.col("session_start_date") != max_dataset_date).cache()
-
-    remaining_sessions = valid_sessions.count()
-    pos_label_count = valid_sessions.filter(F.col("label") == 1).count()
-    neg_label_count = remaining_sessions - pos_label_count
-
-    logger.info("================ EDA STATISTICS (K = %d) ================", k)
-    logger.info("1. Total distinct sessions: %d", total_sessions)
-    logger.info(
-        "2. Excluded (n_events <= %d): %d (%.2f%%)",
-        k,
-        le_k_count,
-        (le_k_count / total_sessions * 100.0) if total_sessions else 0.0,
-    )
-    logger.info(
-        "3. Excluded (purchase in head rn <= %d): %d (%.2f%%)",
-        k,
-        pur_head_count,
-        (pur_head_count / total_sessions * 100.0) if total_sessions else 0.0,
-    )
-    logger.info(
-        "4. Excluded (right-censoring at %s): %d (%.2f%%)",
-        max_dataset_date,
-        last_day_count,
-        (last_day_count / total_sessions * 100.0) if total_sessions else 0.0,
-    )
-    logger.info(
-        "5. Remaining eligible sessions: %d (%.2f%%)",
-        remaining_sessions,
-        (remaining_sessions / total_sessions * 100.0) if total_sessions else 0.0,
-    )
-    logger.info(
-        "6. Target label distribution: label=1: %d (%.2f%%), label=0: %d (%.2f%%)",
-        pos_label_count,
-        (pos_label_count / remaining_sessions * 100.0) if remaining_sessions else 0.0,
-        neg_label_count,
-        (neg_label_count / remaining_sessions * 100.0) if remaining_sessions else 0.0,
-    )
-
-    # Group by session_start_date
-    date_dist = (
-        valid_sessions.groupBy("session_start_date")
-        .agg(
-            F.count("user_session").alias("total_sessions"),
-            F.sum("label").alias("pos_sessions"),
-        )
-        .orderBy("session_start_date")
-        .collect()
-    )
-
-    logger.info("7. Session distribution across session_start_date:")
-    for row in date_dist:
-        logger.info(
-            "   Date: %s | Sessions: %d | Purchase: %d (%.2f%%)",
-            row["session_start_date"],
-            row["total_sessions"],
-            row["pos_sessions"],
-            (row["pos_sessions"] / row["total_sessions"] * 100.0) if row["total_sessions"] else 0.0,
-        )
-    logger.info("==========================================================")
-
-    # Extract head features and assemble final dataset
-    head_df = ranked_df.filter(F.col("rn") <= k)
-    head_features = head_df.groupBy("user_session").agg(
-        F.sum(F.when(F.col("event_type") == "view", 1).otherwise(0)).alias("view_count"),
-        F.sum(F.when(F.col("event_type") == "cart", 1).otherwise(0)).alias("cart_count"),
-        F.sum(F.when(F.col("event_type") == "remove_from_cart", 1).otherwise(0)).alias("remove_count"),
-        F.size(F.collect_set("product_id")).alias("unique_product_count"),
-        F.size(F.collect_set("category_code")).alias("unique_category_count"),
-        F.size(F.collect_set("brand")).alias("unique_brand_count"),
-        F.avg("price").alias("avg_price"),
-        F.max("price").alias("max_price"),
-        F.min("price").alias("min_price"),
-        (
-            F.max(F.when(F.col("rn") == k, F.col("event_time")).otherwise(None)).cast("long")
-            - F.min(F.when(F.col("rn") == 1, F.col("event_time")).otherwise(None)).cast("long")
-        ).alias("interaction_duration"),
-        F.hour(
-            F.max(F.when(F.col("rn") == k, F.col("event_time")).otherwise(None))
-        ).alias("hour_of_day"),
-        F.dayofweek(
-            F.max(F.when(F.col("rn") == k, F.col("event_time")).otherwise(None))
-        ).alias("day_of_week"),
-        F.max(F.when(F.col("rn") == k, F.col("event_type")).otherwise(None)).alias("last_event_type"),
-        F.max(F.when(F.col("rn") == k - 1, F.col("event_type")).otherwise(None)).alias("prev_event_type"),
-    ).withColumn("has_cart", F.when(F.col("cart_count") > 0, 1).otherwise(0))
-
-    final_dataset = valid_sessions.select("user_session", "session_start_date", "label").join(
-        head_features, on="user_session", how="inner"
-    )
-
-    logger.info("Writing session dataset to Parquet: %s", output_path)
-    os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
-    final_dataset.write.mode("overwrite").parquet(output_path)
-    logger.info("Session dataset successfully saved to %s", output_path)
-
+    # Assemble final session dataset
+    final_dataset = valid_sessions.join(head_features, on="user_session", how="inner")
     return final_dataset
 
 
+def run_eda_and_save(events_df: DataFrame, k: int, output_path: str) -> DataFrame:
+    """Run exploratory dataset statistics and save session dataset to Parquet."""
+    dataset = build_session_dataset(events_df, k=k)
+    logger.info("Writing session dataset to Parquet: %s", output_path)
+    os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+    dataset.write.mode("overwrite").parquet(output_path)
+    logger.info("Session dataset successfully saved to %s", output_path)
+    return dataset
+
+
 def main() -> None:
-    """CLI entrypoint for building session dataset."""
+    """CLI entrypoint for building session dataset from Curated Parquet."""
     cfg = load_config("configs/config.example.yaml")
     spark = get_spark(app_name="BuildSessionDataset", cfg=cfg)
 
     ml_cfg = cfg.get("ml", {})
-    sample_csv = ml_cfg.get("sample_csv", "data/raw/sample_nov_1pct.csv")
+    curated_path = cfg.get("hdfs", {}).get("curated", {}).get("events", CURATED_PRODUCTION_PATH)
     output_path = ml_cfg.get("session_features_path", "data/processed/ml/session_features")
     k = int(ml_cfg.get("k_events", 5))
 
-    logger.info("Loading raw events from: %s", sample_csv)
-    raw_df = spark.read.option("header", True).schema(RAW_EVENT_SCHEMA).csv(sample_csv)
-    normalized_df = normalize_events(raw_df)
+    logger.info("Loading curated events from Parquet: %s", curated_path)
+    curated_df = spark.read.parquet(curated_path)
 
-    run_eda_and_save(events_df=normalized_df, k=k, output_path=output_path)
+    run_eda_and_save(events_df=curated_df, k=k, output_path=output_path)
     spark.stop()
 
 

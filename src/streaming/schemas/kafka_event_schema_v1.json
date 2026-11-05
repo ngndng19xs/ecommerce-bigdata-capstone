@@ -1,0 +1,165 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "KafkaEventSchemaV1",
+  "description": "Official JSON Schema for Kafka ecommerce_events stream (Task S2 / Version kafka-v1.0).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_time",
+    "event_type",
+    "product_id",
+    "category_id",
+    "category_code",
+    "brand",
+    "price",
+    "user_id",
+    "user_session",
+    "event_type_rank",
+    "event_sort_key",
+    "schema_version"
+  ],
+  "properties": {
+    "event_time": {
+      "type": "string",
+      "description": "Event timestamp in UTC ISO-8601 with Z suffix and second precision (YYYY-MM-DDTHH:MM:SSZ).",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+    },
+    "event_type": {
+      "type": "string",
+      "description": "Type of clickstream interaction.",
+      "enum": [
+        "view",
+        "cart",
+        "remove_from_cart",
+        "purchase"
+      ]
+    },
+    "product_id": {
+      "type": "string",
+      "description": "Unique product identifier as non-empty string (inherited from Curated).",
+      "minLength": 1
+    },
+    "category_id": {
+      "type": "string",
+      "description": "Unique category identifier as non-empty string (inherited from Curated).",
+      "minLength": 1
+    },
+    "category_code": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Taxonomy code of the category (nullable)."
+    },
+    "brand": {
+      "type": "string",
+      "description": "Brand name. In curated data, null/empty values must be normalized to 'Unknown'.",
+      "minLength": 1
+    },
+    "price": {
+      "type": "number",
+      "description": "Product price in USD, non-negative (>= 0.0).",
+      "minimum": 0.0
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Unique user identifier as non-empty string (inherited from Curated).",
+      "minLength": 1
+    },
+    "user_session": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "User session identifier UUID/string (nullable)."
+    },
+    "event_type_rank": {
+      "type": "integer",
+      "description": "Deterministic tie-breaking priority: view=1, cart=2, remove_from_cart=3, purchase=4.",
+      "enum": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "event_sort_key": {
+      "type": "string",
+      "description": "64-character lowercase hexadecimal SHA-256 digest from Curated Parquet.",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "schema_version": {
+      "type": "string",
+      "description": "Official schema version identifier.",
+      "enum": [
+        "kafka-v1.0"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "view"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "event_type_rank": {
+            "const": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "cart"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "event_type_rank": {
+            "const": 2
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "remove_from_cart"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "event_type_rank": {
+            "const": 3
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": {
+            "const": "purchase"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "event_type_rank": {
+            "const": 4
+          }
+        }
+      }
+    }
+  ]
+}

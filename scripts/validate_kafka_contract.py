@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Nhiệm vụ P2-B-S2-01: Công cụ kiểm tra hợp lệ ngoại tuyến cho Hợp đồng Kafka JSON (DRAFT-S2-01).
+Nhiệm vụ Task S2 / P2-B-S2-01: Công cụ kiểm tra hợp lệ ngoại tuyến cho Hợp đồng Kafka JSON (Version kafka-v1.0).
 
 Thẩm định các lô bản ghi Kafka giả lập (định dạng JSONL) sử dụng JSON Schema Draft 7
-(thông qua jsonschema.Draft7Validator) cùng các quy tắc nghiệp vụ của hợp đồng dữ liệu,
+(thông qua jsonschema.Draft7Validator) cùng các quy tắc nghiệp vụ của Data Contract v1.0,
 hoạt động hoàn toàn độc lập, không yêu cầu kết nối Kafka Broker, Zookeeper, Spark hay HDFS.
 
 Cách sử dụng:
-    python scripts/validate_kafka_contract.py tests/fixtures/kafka_records_DRAFT.jsonl
-    python scripts/validate_kafka_contract.py tests/fixtures/kafka_records_DRAFT.jsonl --schema đường_dẫn/schema.json
+    python scripts/validate_kafka_contract.py tests/fixtures/kafka_records_v1.jsonl
+    python scripts/validate_kafka_contract.py tests/fixtures/kafka_records_v1.jsonl --schema đường_dẫn/schema.json
 """
 
 import argparse
@@ -16,9 +16,11 @@ import json
 import re
 import sys
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
-# Contract Constants (DRAFT-S2-01)
-DRAFT_SCHEMA_VERSION = "DRAFT-S2-01"
+# Contract Constants
+KAFKA_SCHEMA_VERSION = "kafka-v1.0"
+DRAFT_SCHEMA_VERSION = "DRAFT-S2-01"  # Retained for legacy backward compatibility
 VALID_EVENT_TYPES = {"view", "cart", "remove_from_cart", "purchase"}
 EVENT_TYPE_TO_RANK = {
     "view": 1,
@@ -49,7 +51,7 @@ DEFAULT_SCHEMA_PATH = (
     / "src"
     / "streaming"
     / "schemas"
-    / "kafka_event_schema_DRAFT.json"
+    / "kafka_event_schema_v1.json"
 )
 
 
@@ -58,7 +60,7 @@ class ValidationError(ValueError):
     pass
 
 
-def load_json_schema(schema_path: Path):
+def load_json_schema(schema_path: Path) -> Dict[str, Any]:
     """Load, parse, and validate a JSON Schema file using Draft7Validator.check_schema().
 
     Parameters
@@ -90,7 +92,7 @@ def load_json_schema(schema_path: Path):
     except ImportError as exc:
         raise ImportError(
             f"Missing required library 'jsonschema': {exc}. "
-            "Task P2-B-S2-01 requires 'jsonschema' for Draft 7 validation."
+            "Kafka Contract validation requires 'jsonschema' for Draft 7 validation."
         ) from exc
 
     try:
@@ -109,8 +111,13 @@ def load_json_schema(schema_path: Path):
     return schema_dict
 
 
-def validate_event_value(value, schema_dict=None, validator=None):
-    """Validate the 'value' payload against DRAFT-S2-01 contract specifications.
+def validate_event_value(
+    value: Any,
+    schema_dict: Optional[Dict[str, Any]] = None,
+    validator: Optional[Any] = None,
+    expected_schema_version: Optional[str] = KAFKA_SCHEMA_VERSION,
+) -> List[str]:
+    """Validate the 'value' payload against Data Contract v1.0 specifications.
 
     Parameters
     ----------
@@ -120,18 +127,15 @@ def validate_event_value(value, schema_dict=None, validator=None):
         Loaded JSON schema dictionary.
     validator : jsonschema.Draft7Validator, optional
         Pre-instantiated Draft7Validator instance for performance.
+    expected_schema_version : str, optional
+        Expected schema version string, default 'kafka-v1.0'.
 
     Returns
     -------
     list of str
         List of validation error messages. Empty list if record is valid.
-
-    Raises
-    ------
-    ImportError
-        If schema_dict or validator is provided but jsonschema is not installed.
     """
-    errors = []
+    errors: List[str] = []
 
     if not isinstance(value, dict):
         return ["Payload 'value' must be a JSON object (dict)."]
@@ -172,17 +176,21 @@ def validate_event_value(value, schema_dict=None, validator=None):
                 f"event_type_rank mismatch: event_type '{event_type}' requires rank {EVENT_TYPE_TO_RANK[event_type]}, got {rank}."
             )
 
-    # 5. product_id
+    # 5. product_id (Data Contract v1.0: JSON string, non-null, non-empty)
     if "product_id" in value:
         pid = value["product_id"]
-        if not isinstance(pid, int) or isinstance(pid, bool) or pid < 0:
-            errors.append("product_id must be a non-negative integer (Long).")
+        if not isinstance(pid, str):
+            errors.append("product_id must be a string (contract v1.0 requires string ID).")
+        elif not pid.strip():
+            errors.append("product_id cannot be empty or whitespace.")
 
-    # 6. category_id
+    # 6. category_id (Data Contract v1.0: JSON string, non-null, non-empty)
     if "category_id" in value:
         cid = value["category_id"]
-        if not isinstance(cid, int) or isinstance(cid, bool) or cid < 0:
-            errors.append("category_id must be a non-negative integer (Long).")
+        if not isinstance(cid, str):
+            errors.append("category_id must be a string (contract v1.0 requires string ID).")
+        elif not cid.strip():
+            errors.append("category_id cannot be empty or whitespace.")
 
     # 7. category_code
     if "category_code" in value:
@@ -206,11 +214,13 @@ def validate_event_value(value, schema_dict=None, validator=None):
         elif price < 0.0:
             errors.append(f"price cannot be negative (got {price}).")
 
-    # 10. user_id
+    # 10. user_id (Data Contract v1.0: JSON string, non-null, non-empty)
     if "user_id" in value:
         uid = value["user_id"]
-        if not isinstance(uid, int) or isinstance(uid, bool) or uid < 0:
-            errors.append("user_id must be a non-negative integer (Long).")
+        if not isinstance(uid, str):
+            errors.append("user_id must be a string (contract v1.0 requires string ID).")
+        elif not uid.strip():
+            errors.append("user_id cannot be empty or whitespace.")
 
     # 11. user_session
     if "user_session" in value:
@@ -229,8 +239,8 @@ def validate_event_value(value, schema_dict=None, validator=None):
     # 13. schema_version
     if "schema_version" in value:
         sv = value["schema_version"]
-        if sv != DRAFT_SCHEMA_VERSION:
-            errors.append(f"schema_version '{sv}' does not match expected draft '{DRAFT_SCHEMA_VERSION}'.")
+        if expected_schema_version and sv != expected_schema_version:
+            errors.append(f"schema_version '{sv}' does not match expected version '{expected_schema_version}'.")
 
     # 14. JSON Schema Draft 7 validation
     if validator is not None:
@@ -242,7 +252,7 @@ def validate_event_value(value, schema_dict=None, validator=None):
         except ImportError as exc:
             raise ImportError(
                 f"Missing required library 'jsonschema': {exc}. "
-                "Task P2-B-S2-01 requires 'jsonschema' for Draft 7 validation."
+                "Kafka Contract validation requires 'jsonschema' for Draft 7 validation."
             ) from exc
         val = Draft7Validator(schema_dict)
         for err in val.iter_errors(value):
@@ -251,26 +261,34 @@ def validate_event_value(value, schema_dict=None, validator=None):
     return errors
 
 
-def validate_kafka_record(record, schema_dict=None, validator=None):
+def validate_kafka_record(
+    record: Any,
+    schema_dict: Optional[Dict[str, Any]] = None,
+    validator: Optional[Any] = None,
+    expected_schema_version: Optional[str] = KAFKA_SCHEMA_VERSION,
+) -> List[str]:
     """Validate an entire simulated Kafka record containing 'key' and 'value'.
 
     Parameters
     ----------
     record : dict
-        Simulated Kafka message with 'key' and 'value'.
+        Dict with 'key' and 'value' attributes.
     schema_dict : dict, optional
-        Loaded JSON schema dict.
+        Loaded JSON schema dictionary.
     validator : jsonschema.Draft7Validator, optional
-        Pre-instantiated Draft7Validator instance.
+        Pre-instantiated Draft7Validator instance for performance.
+    expected_schema_version : str, optional
+        Expected schema version string, default 'kafka-v1.0'.
 
     Returns
     -------
     list of str
-        List of validation error messages.
+        List of validation error messages. Empty list if record is valid.
     """
-    errors = []
+    errors: List[str] = []
+
     if not isinstance(record, dict):
-        return ["Record must be a JSON object containing 'key' and 'value'."]
+        return ["Record must be a JSON object (dict)."]
 
     if "key" not in record or "value" not in record:
         return ["Record missing 'key' or 'value' attributes."]
@@ -279,7 +297,12 @@ def validate_kafka_record(record, schema_dict=None, validator=None):
     value = record["value"]
 
     # Validate value
-    value_errors = validate_event_value(value, schema_dict=schema_dict, validator=validator)
+    value_errors = validate_event_value(
+        value,
+        schema_dict=schema_dict,
+        validator=validator,
+        expected_schema_version=expected_schema_version,
+    )
     errors.extend(value_errors)
 
     # Validate key semantics against user_session
@@ -301,7 +324,11 @@ def validate_kafka_record(record, schema_dict=None, validator=None):
     return errors
 
 
-def validate_jsonl_file(file_path: Path, schema_path: Path = None):
+def validate_jsonl_file(
+    file_path: Path,
+    schema_path: Optional[Path] = None,
+    expected_schema_version: Optional[str] = KAFKA_SCHEMA_VERSION,
+) -> Tuple[int, int, List[Tuple[int, List[str]]]]:
     """Validate a .jsonl file containing simulated Kafka records line by line.
 
     Parameters
@@ -309,7 +336,9 @@ def validate_jsonl_file(file_path: Path, schema_path: Path = None):
     file_path : Path
         Path to the JSONL file.
     schema_path : Path, optional
-        Path to the kafka_event_schema_DRAFT.json file. Defaults to DEFAULT_SCHEMA_PATH.
+        Path to schema JSON file. Defaults to DEFAULT_SCHEMA_PATH (kafka_event_schema_v1.json).
+    expected_schema_version : str, optional
+        Expected schema version string, default 'kafka-v1.0'.
 
     Returns
     -------
@@ -336,7 +365,7 @@ def validate_jsonl_file(file_path: Path, schema_path: Path = None):
     except ImportError as exc:
         raise ImportError(
             f"Missing required library 'jsonschema': {exc}. "
-            "Task P2-B-S2-01 requires 'jsonschema' for Draft 7 validation."
+            "Kafka Contract validation requires 'jsonschema' for Draft 7 validation."
         ) from exc
 
     data_path = Path(file_path)
@@ -360,7 +389,11 @@ def validate_jsonl_file(file_path: Path, schema_path: Path = None):
                 failures.append((line_num, [f"JSON parsing error: {exc}"]))
                 continue
 
-            record_errors = validate_kafka_record(record, validator=validator)
+            record_errors = validate_kafka_record(
+                record,
+                validator=validator,
+                expected_schema_version=expected_schema_version,
+            )
             if record_errors:
                 failures.append((line_num, record_errors))
             else:
@@ -371,7 +404,7 @@ def validate_jsonl_file(file_path: Path, schema_path: Path = None):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(
-        description="Offline validator for Kafka JSON Contract (Task P2-B-S2-01)."
+        description="Offline validator for Kafka JSON Contract v1.0 (Task S2 / P2-B-S2-01)."
     )
     parser.add_argument(
         "jsonl_file",
@@ -380,7 +413,12 @@ def main(argv=None):
     parser.add_argument(
         "--schema",
         default=str(DEFAULT_SCHEMA_PATH),
-        help="Path to Draft 7 JSON Schema file. Defaults to src/streaming/schemas/kafka_event_schema_DRAFT.json."
+        help=f"Path to Draft 7 JSON Schema file. Defaults to {DEFAULT_SCHEMA_PATH}."
+    )
+    parser.add_argument(
+        "--schema-version",
+        default=KAFKA_SCHEMA_VERSION,
+        help=f"Expected schema_version identifier. Defaults to '{KAFKA_SCHEMA_VERSION}'."
     )
     args = parser.parse_args(argv)
 
@@ -393,7 +431,11 @@ def main(argv=None):
 
     print(f"=== Validating Kafka Contract: {jsonl_path.name} ===")
     try:
-        total, valid, failures = validate_jsonl_file(jsonl_path, schema_path=schema_path)
+        total, valid, failures = validate_jsonl_file(
+            jsonl_path,
+            schema_path=schema_path,
+            expected_schema_version=args.schema_version,
+        )
     except FileNotFoundError as exc:
         print(f"FAIL: Schema file not found: {exc}", file=sys.stderr)
         return 1

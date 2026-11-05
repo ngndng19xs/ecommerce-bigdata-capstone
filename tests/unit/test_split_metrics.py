@@ -2,6 +2,7 @@
 
 from datetime import date
 import pytest
+pyspark = pytest.importorskip("pyspark", reason="PySpark is required for Spark ML tests (VM-B environment)")
 from pyspark.ml import Pipeline
 from pyspark.sql import SparkSession
 from pyspark.sql.types import (
@@ -14,7 +15,7 @@ from pyspark.sql.types import (
     StructType,
 )
 from src.common.spark_session import get_spark
-from src.ml.dataset.split import split_by_time
+from src.ml.dataset.split import split_by_cutoff_dates, split_by_time
 from src.ml.features.feature_pipeline import get_feature_pipeline_stages
 
 
@@ -128,3 +129,39 @@ def test_feature_pipeline_stages_execution(spark: SparkSession):
     # Check that features vector exists and has non-zero size
     first_feat = transformed_df.select("features").first()["features"]
     assert first_feat.size > 13
+
+
+
+def test_split_by_cutoff_dates(spark: SparkSession):
+    """Test that split_by_cutoff_dates strictly partitions into Train < Val < Test with zero overlap."""
+    rows = []
+    # Generate 10 days of sessions, 2 per day, with label 1 present every day
+    for day in range(1, 11):
+        d = date(2019, 11, day)
+        rows.append((f"s_{day}_1", d, 1, 5, 1, 0, 1, 3, 2, 2, 50.0, 80.0, 20.0, 120, 10, 2, "view", "cart"))
+        rows.append((f"s_{day}_2", d, 0, 5, 0, 0, 0, 2, 1, 1, 30.0, 30.0, 30.0, 60, 11, 2, "view", "view"))
+
+    df = _create_mock_session_df(spark, rows)
+
+    # Cutoffs: Train <= 2019-11-05, Val <= 2019-11-08, Test > 2019-11-08
+    train_df, val_df, test_df, meta = split_by_cutoff_dates(
+        df, train_end_utc="2019-11-05", validation_end_utc="2019-11-08"
+    )
+
+    # 1. Row counts: Train (days 1-5 = 10 rows), Val (days 6-8 = 6 rows), Test (days 9-10 = 4 rows)
+    assert train_df.count() == 10
+    assert val_df.count() == 6
+    assert test_df.count() == 4
+
+    # 2. Disjoint sessions
+    train_sessions = set(r["user_session"] for r in train_df.select("user_session").collect())
+    val_sessions = set(r["user_session"] for r in val_df.select("user_session").collect())
+    test_sessions = set(r["user_session"] for r in test_df.select("user_session").collect())
+
+    assert len(train_sessions.intersection(val_sessions)) == 0
+    assert len(val_sessions.intersection(test_sessions)) == 0
+    assert len(train_sessions.intersection(test_sessions)) == 0
+
+    # 3. Validation of invalid cutoffs (train >= val)
+    with pytest.raises(ValueError, match="strictly earlier"):
+        split_by_cutoff_dates(df, train_end_utc="2019-11-08", validation_end_utc="2019-11-05")
