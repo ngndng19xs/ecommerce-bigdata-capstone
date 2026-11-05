@@ -1,0 +1,233 @@
+2026-11-05 13:43:29,859 WARN util.Utils: Your hostname, localhost.localdomain resolves to a loopback address: 127.0.0.1, but we couldn't find any external IP address!
+2026-11-05 13:43:29,860 WARN util.Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+2026-11-05 13:43:30,541 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2026-11-05 13:43:32,502 INFO spark.SparkContext: Running Spark version 3.1.2
+2026-11-05 13:43:32,580 INFO resource.ResourceUtils: ==============================================================
+2026-11-05 13:43:32,580 INFO resource.ResourceUtils: No custom resources configured for spark.driver.
+2026-11-05 13:43:32,582 INFO resource.ResourceUtils: ==============================================================
+2026-11-05 13:43:32,583 INFO spark.SparkContext: Submitted application: Batch_Conversion_Funnel
+2026-11-05 13:43:32,641 INFO resource.ResourceProfile: Default ResourceProfile created, executor resources: Map(cores -> name: cores, amount: 1, script: , vendor: , memory -> name: memory, amount: 1024, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+2026-11-05 13:43:32,662 INFO resource.ResourceProfile: Limiting resource is cpu
+2026-11-05 13:43:32,664 INFO resource.ResourceProfileManager: Added ResourceProfile id: 0
+2026-11-05 13:43:32,791 INFO spark.SecurityManager: Changing view acls to: student
+2026-11-05 13:43:32,792 INFO spark.SecurityManager: Changing modify acls to: student
+2026-11-05 13:43:32,793 INFO spark.SecurityManager: Changing view acls groups to: 
+2026-11-05 13:43:32,793 INFO spark.SecurityManager: Changing modify acls groups to: 
+2026-11-05 13:43:32,794 INFO spark.SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(student); groups with view permissions: Set(); users  with modify permissions: Set(student); groups with modify permissions: Set()
+2026-11-05 13:43:33,161 WARN internal.MacAddressUtil: Failed to find a usable hardware address from the network interfaces; using random bytes: 47:de:6a:0e:7c:d2:d4:a5
+2026-11-05 13:43:33,280 INFO util.Utils: Successfully started service 'sparkDriver' on port 38326.
+2026-11-05 13:43:33,356 INFO spark.SparkEnv: Registering MapOutputTracker
+2026-11-05 13:43:33,433 INFO spark.SparkEnv: Registering BlockManagerMaster
+2026-11-05 13:43:33,466 INFO storage.BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+2026-11-05 13:43:33,468 INFO storage.BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+2026-11-05 13:43:33,478 INFO spark.SparkEnv: Registering BlockManagerMasterHeartbeat
+2026-11-05 13:43:33,516 INFO storage.DiskBlockManager: Created local directory at /tmp/blockmgr-6f436f86-a063-435d-bb41-57eec5009f9b
+2026-11-05 13:43:33,554 INFO memory.MemoryStore: MemoryStore started with capacity 366.3 MiB
+2026-11-05 13:43:33,594 INFO spark.SparkEnv: Registering OutputCommitCoordinator
+2026-11-05 13:43:33,781 INFO util.log: Logging initialized @6484ms to org.sparkproject.jetty.util.log.Slf4jLog
+2026-11-05 13:43:34,009 INFO server.Server: jetty-9.4.40.v20210413; built: 2021-04-13T20:42:42.668Z; git: b881a572662e1943a14ae12e7e1207989f218b74; jvm 1.8.0_291-b10
+2026-11-05 13:43:34,070 INFO server.Server: Started @6773ms
+2026-11-05 13:43:34,152 INFO server.AbstractConnector: Started ServerConnector@75382292{HTTP/1.1, (http/1.1)}{0.0.0.0:4040}
+2026-11-05 13:43:34,154 INFO util.Utils: Successfully started service 'SparkUI' on port 4040.
+2026-11-05 13:43:34,208 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@5f7b4fbb{/jobs,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,213 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@14e3bdd2{/jobs/json,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,215 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@311db9a5{/jobs/job,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,222 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@42a2006f{/jobs/job/json,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,224 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@6a1444aa{/stages,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,226 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@54b1181b{/stages/json,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,228 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@e8fcd05{/stages/stage,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,232 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@436d728d{/stages/stage/json,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,234 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@7261e50d{/stages/pool,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,236 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@3a1ab67b{/stages/pool/json,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,238 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@325ba9d{/storage,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,240 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@24dd7dd5{/storage/json,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,243 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@7f68d6e1{/storage/rdd,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,244 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@26048f3b{/storage/rdd/json,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,245 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@754763f7{/environment,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,247 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@5dcac015{/environment/json,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,250 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@54e0bb09{/executors,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,254 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@2f68276b{/executors/json,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,256 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@5507b7e9{/executors/threadDump,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,260 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@53772aee{/executors/threadDump/json,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,275 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@4cdae505{/static,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,278 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@1b4b547f{/,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,282 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@7b89d008{/api,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,285 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@632fb36a{/jobs/job/kill,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,288 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@5faeaf48{/stages/stage/kill,null,AVAILABLE,@Spark}
+2026-11-05 13:43:34,292 INFO ui.SparkUI: Bound SparkUI to 0.0.0.0, and started at http://localhost:4040
+2026-11-05 13:43:34,731 INFO executor.Executor: Starting executor ID driver on host localhost
+2026-11-05 13:43:34,790 INFO util.Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 46217.
+2026-11-05 13:43:34,790 INFO netty.NettyBlockTransferService: Server created on localhost:46217
+2026-11-05 13:43:34,792 INFO storage.BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+2026-11-05 13:43:34,800 INFO storage.BlockManagerMaster: Registering BlockManager BlockManagerId(driver, localhost, 46217, None)
+2026-11-05 13:43:34,809 INFO storage.BlockManagerMasterEndpoint: Registering block manager localhost:46217 with 366.3 MiB RAM, BlockManagerId(driver, localhost, 46217, None)
+2026-11-05 13:43:34,819 INFO storage.BlockManagerMaster: Registered BlockManager BlockManagerId(driver, localhost, 46217, None)
+2026-11-05 13:43:34,822 INFO storage.BlockManager: Initialized BlockManager: BlockManagerId(driver, localhost, 46217, None)
+2026-11-05 13:43:35,083 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@387e9137{/metrics/json,null,AVAILABLE,@Spark}
+2026-11-05 13:43:35,917 INFO internal.SharedState: Setting hive.metastore.warehouse.dir ('/user/hive/warehouse') to the value of spark.sql.warehouse.dir ('/user/hive/warehouse').
+2026-11-05 13:43:35,918 INFO internal.SharedState: Warehouse path is '/user/hive/warehouse'.
+2026-11-05 13:43:35,951 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@78c49754{/SQL,null,AVAILABLE,@Spark}
+2026-11-05 13:43:35,954 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@6c403eb7{/SQL/json,null,AVAILABLE,@Spark}
+2026-11-05 13:43:35,956 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@2f7d7bd4{/SQL/execution,null,AVAILABLE,@Spark}
+2026-11-05 13:43:35,957 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@a1737d7{/SQL/execution/json,null,AVAILABLE,@Spark}
+2026-11-05 13:43:35,979 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@77aadecf{/static/sql,null,AVAILABLE,@Spark}
+=== BATCH CONVERSION FUNNEL ===
+Input: /data/curated/events
+Output: /data/analytics/conversion_funnel_full_tmp
+=== DAILY CONVERSION FUNNEL ===
+2026-11-05 13:46:48,235 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:46:48,235 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:46:48,240 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:46:48,244 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:46:59,118 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:46:59,118 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:46:59,303 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:46:59,303 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:47:10,591 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:47:10,591 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:47:10,624 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:47:10,625 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:47:20,908 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:47:20,908 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:47:21,015 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:47:21,015 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:47:32,176 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:47:32,176 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:47:42,817 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:47:42,818 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:47:53,275 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:47:53,276 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:47:53,730 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:47:53,730 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:48:05,109 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:48:05,109 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:48:05,899 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:48:05,899 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:48:15,751 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:48:15,752 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:48:16,298 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:48:16,299 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:48:26,676 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:48:26,677 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:48:38,993 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:48:38,993 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:48:49,560 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:48:49,560 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:48:49,783 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:48:49,783 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:49:00,613 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:49:00,613 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:49:00,784 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:49:00,784 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:49:13,102 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:49:13,103 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:49:13,156 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:49:13,156 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:49:25,079 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:49:25,079 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:49:25,081 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:49:25,082 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:49:34,785 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:49:34,785 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:49:34,855 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:49:34,855 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
++-----------+-------------+-------------+-----------------+-----------------+---------------------+---------------------+
+|funnel_date|view_sessions|cart_sessions|purchase_sessions|view_to_cart_rate|cart_to_purchase_rate|view_to_purchase_rate|
++-----------+-------------+-------------+-----------------+-----------------+---------------------+---------------------+
+|2019-10-01 |268628       |10131        |5591             |3.77             |55.19                |2.08                 |
+|2019-10-02 |260199       |10540        |5874             |4.05             |55.73                |2.26                 |
+|2019-10-03 |239850       |11466        |6237             |4.78             |54.4                 |2.6                  |
+|2019-10-04 |299315       |26610        |12489            |8.89             |46.93                |4.17                 |
+|2019-10-05 |275578       |21089        |10277            |7.65             |48.73                |3.73                 |
+|2019-10-06 |271605       |18995        |9444             |6.99             |49.72                |3.48                 |
+|2019-10-07 |261852       |10945        |6294             |4.18             |57.51                |2.4                  |
+|2019-10-08 |306761       |11383        |6433             |3.71             |56.51                |2.1                  |
+|2019-10-09 |299659       |11220        |6415             |3.74             |57.17                |2.14                 |
+|2019-10-10 |293547       |11568        |6383             |3.94             |55.18                |2.17                 |
+|2019-10-11 |331756       |12836        |6879             |3.87             |53.59                |2.07                 |
+|2019-10-12 |302849       |12322        |6660             |4.07             |54.05                |2.2                  |
+|2019-10-13 |331948       |14879        |7924             |4.48             |53.26                |2.39                 |
+|2019-10-14 |306121       |28094        |13656            |9.18             |48.61                |4.46                 |
+|2019-10-15 |333150       |31014        |13015            |9.31             |41.96                |3.91                 |
+|2019-10-16 |327426       |28538        |14626            |8.72             |51.25                |4.47                 |
+|2019-10-17 |301722       |25400        |13198            |8.42             |51.96                |4.37                 |
+|2019-10-18 |333871       |24573        |12054            |7.36             |49.05                |3.61                 |
+|2019-10-19 |320240       |24487        |11762            |7.65             |48.03                |3.67                 |
+|2019-10-20 |338700       |24846        |12053            |7.34             |48.51                |3.56                 |
+|2019-10-21 |319919       |22752        |11302            |7.11             |49.67                |3.53                 |
+|2019-10-22 |315250       |22973        |11575            |7.29             |50.39                |3.67                 |
+|2019-10-23 |309009       |23050        |11401            |7.46             |49.46                |3.69                 |
+|2019-10-24 |292108       |22042        |11061            |7.55             |50.18                |3.79                 |
+|2019-10-25 |316691       |23066        |10955            |7.28             |47.49                |3.46                 |
+|2019-10-26 |288065       |21990        |10690            |7.63             |48.61                |3.71                 |
+|2019-10-27 |288486       |21301        |10925            |7.38             |51.29                |3.79                 |
+|2019-10-28 |279543       |11023        |6269             |3.94             |56.87                |2.24                 |
+|2019-10-29 |275278       |10682        |6010             |3.88             |56.26                |2.18                 |
+|2019-10-30 |273525       |10641        |6085             |3.89             |57.18                |2.22                 |
+|2019-10-31 |280002       |10637        |5980             |3.8              |56.22                |2.14                 |
+|2019-11-01 |319492       |12079        |6621             |3.78             |54.81                |2.07                 |
+|2019-11-02 |337366       |12008        |6425             |3.56             |53.51                |1.9                  |
+|2019-11-03 |342007       |12448        |6633             |3.64             |53.29                |1.94                 |
+|2019-11-04 |395246       |14291        |7667             |3.62             |53.65                |1.94                 |
+|2019-11-05 |374908       |12765        |6967             |3.4              |54.58                |1.86                 |
+|2019-11-06 |365818       |12947        |7199             |3.54             |55.6                 |1.97                 |
+|2019-11-07 |394684       |12855        |6966             |3.26             |54.19                |1.76                 |
+|2019-11-08 |442879       |46884        |21850            |10.59            |46.6                 |4.93                 |
+|2019-11-09 |408851       |43113        |19391            |10.54            |44.98                |4.74                 |
++-----------+-------------+-------------+-----------------+-----------------+---------------------+---------------------+
+only showing top 40 rows
+
+2026-11-05 13:52:31,667 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:52:31,667 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:52:31,671 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:52:31,671 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:52:43,610 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:52:43,611 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:52:43,653 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:52:43,653 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:52:55,717 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:52:55,717 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:52:55,723 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:52:55,723 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:53:06,390 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:53:06,390 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:53:06,521 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:53:06,521 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:53:18,156 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:53:18,157 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:53:28,843 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:53:28,843 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:53:39,374 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:53:39,374 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:53:39,659 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:53:39,660 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:53:50,256 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:53:50,256 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:54:01,296 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:54:01,297 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:54:01,573 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:54:01,573 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:54:12,399 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:54:12,400 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:54:23,958 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:54:23,958 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:54:34,753 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:54:34,753 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:54:34,758 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:54:34,758 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:54:45,846 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:54:45,846 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:54:45,865 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:54:45,865 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:54:56,950 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:54:56,950 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:54:56,967 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:54:56,967 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:55:07,411 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:55:07,411 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:55:07,803 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:55:07,803 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:55:17,071 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+2026-11-05 13:55:17,071 WARN expressions.RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch. Will not spill but return 0.
+=== FUNNEL COMPLETED ===
+Output: /data/analytics/conversion_funnel_full_tmp
