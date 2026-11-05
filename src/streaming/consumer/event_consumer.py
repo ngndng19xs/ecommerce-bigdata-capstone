@@ -275,6 +275,7 @@ def parse_kafka_stream(raw_stream_df: DataFrame) -> DataFrame:
     # 3. Extract payload columns
     extracted_df = parsed_json_df.select(
         "kafka_key",
+        "kafka_value",
         "kafka_topic",
         "kafka_partition",
         "kafka_offset",

@@ -131,3 +131,5 @@ test-reports/
 .Trashes
 ehthumbs.db
 Thumbs.db
+# Log nghiệm thu B4-01, gửi riêng ngoài Git
+/reports/B4_01/
