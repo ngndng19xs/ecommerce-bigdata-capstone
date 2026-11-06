@@ -60,9 +60,12 @@ def get_spark(
 
     spark_cfg = (cfg or {}).get("spark", {})
     # Enforce local[2] and 2g as specified for ML environment
-    master = (cfg or {}).get("ml", {}).get("spark_master", "local[2]")
-    driver_memory = (cfg or {}).get("ml", {}).get("driver_memory", "2g")
-    shuffle_partitions = str((cfg or {}).get("ml", {}).get("shuffle_partitions", spark_cfg.get("shuffle_partitions", 8)))
+    master = os.environ.get("CAPSTONE_SPARK_MASTER") or (cfg or {}).get("ml", {}).get("spark_master", "local[2]")
+    driver_memory = os.environ.get("CAPSTONE_DRIVER_MEMORY") or (cfg or {}).get("ml", {}).get("driver_memory", "2g")
+    shuffle_partitions = str(
+        os.environ.get("CAPSTONE_SHUFFLE_PARTITIONS")
+        or (cfg or {}).get("ml", {}).get("shuffle_partitions", spark_cfg.get("shuffle_partitions", 8))
+    )
     log_level = spark_cfg.get("log_level", "WARN")
 
     builder = (

@@ -1,0 +1,17 @@
+RUN_ID=win_full_synthetic_pass2
+REPO=/e/Data_SamSung/Github/ecommerce-bigdata-capstone
+PYTHON=Python 3.11.9
+N=2 SAMPLE_PCT=100 CURATED=/c/Users/Admin/AppData/Local/Temp/claude/c76c7dcd73c98805/a760d702-ed0e-4dfc-a891-bf8b8388b631/scratchpad/e2e_run1/curated ALLOW_LARGE_SAMPLE=1
+SPARK_MASTER=local[2] DRIVER_MEMORY=1g SHUFFLE_PARTITIONS=4
+SMOKE_ROOT=/c/Users/Admin/AppData/Local/Temp/claude/c76c7dcd73c98805/a760d702-ed0e-4dfc-a891-bf8b8388b631/scratchpad/runner_smoke/c
+REPORT_DIR=/e/Data_SamSung/Github/ecommerce-bigdata-capstone/reports/P4_B_B7_01/win_full_synthetic_pass2
+OVERALL=FAIL
+--- steps (NAME|STATUS|EXIT|NOTE) ---
+E1_environment|PASS|0|pyspark importable
+E2a_source_integrity_TC16|PASS|0|manifest SHA-256 match
+E4a_unit_b7_01|PASS|0|tests/unit/test_b7_01_lr_smoke.py (includes TC15)
+E4b_regression_ml_b6|FAIL|1|test_b6_02, test_ml_features, test_b6_01_edges, test_session_dataset, test_split_metrics
+E3_hdfs_preflight|PASS|0|Curated path exists, parquet files present, schema complete (no row scan)
+E5_b6_writer_sample|PASS|0|whole-session hash sample 100% of Curated, N=2
+E6_lr_smoke|PASS|0|LR on B6 features, train/validation only
+E7_evidence_criteria|PASS|0|criteria from smoke_report, writer stats, TC16 file

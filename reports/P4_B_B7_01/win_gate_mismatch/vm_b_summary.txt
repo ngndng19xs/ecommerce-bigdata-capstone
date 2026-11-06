@@ -1,0 +1,17 @@
+RUN_ID=win_gate_mismatch
+REPO=/e/Data_SamSung/Github/ecommerce-bigdata-capstone
+PYTHON=Python 3.11.9
+N=2 SAMPLE_PCT=0.1 CURATED=/nonexistent ALLOW_LARGE_SAMPLE=0
+SPARK_MASTER=local[2] DRIVER_MEMORY=1g SHUFFLE_PARTITIONS=4
+SMOKE_ROOT=/data/ml/smoke/p4_b_b7_01/win_gate_mismatch
+REPORT_DIR=/e/Data_SamSung/Github/ecommerce-bigdata-capstone/reports/P4_B_B7_01/win_gate_mismatch
+OVERALL=FAIL
+--- steps (NAME|STATUS|EXIT|NOTE) ---
+E1_environment|PASS|0|pyspark importable
+E2a_source_integrity_TC16|FAIL|1|content differs from manifest: Spark steps not run
+E4a_unit_b7_01|SKIPPED|-|prerequisite E2a_source_integrity_TC16 is FAIL
+E4b_regression_ml_b6|SKIPPED|-|prerequisite E2a_source_integrity_TC16 is FAIL
+E3_hdfs_preflight|SKIPPED|-|prerequisite E2a_source_integrity_TC16 is FAIL
+E5_b6_writer_sample|SKIPPED|-|prerequisite E3_hdfs_preflight is SKIPPED
+E6_lr_smoke|SKIPPED|-|prerequisite E5_b6_writer_sample is SKIPPED
+E7_evidence_criteria|SKIPPED|-|prerequisite E6_lr_smoke is SKIPPED
