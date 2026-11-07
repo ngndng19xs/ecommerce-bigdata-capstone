@@ -351,5 +351,52 @@ def test_t20_cli_refuses_full_run_without_flag_and_existing_output(tmp_path, mon
     assert cli.main() == 2
 
 
+def _example_cfg():
+    import yaml
+    return yaml.safe_load((ROOT / "configs" / "n_candidate_analysis.example.yaml").read_text(encoding="utf-8"))
+
+
+def test_t22_official_prediction_point_is_n3_and_not_data_driven():
+    cfg = _example_cfg()
+    assert cfg["selected_n"] == 3
+    assert cfg["selected_n"] in cfg["n_candidates"]
+    pp = cfg["prediction_point"]
+    assert pp["selected_n"] == 3
+    assert pp["validation_or_test_used_for_selection"] is False
+    assert pp["test_labels_used_for_selection"] is False
+    assert "PENDING_A_REVIEW" in pp["approval_status"]
+    assert pp["features_scope"] == "first selected_n events only"
+
+
+def test_t23_n3_result_identical_whether_analysed_alone_or_with_candidates(spark, base_result):
+    alone = analyze_n_candidates(make_df(spark, build_fixture()), [3], BOUNDS)
+    assert alone["per_n"]["3"] == base_result["per_n"]["3"]
+    assert list(alone["per_n"].keys()) == ["3"]
+
+
+def test_t24_acceptance_scope_uses_only_selected_n_and_rejects_invalid_configs():
+    cli = _load_cli()
+    cfg = _example_cfg()
+    assert cli.resolve_analysis_ns(cfg, "acceptance") == [3]
+    assert cli.resolve_analysis_ns(cfg, "reference") == [2, 3, 5]
+
+    not_candidate = {**cfg, "selected_n": 4}
+    with pytest.raises(ValueError):
+        cli.resolve_analysis_ns(not_candidate, "acceptance")
+
+    data_driven = {**cfg, "prediction_point": {**cfg["prediction_point"],
+                                               "validation_or_test_used_for_selection": True}}
+    with pytest.raises(ValueError):
+        cli.resolve_analysis_ns(data_driven, "acceptance")
+
+
+def test_t25_cli_has_no_n_override_and_defaults_to_acceptance():
+    cli = _load_cli()
+    args = cli.parse_args(["--output-dir", "x", "--run-id", "r"])
+    assert args.analysis_scope == "acceptance"
+    with pytest.raises(SystemExit):
+        cli.parse_args(["--output-dir", "x", "--run-id", "r", "--n", "2"])
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-q"]))

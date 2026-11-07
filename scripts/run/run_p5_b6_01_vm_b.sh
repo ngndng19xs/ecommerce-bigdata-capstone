@@ -198,9 +198,14 @@ if gate "E5_sample_analysis" "E3_hdfs_preflight" "E4a_p5_unit_tests" "E4b_regres
   if [ "${SAMPLE_PCT}" != "" ] && awk "BEGIN{exit !(${SAMPLE_PCT} > 1)}"; then
     echo "ERROR: SAMPLE_PCT=${SAMPLE_PCT} > 1 is not allowed for the sample step."; add_step "E5_sample_analysis" "FAIL" "2" "SAMPLE_PCT > 1"
   else
-    run_step "E5_sample_analysis" "whole-session sample ${SAMPLE_PCT}% of Curated, N candidates from config" \
+    run_step "E5_sample_analysis" "acceptance: official selected_n only, whole-session sample ${SAMPLE_PCT}%" \
       "${PY_ABS}" scripts/run/run_p5_b6_01_n_analysis.py --input-path "${CURATED}" --mode sample \
-        --sample-percent "${SAMPLE_PCT}" --output-dir "${REPORT_REL}/sample" --run-id "${RUN_ID}_sample"
+        --analysis-scope acceptance --sample-percent "${SAMPLE_PCT}" \
+        --output-dir "${REPORT_REL}/sample" --run-id "${RUN_ID}_sample"
+    run_step "E5b_reference_table" "reference: N candidates 2,3,5 for comparison only (does not change N)" \
+      "${PY_ABS}" scripts/run/run_p5_b6_01_n_analysis.py --input-path "${CURATED}" --mode sample \
+        --analysis-scope reference --sample-percent "${SAMPLE_PCT}" \
+        --output-dir "${REPORT_REL}/reference" --run-id "${RUN_ID}_reference"
   fi
 fi
 

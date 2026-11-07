@@ -1,13 +1,17 @@
-# P5-B-B6-01 — Phân tích ứng viên N cho prediction point chính thức
+# P5-B-B6-01 — Prediction point chính thức N=3 và phân tích ứng viên N
 
-**Trạng thái:** triển khai trên Windows hoàn tất (code, test, runner). **Chưa chạy trên VM B. Chưa chọn N.**
-
-Tài liệu này là hướng dẫn chạy lại. Không mang kết luận nào về N.
+**Trạng thái:**
+- **Prediction point chính thức: N=3** (quyết định thiết kế của thành viên B, khai báo `selected_n: 3` trong `configs/n_candidate_analysis.example.yaml`).
+- **H11 = PENDING_A_REVIEW.** Thành viên A chưa phê duyệt. Chưa có phê duyệt S2 chung.
+- Triển khai và test trên Windows hoàn tất. **Chưa chạy trên VM B.**
 
 ## 1. Những gì không được hiểu nhầm
 
-- Script **không chọn N**. Bảng so sánh N=2, 3, 5 chỉ là bằng chứng.
-- `N=3` là giả thuyết ưu tiên ban đầu của A, không phải kết quả.
+- N=3 là **quyết định thiết kế** của B, dựa trên đề xuất P5-A-S2-01 của A và phân bố session trong H10. Không phải kết quả tối ưu hóa N.
+- Không dùng validation hoặc test để chọn N. Cờ `validation_or_test_used_for_selection: false` và `test_labels_used_for_selection: false` được kiểm tra bằng test.
+- Chế độ `--analysis-scope acceptance` (mặc định) chỉ phân tích `selected_n`. Chế độ `--analysis-scope reference` phân tích N=2/3/5 để đối chiếu, không đổi N chính thức.
+- Không có tham số ghi đè N trên CLI (`--n` bị từ chối).
+- Bảng N=2/3/5 chỉ là bằng chứng so sánh. Không phải căn cứ để đổi N.
 - Cửa sổ thời gian H11 là **đề xuất, đang chờ A review**. Chưa có phê duyệt S2 chung.
 - Các con số H10 của A (23.016.650 sessions, 6,10% có purchase…) là thống kê mô tả trên toàn bộ dữ liệu, dùng `has_purchase` bất kỳ trong phiên. **Không phải nhãn sau N** và không so khớp trực tiếp với kết quả ở đây, vì cửa sổ H11 loại trừ test range và censor các session qua ranh giới.
 - Không dùng test range để chọn N hoặc threshold. Script không đọc nhãn test.
@@ -65,7 +69,11 @@ cd /media/sf_ecommerce-bigdata-capstone
 RUN_ID=p5_vm_sample_1 bash scripts/run/run_p5_b6_01_vm_b.sh
 ```
 
-Bước 2 — kiểm tra kết quả E1–E5 trong `reports/P5_B_B6_01/p5_vm_sample_1/vm_b_summary.txt` trước khi cân nhắc bước full.
+Runner chạy:
+- **E5** (acceptance): chỉ N=3 (`sample/`).
+- **E5b** (reference): N=2/3/5 để đối chiếu (`reference/`).
+
+Bước 2 — kiểm tra kết quả E1–E5b trong `reports/P5_B_B6_01/p5_vm_sample_1/vm_b_summary.txt` và `sample/run_manifest.json` (`analysis_scope: acceptance`, `selected_n: 3`, `qa_pass: true`) trước khi cân nhắc bước full.
 
 Bước 3 (chỉ khi đã duyệt, và RAM còn đủ theo `free -m`) — full Curated:
 ```bash
@@ -105,5 +113,5 @@ PASS trên Windows **không** đồng nghĩa PASS trên VM B.
 1. Chạy E1–E5 trên VM B và đưa `vm_b_summary.txt` cùng `n_candidate_table.md` vào review.
 2. Đối chiếu tổng bucket với H10 (session hợp lệ = train + validation + censored + test range + gap + before train). Đây là bước reconciliation, không phải so sánh bằng nhau.
 3. A review H11. Nếu cửa sổ thay đổi, sửa `configs/n_candidate_analysis.example.yaml` và tạo manifest mới.
-4. Quyết định N dựa trên bằng chứng (cân bằng giữa dự đoán sớm, lịch sử quan sát, coverage, số nhãn dương, mất cân bằng lớp, khả năng dùng cho Logistic Regression ở P6). Không dùng test.
+4. N=3 đã được B chốt là quyết định thiết kế. Nếu A không phê duyệt H11 hoặc bằng chứng VM B cho thấy N=3 không khả thi (ví dụ validation rỗng, train không có nhãn dương, coverage quá thấp), phải quay lại quyết định với A/B. Không đổi N bằng cách xem test.
 5. Chỉ sau đó mới chuyển sang B6-02 Full Features (không thuộc task này).

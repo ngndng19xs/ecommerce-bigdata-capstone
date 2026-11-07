@@ -1,20 +1,20 @@
 {
-  "generated_utc": "2026-11-07T08:57:27.086466+00:00",
+  "generated_utc": "2026-11-07T09:15:22.314265+00:00",
   "generated_on": "git-host",
   "git": {
     "available": true,
-    "head": "348a8fdb05e408fb5637ac1eceae82b9bb7fa812",
+    "head": "1499fa2a9f4c00bfdadde30f7d1ce0a3df510dff",
     "branch": "feature/P5-B-B6-01-n-selection",
     "uncommitted_entries": [
-      "?? configs/n_candidate_analysis.example.yaml",
+      "M configs/n_candidate_analysis.example.yaml",
+      " M reports/P5_B_B6_01/README.md",
+      " M scripts/run/run_p5_b6_01_n_analysis.py",
+      " M scripts/run/run_p5_b6_01_vm_b.sh",
+      " M tests/unit/test_p5_b6_01_n_selection.py",
       "?? reports/P4_B_B7_01/win_full_synthetic_pass3/",
       "?? reports/P4_B_B7_02/win_b7_02_gate_mismatch/",
-      "?? reports/P5_B_B6_01/",
-      "?? scripts/run/run_p5_b6_01_n_analysis.py",
-      "?? scripts/run/run_p5_b6_01_vm_b.sh",
-      "?? scripts/run/source_manifest_p5.py",
-      "?? src/ml/dataset/n_selection.py",
-      "?? tests/unit/test_p5_b6_01_n_selection.py"
+      "?? reports/P5_B_B6_01/win_synthetic_acceptance_h11_n3/",
+      "?? reports/P5_B_B6_01/win_synthetic_acceptance_n3/"
     ],
     "working_tree_snapshot": true
   },
@@ -51,8 +51,8 @@
     },
     {
       "path": "scripts/run/run_p5_b6_01_n_analysis.py",
-      "sha256": "217c76db0f713400cc6db12120c48ef73f9d5f26a408efd9554ce1e45baca0c7",
-      "bytes": 7282
+      "sha256": "ab6f6d1c2eb45ffa5865b395aaffa29b7bb607d7ed820b23c4c5ffbc2d99c2c8",
+      "bytes": 9022
     },
     {
       "path": "scripts/run/source_manifest_p5.py",
@@ -61,13 +61,13 @@
     },
     {
       "path": "configs/n_candidate_analysis.example.yaml",
-      "sha256": "814cc07c965f03f9ab0c748cbf41760f9ca676d6713d0692418a1836388ce66f",
-      "bytes": 1679
+      "sha256": "7f1abd5461f30b3370d15302aeefdf8cd6763d4d3c59716628aff249c892471a",
+      "bytes": 2636
     },
     {
       "path": "tests/unit/test_p5_b6_01_n_selection.py",
-      "sha256": "ae423a6d0320dfcf9a44fe840b059f7f1494f52910b17933bbd213f4d694c0e5",
-      "bytes": 15810
+      "sha256": "3dc28c0fe0eb93e7751504064fcca63316affd7ac9402149e4ef53bcf70652f8",
+      "bytes": 17713
     },
     {
       "path": "tests/unit/test_b6_02.py",

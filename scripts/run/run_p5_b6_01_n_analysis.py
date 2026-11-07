@@ -50,6 +50,42 @@ def _table_md(result: dict) -> str:
     return "\n".join([header, sep] + rows) + "\n"
 
 
+def resolve_analysis_ns(cfg: dict, scope: str) -> list:
+    """Which N values a run analyses.
+
+    acceptance : only cfg['selected_n'] (official prediction point). Never a data-driven choice.
+    reference  : cfg['n_candidates'] for the comparison table. Does not change the official N.
+    """
+    if scope not in ("acceptance", "reference"):
+        raise ValueError(f"unknown analysis scope: {scope}")
+    candidates = parse_n_candidates(cfg["n_candidates"])
+    if scope == "reference":
+        return candidates
+    pp = cfg.get("prediction_point") or {}
+    selected = int(cfg["selected_n"])
+    if selected not in candidates:
+        raise ValueError(f"selected_n={selected} is not in n_candidates={candidates}")
+    if pp.get("validation_or_test_used_for_selection") is not False or pp.get("test_labels_used_for_selection") is not False:
+        raise ValueError("selected_n must be a design decision: validation/test must not be used for selection")
+    if int(pp.get("selected_n", selected)) != selected:
+        raise ValueError("prediction_point.selected_n and selected_n disagree")
+    return [selected]
+
+
+def parse_args(argv=None):
+    ap = argparse.ArgumentParser(description="P5-B-B6-01 N analysis (no full run by default).")
+    ap.add_argument("--config", default=os.path.join(ROOT, "configs", "n_candidate_analysis.example.yaml"))
+    ap.add_argument("--input-path", default="/data/curated/events")
+    ap.add_argument("--mode", choices=["sample", "full"], default="sample")
+    ap.add_argument("--analysis-scope", choices=["acceptance", "reference"], default="acceptance",
+                    help="acceptance: official selected_n only (default). reference: N candidates table.")
+    ap.add_argument("--sample-percent", type=float, default=None)
+    ap.add_argument("--confirm-full-run", action="store_true")
+    ap.add_argument("--output-dir", required=True, help="NEW directory; must not exist.")
+    ap.add_argument("--run-id", required=True)
+    return ap.parse_args(argv)
+
+
 def _qa_pass(result: dict) -> tuple:
     problems = []
     for n, block in result["per_n"].items():
@@ -67,16 +103,8 @@ def _qa_pass(result: dict) -> tuple:
     return (not problems), problems
 
 
-def main() -> int:
-    ap = argparse.ArgumentParser(description="P5-B-B6-01 N candidate analysis (no full run by default).")
-    ap.add_argument("--config", default=os.path.join(ROOT, "configs", "n_candidate_analysis.example.yaml"))
-    ap.add_argument("--input-path", default="/data/curated/events")
-    ap.add_argument("--mode", choices=["sample", "full"], default="sample")
-    ap.add_argument("--sample-percent", type=float, default=None)
-    ap.add_argument("--confirm-full-run", action="store_true")
-    ap.add_argument("--output-dir", required=True, help="NEW directory; must not exist.")
-    ap.add_argument("--run-id", required=True)
-    args = ap.parse_args()
+def main(argv=None) -> int:
+    args = parse_args(argv)
 
     if args.mode == "full" and not args.confirm_full_run:
         print("BLOCKED: --mode full requires --confirm-full-run (not the default).", file=sys.stderr)
@@ -87,7 +115,11 @@ def main() -> int:
 
     with open(args.config, "r", encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
-    ns = parse_n_candidates(cfg["n_candidates"])
+    try:
+        ns = resolve_analysis_ns(cfg, args.analysis_scope)
+    except ValueError as exc:
+        print(f"BLOCKED: {exc}", file=sys.stderr)
+        return 2
     bounds = SplitBounds.from_iso(cfg["windows_utc"])
     percent = args.sample_percent
     if percent is None:
@@ -126,14 +158,19 @@ def main() -> int:
             "sample_percent": None if args.mode == "full" else percent,
             "input_path": args.input_path,
             "input_files": input_files,
-            "n_candidates": ns,
+            "analysis_scope": args.analysis_scope,
+            "selected_n": int(cfg["selected_n"]),
+            "n_analysed": ns,
             "windows_utc": cfg["windows_utc"],
             "config_snapshot": cfg,
             "spark_version": spark.version,
             "python_version": sys.version.split()[0],
             "qa_pass": ok,
             "qa_problems": problems,
-            "decision_note": "No N is selected by this script. Final N requires evidence review and A/B approval.",
+            "decision_note": (
+                "Official N comes from config selected_n (design decision by member B). The script never "
+                "selects N from data. H11 windows remain PENDING_A_REVIEW; member A has not approved."
+            ),
         }
         with open(os.path.join(args.output_dir, "run_manifest.json"), "w", encoding="utf-8") as f:
             json.dump(manifest, f, indent=2, ensure_ascii=False)
