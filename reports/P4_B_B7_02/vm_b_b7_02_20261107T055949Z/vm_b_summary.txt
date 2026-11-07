@@ -1,0 +1,18 @@
+TASK=P4-B-B7-02
+RUN_ID=vm_b_b7_02_20261107T055949Z
+REPO=/media/sf_ecommerce-bigdata-capstone
+PYTHON=Python 3.8.11
+SPARK_MASTER=local[2] DRIVER_MEMORY=1g SHUFFLE_PARTITIONS=4
+DATA=synthetic only (no HDFS read, no test range read)
+REPORT_DIR=/media/sf_ecommerce-bigdata-capstone/reports/P4_B_B7_02/vm_b_b7_02_20261107T055949Z
+OVERALL=PASS
+--- steps (NAME|STATUS|EXIT|NOTE) ---
+E1_environment|PASS|0|environment recorded
+E2_source_integrity|PASS|0|B7-02 manifest SHA-256 match
+E4a_b7_02_tests|PASS|0|tests/unit/test_b7_02_preprocessing_seed.py (JUnit XML)
+E4b_test_b7_01_tooling|PASS|0|tests/unit/test_b7_01_tooling.py in its own process
+E4b_test_b7_01_lr_smoke|PASS|0|tests/unit/test_b7_01_lr_smoke.py in its own process
+E4b_test_b6_02|PASS|0|tests/unit/test_b6_02.py in its own process
+E4b_test_split_metrics|PASS|0|tests/unit/test_split_metrics.py in its own process
+E4b_regression_group|PASS|0|all regression files PASS
+E5_evidence_criteria|PASS|0|required TC list vs JUnit results
