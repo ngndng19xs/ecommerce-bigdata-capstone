@@ -19,7 +19,7 @@ Output is a plain dict (JSON-serialisable). The caller decides where to write it
 """
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, Iterable, List, Sequence
 
 from pyspark import StorageLevel
@@ -28,6 +28,38 @@ from pyspark.sql import DataFrame, functions as F
 from ml.features import rank_session_events
 
 ISO_FMT = "%Y-%m-%dT%H:%M:%SZ"
+SPARK_TS_FMT = "yyyy-MM-dd HH:mm:ss"
+SPARK_ISO_UTC_FMT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+UTC_SESSION_ZONES = ("UTC", "Etc/UTC")
+
+
+def utc_ts_literal(dt: datetime):
+    """Timestamp literal for a UTC wall-clock value, independent of the Python/JVM/OS time zone.
+
+    F.lit(datetime) is NOT used: PySpark converts a naive datetime with the local time zone of the
+    Python process, which shifted every window boundary by the OS offset (seen with KST, +9h).
+    Here the value is sent as a string and parsed by Spark in the session time zone, which
+    assert_session_utc() requires to be UTC. Timezone-aware inputs are converted to UTC first.
+    """
+    if dt.tzinfo is not None:
+        dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+    return F.to_timestamp(F.lit(dt.strftime("%Y-%m-%d %H:%M:%S")), SPARK_TS_FMT)
+
+
+def spark_of(df: DataFrame):
+    """SparkSession of a DataFrame (Spark 3.3+ attribute, with the 3.1 fallback)."""
+    session = getattr(df, "sparkSession", None)
+    if session is None:
+        session = df.sql_ctx.sparkSession
+    return session
+
+
+def assert_session_utc(spark) -> str:
+    """Fail fast unless the Spark session time zone is UTC. Returns the configured zone."""
+    tz = spark.conf.get("spark.sql.session.timeZone")
+    if tz not in UTC_SESSION_ZONES:
+        raise ValueError(f"spark.sql.session.timeZone must be UTC for P5-B-B6-01, got {tz!r}")
+    return tz
 SPLIT_BUCKETS = ("train", "validation")
 ALL_BUCKETS = (
     "train",
@@ -104,7 +136,7 @@ def classify_sessions(valid: DataFrame, b: SplitBounds) -> DataFrame:
     e = F.col("session_end")
 
     def inside(lo: datetime, hi: datetime):
-        return (s >= F.lit(lo)) & (s < F.lit(hi))
+        return (s >= utc_ts_literal(lo)) & (s < utc_ts_literal(hi))
 
     # Order matters. A session with ANY NULL event_time cannot be ordered reliably, so it is
     # excluded first and counted separately (it never reaches ranking). Sessions starting at or
@@ -113,20 +145,28 @@ def classify_sessions(valid: DataFrame, b: SplitBounds) -> DataFrame:
     bucket = (
         F.when(F.col("n_null_time") > 0, "excluded_null_event_time")
         .when(s.isNull(), "excluded_null_event_time")
-        .when(inside(b.train_start, b.train_end) & (e < F.lit(b.train_end)), "train")
+        .when(inside(b.train_start, b.train_end) & (e < utc_ts_literal(b.train_end)), "train")
         .when(inside(b.train_start, b.train_end), "censored_train")
-        .when(inside(b.val_start, b.val_end) & (e < F.lit(b.val_end)), "validation")
+        .when(inside(b.val_start, b.val_end) & (e < utc_ts_literal(b.val_end)), "validation")
         .when(inside(b.val_start, b.val_end), "censored_validation")
         .when(inside(b.test_start, b.test_end), "test_range")
-        .when(s >= F.lit(b.test_end), "after_test_end")
-        .when(s < F.lit(b.train_start), "before_train")
+        .when(s >= utc_ts_literal(b.test_end), "after_test_end")
+        .when(s < utc_ts_literal(b.train_start), "before_train")
         .otherwise("gap")
     )
     return sess.withColumn("bucket", bucket)
 
 
 def _split_end_expr(b: SplitBounds):
-    return F.when(F.col("bucket") == "train", F.lit(b.train_end)).otherwise(F.lit(b.val_end))
+    return F.when(F.col("bucket") == "train", utc_ts_literal(b.train_end)).otherwise(utc_ts_literal(b.val_end))
+
+
+def _bounds_utc(b: SplitBounds) -> Dict[str, List[str]]:
+    return {
+        "train": [b.train_start.strftime(ISO_FMT), b.train_end.strftime(ISO_FMT)],
+        "validation": [b.val_start.strftime(ISO_FMT), b.val_end.strftime(ISO_FMT)],
+        "test": [b.test_start.strftime(ISO_FMT), b.test_end.strftime(ISO_FMT)],
+    }
 
 
 def analyze_n_candidates(events: DataFrame, n_candidates: Sequence[int], bounds: SplitBounds) -> Dict[str, Any]:
@@ -141,6 +181,7 @@ def analyze_n_candidates(events: DataFrame, n_candidates: Sequence[int], bounds:
     bounds : SplitBounds
     """
     ns = parse_n_candidates(n_candidates)
+    assert_session_utc(spark_of(events))
 
     total_events = int(events.count())
     valid = valid_session_events(events)
@@ -240,11 +281,7 @@ def analyze_n_candidates(events: DataFrame, n_candidates: Sequence[int], bounds:
 
     result = {
         "n_candidates": ns,
-        "bounds_utc": {
-            "train": [bounds.train_start.isoformat(), bounds.train_end.isoformat()],
-            "validation": [bounds.val_start.isoformat(), bounds.val_end.isoformat()],
-            "test": [bounds.test_start.isoformat(), bounds.test_end.isoformat()],
-        },
+        "bounds_utc": _bounds_utc(bounds),
         "events": {
             "total": total_events,
             "invalid_session_events": invalid_events,
@@ -276,21 +313,24 @@ def diagnose_session_buckets(events: DataFrame, bounds: SplitBounds) -> Dict[str
     of out-of-scope sessions, and the number of events with NULL event_time. Any session still in
     'gap' is reported as UNEXPLAINED with its start range, so it can be investigated.
     """
+    assert_session_utc(spark_of(events))
     total_events = int(events.count())
     valid = valid_session_events(events)
     null_time_events = int(valid.filter(F.col("event_time").isNull()).count())
     sessions = classify_sessions(valid, bounds).persist(StorageLevel.MEMORY_AND_DISK)
     try:
+        # Timestamps are formatted INSIDE Spark (session time zone UTC). collect() of a timestamp
+        # would convert it to the local time zone of the Python process.
         rows = sessions.groupBy("bucket").agg(
             F.count(F.lit(1)).alias("sessions"),
-            F.min("session_start").alias("min_start"),
-            F.max("session_start").alias("max_start"),
+            F.date_format(F.min("session_start"), SPARK_ISO_UTC_FMT).alias("min_start"),
+            F.date_format(F.max("session_start"), SPARK_ISO_UTC_FMT).alias("max_start"),
         ).collect()
         buckets = {
             r["bucket"]: {
                 "sessions": int(r["sessions"]),
-                "min_start_utc": None if r["min_start"] is None else r["min_start"].isoformat(),
-                "max_start_utc": None if r["max_start"] is None else r["max_start"].isoformat(),
+                "min_start_utc": r["min_start"],
+                "max_start_utc": r["max_start"],
             }
             for r in rows
         }

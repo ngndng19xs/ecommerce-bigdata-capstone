@@ -1,21 +1,21 @@
 {
-  "generated_utc": "2026-11-07T10:01:10.467382+00:00",
+  "generated_utc": "2026-11-07T12:10:06.938908+00:00",
   "generated_on": "git-host",
   "git": {
     "available": true,
-    "head": "64c7793c796180d38eb27d90fb16123e0e91b533",
+    "head": "5012550b2643cdea78b35cbb4fff82779039aa29",
     "branch": "feature/P5-B-B6-01-n-selection",
     "uncommitted_entries": [
-      "M reports/P5_B_B6_01/README.md",
-      " M scripts/run/run_p5_b6_01_n_analysis.py",
+      "M scripts/run/run_p5_b6_01_n_analysis.py",
       " M scripts/run/run_p5_b6_01_vm_b.sh",
       " M src/ml/dataset/n_selection.py",
       " M tests/unit/test_p5_b6_01_n_selection.py",
       "?? reports/P4_B_B7_01/win_full_synthetic_pass3/",
       "?? reports/P4_B_B7_02/win_b7_02_gate_mismatch/",
+      "?? reports/P5_B_B6_01/p5_gap_diag_v2/",
+      "?? reports/P5_B_B6_01/p5_n3_utc_v1/",
       "?? reports/P5_B_B6_01/p5_n3_vm_b_sample_v1/",
-      "?? reports/P5_B_B6_01/win_synthetic_acceptance_n3_gapqa/",
-      "?? reports/P5_B_B6_01/win_synthetic_gap_diagnostic/"
+      "?? reports/P5_B_B6_01/win_synthetic_utc_fix/"
     ],
     "working_tree_snapshot": true
   },
@@ -47,13 +47,13 @@
     },
     {
       "path": "src/ml/dataset/n_selection.py",
-      "sha256": "1454ebcd7e58fc982dce2020396cd4fd0d4db8e7debe8e56116e1f641f99f8c9",
-      "bytes": 14315
+      "sha256": "2c518580b6d10e4b8f2623603a5d9fedbc9f196ae0857fdcdb7c5dad72e89eb0",
+      "bytes": 16100
     },
     {
       "path": "scripts/run/run_p5_b6_01_n_analysis.py",
-      "sha256": "67eaa5711224ea21bd2cabe0fcb9140156d24a3dfbb80eca76e4fdb422184b06",
-      "bytes": 11073
+      "sha256": "1ad7a7775f7c7a5720dd0a3b8882cb298c4d5f82900408890deda2a64c29d7f5",
+      "bytes": 11520
     },
     {
       "path": "scripts/run/source_manifest_p5.py",
@@ -67,8 +67,8 @@
     },
     {
       "path": "tests/unit/test_p5_b6_01_n_selection.py",
-      "sha256": "d77d0a92ca9370e2a5481d159eebe7aa03fc905f3aae29d57b207d9346584e85",
-      "bytes": 21795
+      "sha256": "947d56c86b24fff30f6cb02f91272b252c4ce12fccc7c28f6e66a2cee465ba59",
+      "bytes": 27335
     },
     {
       "path": "tests/unit/test_b6_02.py",

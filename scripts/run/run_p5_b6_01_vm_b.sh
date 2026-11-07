@@ -146,6 +146,10 @@ whoami; pwd; free -m; nproc
 "${PY_ABS}" -c "
 import json, sys, platform, subprocess
 info = {'python': sys.version.split()[0], 'platform': platform.platform()}
+import os, time, datetime
+info['python_local_utc_offset_hours'] = datetime.datetime.now().astimezone().utcoffset().total_seconds() / 3600
+info['tz_env'] = os.environ.get('TZ')
+info['tzname'] = list(time.tzname)
 try:
     import pyspark; info['pyspark'] = pyspark.__version__
 except Exception as exc:

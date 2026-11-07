@@ -27,6 +27,7 @@ from src.common.spark_session import get_spark  # noqa: E402
 from src.ml.dataset.n_selection import (  # noqa: E402
     SplitBounds,
     analyze_n_candidates,
+    assert_session_utc,
     diagnose_session_buckets,
     parse_n_candidates,
 )
@@ -154,6 +155,13 @@ def main(argv=None) -> int:
     spark.sparkContext.setLogLevel("ERROR")
     started = datetime.now(timezone.utc).isoformat()
     try:
+        session_tz = assert_session_utc(spark)
+    except ValueError as exc:
+        print(f"BLOCKED: {exc}", file=sys.stderr)
+        spark.stop()
+        return 2
+    python_offset_hours = datetime.now().astimezone().utcoffset().total_seconds() / 3600
+    try:
         raw = spark.read.parquet(args.input_path)
         missing = [c for c in REQUIRED_COLUMNS if c not in raw.columns]
         if missing:
@@ -199,6 +207,9 @@ def main(argv=None) -> int:
             "windows_utc": cfg["windows_utc"],
             "config_snapshot": cfg,
             "spark_version": spark.version,
+            "spark_session_timezone": session_tz,
+            "python_local_utc_offset_hours": python_offset_hours,
+            "tz_env": os.environ.get("TZ"),
             "python_version": sys.version.split()[0],
             "qa_pass": ok,
             "qa_problems": problems,

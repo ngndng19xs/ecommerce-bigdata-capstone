@@ -15,6 +15,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import pytest
+from pyspark.sql import functions as F
 from pyspark.sql.types import DoubleType, IntegerType, StringType, StructField, StructType, TimestampType
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -124,8 +125,23 @@ def build_fixture(overrides=None):
     return rows
 
 
+STRING_TIME_SCHEMA = StructType(
+    [StructField(f.name, StringType() if f.name == "event_time" else f.dataType, True) for f in SCHEMA.fields]
+)
+
+
 def make_df(spark, rows):
-    return spark.createDataFrame(rows, SCHEMA)
+    """Build events with event_time given as UTC wall-clock values.
+
+    Rows hold naive datetimes meaning UTC. They are sent to Spark as strings and parsed in the
+    session time zone (UTC). Passing datetime objects to createDataFrame would convert them with
+    the local time zone of the Python process, which hid the timezone bug in earlier tests.
+    """
+    as_text = [
+        (r[0], None if r[1] is None else r[1].strftime("%Y-%m-%d %H:%M:%S")) + tuple(r[2:]) for r in rows
+    ]
+    df = spark.createDataFrame(as_text, STRING_TIME_SCHEMA)
+    return df.withColumn("event_time", F.to_timestamp("event_time", "yyyy-MM-dd HH:mm:ss"))
 
 
 @pytest.fixture(scope="module")
@@ -474,6 +490,103 @@ def test_t30_all_null_time_session_has_no_start_and_is_excluded(spark):
     sessions = classify_sessions(valid_session_events(make_df(spark, _extra_rows())), BOUNDS)
     row = sessions.filter("user_session = 'Z_null_all'").collect()[0]
     assert row["session_start"] is None and row["bucket"] == "excluded_null_event_time"
+
+
+# --- Timezone independence (UTC boundaries regardless of OS / Python / JVM zone) ----------------
+
+# (session, UTC event times, expected bucket) around the official H11 boundaries.
+BOUNDARY_CASES = [
+    ("B_train_1112_2000", ["2019-11-12 20:00:00"], "train"),
+    ("B_train_last_second", ["2019-11-12 23:59:59"], "train"),
+    ("B_cross_train_val", ["2019-11-12 23:59:58", "2019-11-13 00:00:01"], "censored_train"),
+    ("B_val_first_second", ["2019-11-13 00:00:00"], "validation"),
+    ("B_val_last_second", ["2019-11-21 23:59:59"], "validation"),
+    ("B_cross_val_test", ["2019-11-21 23:59:58", "2019-11-22 00:00:05"], "censored_validation"),
+    ("B_test_first_second", ["2019-11-22 00:00:00"], "test_range"),
+    ("B_test_1130_2000", ["2019-11-30 20:00:00"], "test_range"),
+    ("B_test_last_second", ["2019-11-30 23:59:59"], "test_range"),
+    ("B_after_test_end", ["2019-12-01 00:00:00"], "after_test_end"),
+]
+
+
+def _h11_bounds():
+    return SplitBounds.from_iso(_example_cfg()["windows_utc"])
+
+
+def _boundary_rows():
+    rows, k = [], 900
+    for sid, times, _ in BOUNDARY_CASES:
+        for t in times:
+            k += 1
+            rows.append((sid, T(t.replace(" ", "T")), "view", 1, "{:064x}".format(k), "P0", "C0", "A", 10.0))
+    return rows
+
+
+def test_t31_utc_literal_is_independent_of_python_local_zone(spark):
+    from datetime import timezone as tz, timedelta as td
+    from src.ml.dataset.n_selection import utc_ts_literal
+    naive = spark.range(1).select(utc_ts_literal(datetime(2019, 12, 1)).cast("long")).first()[0]
+    aware_kst = spark.range(1).select(
+        utc_ts_literal(datetime(2019, 12, 1, 9, 0, 0, tzinfo=tz(td(hours=9)))).cast("long")).first()[0]
+    assert naive == 1575158400      # 2019-12-01T00:00:00Z
+    assert aware_kst == 1575158400  # 09:00 KST is the same instant
+
+
+def test_t32_h11_boundaries_assign_utc_buckets(spark):
+    sessions = classify_sessions(valid_session_events(make_df(spark, _boundary_rows())), _h11_bounds())
+    got = {r[0]: r[1] for r in sessions.select("user_session", "bucket").collect()}
+    expected = {sid: bucket for sid, _, bucket in BOUNDARY_CASES}
+    assert got == expected
+
+
+def test_t33_non_utc_session_time_zone_is_rejected(spark):
+    old = spark.conf.get("spark.sql.session.timeZone")
+    try:
+        spark.conf.set("spark.sql.session.timeZone", "Asia/Seoul")
+        with pytest.raises(ValueError, match="UTC"):
+            analyze_n_candidates(make_df(spark, build_fixture()), [3], BOUNDS)
+    finally:
+        spark.conf.set("spark.sql.session.timeZone", old)
+
+
+@pytest.mark.skipif(sys.platform.startswith("win"),
+                    reason="TZ environment variable does not change the Python local zone on Windows; "
+                           "this test must run on Linux (VM B)")
+def test_t34_same_buckets_when_os_zone_is_kst(tmp_path):
+    """Run the classification in a child process with TZ=Asia/Seoul; buckets must not change."""
+    import json
+    import os
+    import subprocess
+    script = tmp_path / "kst_probe.py"
+    script.write_text(
+        "import json, sys, datetime\n"
+        f"sys.path.insert(0, {str(ROOT)!r})\n"
+        "from pyspark.sql import functions as F\n"
+        "from src.common.spark_session import get_spark\n"
+        "from src.ml.dataset.n_selection import SplitBounds, classify_sessions, valid_session_events\n"
+        "offset = datetime.datetime.now().astimezone().utcoffset().total_seconds() / 3600\n"
+        "spark = get_spark('KSTProbe')\n"
+        "rows = json.loads(sys.argv[1]); bounds = SplitBounds.from_iso(json.loads(sys.argv[2]))\n"
+        "df = spark.createDataFrame(rows, 'user_session string, ts string').select(\n"
+        "    'user_session', F.to_timestamp('ts', 'yyyy-MM-dd HH:mm:ss').alias('event_time'))\n"
+        "got = {r[0]: r[1] for r in classify_sessions(valid_session_events(df), bounds)"
+        ".select('user_session', 'bucket').collect()}\n"
+        "print('RESULT=' + json.dumps({'offset_hours': offset, 'buckets': got}))\n"
+        "spark.stop()\n",
+        encoding="utf-8",
+    )
+    rows = [[sid, t] for sid, times, _ in BOUNDARY_CASES for t in times]
+    env = dict(os.environ, TZ="Asia/Seoul")
+    proc = subprocess.run(
+        [sys.executable, str(script), json.dumps(rows), json.dumps(_example_cfg()["windows_utc"])],
+        env=env, capture_output=True, text=True, timeout=600,
+    )
+    line = [ln for ln in proc.stdout.splitlines() if ln.startswith("RESULT=")]
+    assert proc.returncode == 0 and line, proc.stderr[-2000:]
+    out = json.loads(line[-1][len("RESULT="):])
+    if out["offset_hours"] != 9:
+        pytest.skip(f"Asia/Seoul zone data not available in this OS (offset={out['offset_hours']})")
+    assert out["buckets"] == {sid: bucket for sid, _, bucket in BOUNDARY_CASES}
 
 
 if __name__ == "__main__":

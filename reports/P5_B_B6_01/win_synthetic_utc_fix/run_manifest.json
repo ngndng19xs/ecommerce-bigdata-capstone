@@ -1,0 +1,80 @@
+{
+  "task": "P5-B-B6-01",
+  "run_id": "win_synthetic_utc_fix",
+  "started_utc": "2026-11-07T12:09:37.113143+00:00",
+  "finished_utc": "2026-11-07T12:09:51.016665+00:00",
+  "mode": "sample",
+  "sample_percent": 100.0,
+  "input_path": "C:/Users/Admin/AppData/Local/Temp/claude/c76c7dcd73c98805/a760d702-ed0e-4dfc-a891-bf8b8388b631/scratchpad/e2e_run1/curated",
+  "input_files": 2,
+  "analysis_scope": "acceptance",
+  "selected_n": 3,
+  "n_analysed": [
+    3
+  ],
+  "windows_utc": {
+    "test_end_exclusive": "2019-11-07T00:00:00Z",
+    "test_start": "2019-11-05T00:00:00Z",
+    "train_end_exclusive": "2019-11-04T00:00:00Z",
+    "train_start": "2019-11-01T00:00:00Z",
+    "validation_end_exclusive": "2019-11-05T00:00:00Z",
+    "validation_start": "2019-11-04T00:00:00Z"
+  },
+  "config_snapshot": {
+    "n_candidates": [
+      2,
+      3,
+      5
+    ],
+    "prediction_point": {
+      "approval_status": "H11 = PENDING_A_REVIEW. Member A has NOT approved. S2 joint approval NOT CONFIRMED.",
+      "decision_basis": "Early prediction with enough observed history. Reference: proposal P5-A-S2-01 by member A (N=3 preferred) and the H10 session-length distribution. This is a design choice, not the result of an N optimisation.",
+      "decision_owner": "member B (design decision)",
+      "early_purchase_rule": "purchase at or before event selected_n -> session excluded",
+      "features_scope": "first selected_n events only",
+      "label_definition": "label=1 if a purchase exists with event_idx > selected_n in the session; label=0 otherwise within valid label scope",
+      "selected_n": 3,
+      "test_labels_used_for_selection": false,
+      "validation_or_test_used_for_selection": false
+    },
+    "sampling": {
+      "full_run_requires_flag": true,
+      "test_mode_default_percent": 0.1
+    },
+    "seed_policy": {
+      "random_seed_used_by_code": false
+    },
+    "selected_n": 3,
+    "spark": {
+      "driver_memory": "1g",
+      "master": "local[2]",
+      "shuffle_partitions": 4,
+      "timezone": "UTC"
+    },
+    "temporal_policy": {
+      "assignment": "train/validation only if the whole session lies inside the window (session_end < window end)",
+      "censoring": "sessions starting in a window but ending after it are counted as censored, not labelled",
+      "invalid_session": "NULL or blank user_session: counted as events, not as sessions",
+      "session_key": "user_session",
+      "session_time": "min(event_time) and max(event_time) over ALL events of the session",
+      "test_range": "counted only by session start; never ranked, never labelled"
+    },
+    "windows_utc": {
+      "test_end_exclusive": "2019-11-07T00:00:00Z",
+      "test_start": "2019-11-05T00:00:00Z",
+      "train_end_exclusive": "2019-11-04T00:00:00Z",
+      "train_start": "2019-11-01T00:00:00Z",
+      "validation_end_exclusive": "2019-11-05T00:00:00Z",
+      "validation_start": "2019-11-04T00:00:00Z"
+    }
+  },
+  "spark_version": "4.0.1",
+  "spark_session_timezone": "UTC",
+  "python_local_utc_offset_hours": 7.0,
+  "tz_env": null,
+  "python_version": "3.11.9",
+  "qa_pass": true,
+  "qa_problems": [],
+  "qa_warnings": [],
+  "decision_note": "Official N comes from config selected_n (design decision by member B). The script never selects N from data. H11 windows remain PENDING_A_REVIEW; member A has not approved."
+}
