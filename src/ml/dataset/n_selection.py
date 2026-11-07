@@ -35,8 +35,10 @@ ALL_BUCKETS = (
     "validation",
     "censored_validation",
     "test_range",
-    "gap",
+    "after_test_end",
     "before_train",
+    "excluded_null_event_time",
+    "gap",
 )
 
 
@@ -96,6 +98,7 @@ def classify_sessions(valid: DataFrame, b: SplitBounds) -> DataFrame:
         F.min("event_time").alias("session_start"),
         F.max("event_time").alias("session_end"),
         F.count(F.lit(1)).alias("n_events"),
+        F.sum(F.when(F.col("event_time").isNull(), 1).otherwise(0)).alias("n_null_time"),
     )
     s = F.col("session_start")
     e = F.col("session_end")
@@ -103,12 +106,19 @@ def classify_sessions(valid: DataFrame, b: SplitBounds) -> DataFrame:
     def inside(lo: datetime, hi: datetime):
         return (s >= F.lit(lo)) & (s < F.lit(hi))
 
+    # Order matters. A session with ANY NULL event_time cannot be ordered reliably, so it is
+    # excluded first and counted separately (it never reaches ranking). Sessions starting at or
+    # after the test end are outside the analysis and counted separately. "gap" is reserved
+    # for sessions that no rule explains; QA treats any gap as a FAILURE, never as a silent drop.
     bucket = (
-        F.when(inside(b.train_start, b.train_end) & (e < F.lit(b.train_end)), "train")
+        F.when(F.col("n_null_time") > 0, "excluded_null_event_time")
+        .when(s.isNull(), "excluded_null_event_time")
+        .when(inside(b.train_start, b.train_end) & (e < F.lit(b.train_end)), "train")
         .when(inside(b.train_start, b.train_end), "censored_train")
         .when(inside(b.val_start, b.val_end) & (e < F.lit(b.val_end)), "validation")
         .when(inside(b.val_start, b.val_end), "censored_validation")
         .when(inside(b.test_start, b.test_end), "test_range")
+        .when(s >= F.lit(b.test_end), "after_test_end")
         .when(s < F.lit(b.train_start), "before_train")
         .otherwise("gap")
     )
@@ -142,6 +152,7 @@ def analyze_n_candidates(events: DataFrame, n_candidates: Sequence[int], bounds:
         buckets = {r["bucket"]: {"sessions": int(r["sessions"])} for r in bucket_rows}
         for name in ALL_BUCKETS:
             buckets.setdefault(name, {"sessions": 0})
+        null_time_events = int(sessions.agg(F.sum("n_null_time")).collect()[0][0] or 0)
 
         cand = sessions.filter(F.col("bucket").isin(list(SPLIT_BUCKETS))).select(
             "user_session", "bucket", "session_end"
@@ -234,12 +245,18 @@ def analyze_n_candidates(events: DataFrame, n_candidates: Sequence[int], bounds:
             "validation": [bounds.val_start.isoformat(), bounds.val_end.isoformat()],
             "test": [bounds.test_start.isoformat(), bounds.test_end.isoformat()],
         },
-        "events": {"total": total_events, "invalid_session_events": invalid_events},
+        "events": {
+            "total": total_events,
+            "invalid_session_events": invalid_events,
+            "null_event_time_events_in_valid_sessions": null_time_events,
+        },
         "session_buckets": buckets,
         "boundary_qa": {
             "train_censored_sessions": buckets["censored_train"]["sessions"],
             "validation_censored_sessions": buckets["censored_validation"]["sessions"],
             "test_range_sessions_not_labelled": buckets["test_range"]["sessions"],
+            "after_test_end_sessions": buckets["after_test_end"]["sessions"],
+            "excluded_null_event_time_sessions": buckets["excluded_null_event_time"]["sessions"],
             "gap_sessions": buckets["gap"]["sessions"],
         },
         "leakage_qa": {
@@ -250,3 +267,59 @@ def analyze_n_candidates(events: DataFrame, n_candidates: Sequence[int], bounds:
         "per_n": per_n,
     }
     return result
+
+
+def diagnose_session_buckets(events: DataFrame, bounds: SplitBounds) -> Dict[str, Any]:
+    """Explain every session that is not in train/validation. No ranking, no labels.
+
+    Reads only user_session, event_time. Produces counts per bucket, the start-date distribution
+    of out-of-scope sessions, and the number of events with NULL event_time. Any session still in
+    'gap' is reported as UNEXPLAINED with its start range, so it can be investigated.
+    """
+    total_events = int(events.count())
+    valid = valid_session_events(events)
+    null_time_events = int(valid.filter(F.col("event_time").isNull()).count())
+    sessions = classify_sessions(valid, bounds).persist(StorageLevel.MEMORY_AND_DISK)
+    try:
+        rows = sessions.groupBy("bucket").agg(
+            F.count(F.lit(1)).alias("sessions"),
+            F.min("session_start").alias("min_start"),
+            F.max("session_start").alias("max_start"),
+        ).collect()
+        buckets = {
+            r["bucket"]: {
+                "sessions": int(r["sessions"]),
+                "min_start_utc": None if r["min_start"] is None else r["min_start"].isoformat(),
+                "max_start_utc": None if r["max_start"] is None else r["max_start"].isoformat(),
+            }
+            for r in rows
+        }
+        for name in ALL_BUCKETS:
+            buckets.setdefault(name, {"sessions": 0, "min_start_utc": None, "max_start_utc": None})
+
+        after = sessions.filter(F.col("bucket") == "after_test_end")
+        by_day = [
+            {"date": str(r[0]), "sessions": int(r[1])}
+            for r in after.groupBy(F.to_date("session_start").alias("d")).count().orderBy("d").limit(31).collect()
+        ]
+        after_events = int(
+            valid.join(after.select("user_session"), on="user_session", how="inner").count()
+        )
+        null_start_sessions = int(sessions.filter(F.col("session_start").isNull()).count())
+    finally:
+        sessions.unpersist()
+
+    gap = buckets["gap"]["sessions"]
+    return {
+        "total_events": total_events,
+        "null_event_time_events_in_valid_sessions": null_time_events,
+        "session_buckets": buckets,
+        "sessions_with_null_start": null_start_sessions,
+        "after_test_end_events": after_events,
+        "after_test_end_sessions_by_day_first_31": by_day,
+        "unexplained_gap_sessions": gap,
+        "diagnosis": (
+            "no unexplained sessions" if gap == 0 else
+            f"{gap} sessions are not explained by any rule; investigate before any full run"
+        ),
+    }

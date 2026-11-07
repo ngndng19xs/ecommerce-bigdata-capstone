@@ -398,5 +398,83 @@ def test_t25_cli_has_no_n_override_and_defaults_to_acceptance():
         cli.parse_args(["--output-dir", "x", "--run-id", "r", "--n", "2"])
 
 
+def _extra_rows():
+    """Edge sessions added on top of the base fixture (see test_t26..t30)."""
+    counter = [500]
+    rows = []
+    # Mixed: one event with NULL event_time inside an otherwise valid session.
+    counter[0] += 1
+    rows.append(("Z_null_mixed", T("2019-10-02T15:00:00"), "view", 1, "{:064x}".format(counter[0]), "P0", "C0", "A", 10.0))
+    counter[0] += 1
+    rows.append(("Z_null_mixed", None, "cart", 2, "{:064x}".format(counter[0]), "P0", "C0", "A", 10.0))
+    # All events NULL event_time.
+    for k in range(2):
+        counter[0] += 1
+        rows.append(("Z_null_all", None, "view", 1, "{:064x}".format(counter[0]), "P0", "C0", "A", 10.0))
+    # Starts exactly at test_end (2019-10-10T00:00): outside the analysis.
+    counter[0] += 1
+    rows.append(("Z_after_exact", T("2019-10-10T00:00:00"), "view", 1, "{:064x}".format(counter[0]), "P0", "C0", "A", 10.0))
+    # Starts one second before test_end: still inside test_range.
+    counter[0] += 1
+    rows.append(("Z_test_last", T("2019-10-09T23:59:59"), "view", 1, "{:064x}".format(counter[0]), "P0", "C0", "A", 10.0))
+    return rows
+
+
+def test_t26_null_event_time_sessions_excluded_explicitly_not_ranked(spark, base_result):
+    res = analyze_n_candidates(make_df(spark, build_fixture() + _extra_rows()), [2, 3, 5], BOUNDS)
+    assert res["session_buckets"]["excluded_null_event_time"]["sessions"] == 2
+    assert res["events"]["null_event_time_events_in_valid_sessions"] == 3
+    # Excluded sessions never enter the analysis, so the N=3 table is unchanged.
+    assert res["per_n"]["3"] == base_result["per_n"]["3"]
+    cli = _load_cli()
+    warnings = cli._qa_warnings(res)
+    assert any("NULL event_time" in w for w in warnings)
+
+
+def test_t27_session_start_at_or_after_test_end_is_out_of_scope(spark):
+    res = analyze_n_candidates(make_df(spark, build_fixture() + _extra_rows()), [3], BOUNDS)
+    b = res["session_buckets"]
+    assert b["after_test_end"]["sessions"] == 1          # starts exactly at test_end
+    assert b["test_range"]["sessions"] == 3              # X_a, X_b, and Z_test_last (1s before end)
+    assert res["boundary_qa"]["after_test_end_sessions"] == 1
+
+
+def test_t28_unexplained_gap_is_reported_and_fails_qa(spark):
+    """Windows with a hole (train_end < validation_start) create real gap sessions; QA must fail."""
+    holed = SplitBounds.from_iso({
+        "train_start": "2019-10-01T00:00:00Z",
+        "train_end_exclusive": "2019-10-04T00:00:00Z",
+        "validation_start": "2019-10-05T00:00:00Z",
+        "validation_end_exclusive": "2019-10-08T00:00:00Z",
+        "test_start": "2019-10-08T00:00:00Z",
+        "test_end_exclusive": "2019-10-10T00:00:00Z",
+    })
+    res = analyze_n_candidates(make_df(spark, build_fixture()), [3], holed)
+    assert res["session_buckets"]["gap"]["sessions"] > 0
+    cli = _load_cli()
+    ok, problems = cli._qa_pass(res)
+    assert not ok and any("unexplained" in p for p in problems)
+
+
+def test_t29_diagnostic_partitions_every_valid_session(spark):
+    from src.ml.dataset.n_selection import diagnose_session_buckets
+    diag = diagnose_session_buckets(make_df(spark, build_fixture() + _extra_rows()), BOUNDS)
+    total = sum(v["sessions"] for v in diag["session_buckets"].values())
+    assert total == 15  # 11 base + 4 edge sessions; NULL/blank invalid rows are not sessions
+    assert diag["unexplained_gap_sessions"] == 0
+    assert diag["null_event_time_events_in_valid_sessions"] == 3
+    # Z_null_all has every event_time NULL, so its session_start is NULL; it is excluded as
+    # excluded_null_event_time before any window comparison runs.
+    assert diag["sessions_with_null_start"] == 1
+    assert diag["after_test_end_events"] == 1
+
+
+def test_t30_all_null_time_session_has_no_start_and_is_excluded(spark):
+    from src.ml.dataset.n_selection import classify_sessions
+    sessions = classify_sessions(valid_session_events(make_df(spark, _extra_rows())), BOUNDS)
+    row = sessions.filter("user_session = 'Z_null_all'").collect()[0]
+    assert row["session_start"] is None and row["bucket"] == "excluded_null_event_time"
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-q"]))

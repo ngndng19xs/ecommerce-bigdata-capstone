@@ -27,6 +27,7 @@ from src.common.spark_session import get_spark  # noqa: E402
 from src.ml.dataset.n_selection import (  # noqa: E402
     SplitBounds,
     analyze_n_candidates,
+    diagnose_session_buckets,
     parse_n_candidates,
 )
 from src.ml.training.lr_b6_smoke import sample_whole_sessions  # noqa: E402
@@ -81,6 +82,8 @@ def parse_args(argv=None):
                     help="acceptance: official selected_n only (default). reference: N candidates table.")
     ap.add_argument("--sample-percent", type=float, default=None)
     ap.add_argument("--confirm-full-run", action="store_true")
+    ap.add_argument("--diagnose-only", action="store_true",
+                    help="Explain session buckets only (no ranking, no labels). Writes gap_diagnostic.json.")
     ap.add_argument("--output-dir", required=True, help="NEW directory; must not exist.")
     ap.add_argument("--run-id", required=True)
     return ap.parse_args(argv)
@@ -100,7 +103,26 @@ def _qa_pass(result: dict) -> tuple:
         problems.append("candidate events at or after own split end")
     if result["leakage_qa"]["ranked_sessions_outside_train_validation"] != 0:
         problems.append("sessions outside train/validation were ranked")
+    gap = result.get("session_buckets", {}).get("gap", {}).get("sessions", 0)
+    if gap:
+        problems.append(f"{gap} sessions unexplained by any bucket rule (gap): investigate, never dropped silently")
     return (not problems), problems
+
+
+def _qa_warnings(result: dict) -> list:
+    """Explained exclusions that must be visible in the report but do not fail QA."""
+    b = result.get("session_buckets", {})
+    warnings = []
+    null_sessions = b.get("excluded_null_event_time", {}).get("sessions", 0)
+    if null_sessions:
+        warnings.append(f"{null_sessions} sessions excluded: at least one event with NULL event_time")
+    after = b.get("after_test_end", {}).get("sessions", 0)
+    if after:
+        warnings.append(f"{after} sessions start at or after test_end and are outside the analysis")
+    null_events = result.get("events", {}).get("null_event_time_events_in_valid_sessions", 0)
+    if null_events:
+        warnings.append(f"{null_events} events with NULL event_time inside valid sessions")
+    return warnings
 
 
 def main(argv=None) -> int:
@@ -141,8 +163,21 @@ def main(argv=None) -> int:
         events = raw if args.mode == "full" else sample_whole_sessions(raw, percent)
         logger.info("Mode=%s percent=%s input_files=%d N=%s", args.mode, percent, input_files, ns)
 
+        if args.diagnose_only:
+            diag = diagnose_session_buckets(events, bounds)
+            os.makedirs(args.output_dir)
+            with open(os.path.join(args.output_dir, "gap_diagnostic.json"), "w", encoding="utf-8") as f:
+                json.dump({"mode": args.mode, "sample_percent": None if args.mode == "full" else percent,
+                           "input_path": args.input_path, "input_files": input_files,
+                           "bounds_utc": cfg["windows_utc"], "diagnostic": diag}, f, indent=2,
+                          ensure_ascii=False)
+            print(json.dumps({"diagnosis": diag["diagnosis"], "unexplained_gap_sessions": diag["unexplained_gap_sessions"]},
+                             indent=2, ensure_ascii=False))
+            return 0
+
         result = analyze_n_candidates(events, ns, bounds)
         ok, problems = _qa_pass(result)
+        warnings = _qa_warnings(result)
 
         os.makedirs(args.output_dir)
         with open(os.path.join(args.output_dir, "n_candidate_result.json"), "w", encoding="utf-8") as f:
@@ -167,6 +202,7 @@ def main(argv=None) -> int:
             "python_version": sys.version.split()[0],
             "qa_pass": ok,
             "qa_problems": problems,
+            "qa_warnings": warnings,
             "decision_note": (
                 "Official N comes from config selected_n (design decision by member B). The script never "
                 "selects N from data. H11 windows remain PENDING_A_REVIEW; member A has not approved."

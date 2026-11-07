@@ -209,6 +209,18 @@ if gate "E5_sample_analysis" "E3_hdfs_preflight" "E4a_p5_unit_tests" "E4b_regres
   fi
 fi
 
+# --- E5c gap diagnostic on the same sample (no ranking, no labels) ------------
+if gate "E5c_gap_diagnostic" "E3_hdfs_preflight" "E4a_p5_unit_tests"; then
+  if [ "${SAMPLE_PCT}" != "" ] && awk "BEGIN{exit !(${SAMPLE_PCT} > 1)}"; then
+    add_step "E5c_gap_diagnostic" "FAIL" "2" "SAMPLE_PCT > 1 not allowed for the diagnostic"
+  else
+    run_step "E5c_gap_diagnostic" "explain every session bucket on the same whole-session sample" \
+      "${PY_ABS}" scripts/run/run_p5_b6_01_n_analysis.py --input-path "${CURATED}" --mode sample \
+        --sample-percent "${SAMPLE_PCT}" --diagnose-only \
+        --output-dir "${REPORT_REL}/diagnostic" --run-id "${RUN_ID}_diagnostic"
+  fi
+fi
+
 # --- E6 full analysis (explicitly enabled only) -------------------------------
 if [ "${FULL_RUN}" = "1" ] && [ "${CONFIRM_FULL}" = "1" ]; then
   if gate "E6_full_analysis" "E5_sample_analysis"; then

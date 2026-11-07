@@ -115,3 +115,35 @@ PASS trên Windows **không** đồng nghĩa PASS trên VM B.
 3. A review H11. Nếu cửa sổ thay đổi, sửa `configs/n_candidate_analysis.example.yaml` và tạo manifest mới.
 4. N=3 đã được B chốt là quyết định thiết kế. Nếu A không phê duyệt H11 hoặc bằng chứng VM B cho thấy N=3 không khả thi (ví dụ validation rỗng, train không có nhãn dương, coverage quá thấp), phải quay lại quyết định với A/B. Không đổi N bằng cách xem test.
 5. Chỉ sau đó mới chuyển sang B6-02 Full Features (không thuộc task này).
+
+## 9. Điều tra gap sessions (136 session trên mẫu 0,1%)
+
+**Kết quả VM B đã biết (run `p5_n3_vm_b_sample_v1`, không bị ghi đè):** train 13.900, validation 5.471, test_range 3.402, censored_train 5, censored_validation 9, **gap 136** (tổng 22.923 = số session mẫu).
+
+**Nguyên nhân có thể (giả thuyết, CHƯA xác nhận):** trước khi sửa, `classify_sessions` gán mọi session không khớp nhánh nào vào `gap` (`.otherwise`). Hai nhóm có thể nằm trong đó:
+- session có `session_start` NULL, tức mọi event của session có `event_time` NULL;
+- session bắt đầu từ `test_end` (2019-12-01 UTC) trở đi, vì code không có nhánh cho trường hợp này.
+
+Session có **một phần** event `event_time` NULL cũng bị xử lý sai trước đây: `rank_session_events` sắp NULL lên đầu, nên thứ tự event không đáng tin mà không báo lỗi.
+
+**Đã thay đổi trên code (Windows):**
+- Bucket `excluded_null_event_time`: session có bất kỳ event `event_time` NULL bị loại trước khi ranking và được đếm riêng.
+- Bucket `after_test_end`: session bắt đầu từ `test_end` trở đi, đếm riêng, không ranking.
+- Bucket `gap` chỉ còn cho session không nhóm nào giải thích được. **QA FAIL** nếu `gap > 0`. Không có session nào bị bỏ qua âm thầm.
+- Cảnh báo (không làm FAIL): số session loại vì NULL time, số session sau test_end, số event NULL trong session hợp lệ. Được ghi trong `run_manifest.json` mục `qa_warnings`.
+
+**Chế độ diagnostic (không ranking, không nhãn):**
+```bash
+RUN_ID=p5_gap_diag_1 bash scripts/run/run_p5_b6_01_vm_b.sh        # E5c chạy cùng mẫu 0,1%
+# hoặc trực tiếp:
+python3 scripts/run/run_p5_b6_01_n_analysis.py --mode sample --sample-percent 0.1 \
+  --diagnose-only --output-dir reports/P5_B_B6_01/p5_gap_diag_1/diagnostic --run-id p5_gap_diag_1_diagnostic
+```
+Kết quả: `gap_diagnostic.json` với số session theo bucket, ngày bắt đầu min/max của từng bucket, số session không có start, số event NULL time, phân bố ngày của session sau test_end, và `unexplained_gap_sessions`.
+
+**Điều kiện trước khi chạy Full:**
+1. `unexplained_gap_sessions = 0` trên cùng mẫu 0,1%.
+2. Đối chiếu tổng: 136 gap cũ = `excluded_null_event_time` + `after_test_end` + phần còn lại. Nếu phần còn lại > 0, dừng và điều tra.
+3. Đã xem `qa_warnings` và chấp nhận từng nhóm loại trừ.
+4. A review nhóm `excluded_null_event_time` và `after_test_end`.
+5. Không thay đổi N=3, thứ tự S2, định nghĩa label, prefix features, ranh giới split hay trạng thái H11 để làm QA PASS.

@@ -1,0 +1,70 @@
+{
+  "mode": "sample",
+  "sample_percent": 100.0,
+  "input_path": "C:/Users/Admin/AppData/Local/Temp/claude/c76c7dcd73c98805/a760d702-ed0e-4dfc-a891-bf8b8388b631/scratchpad/e2e_run1/curated",
+  "input_files": 2,
+  "bounds_utc": {
+    "test_end_exclusive": "2019-11-07T00:00:00Z",
+    "test_start": "2019-11-05T00:00:00Z",
+    "train_end_exclusive": "2019-11-04T00:00:00Z",
+    "train_start": "2019-11-01T00:00:00Z",
+    "validation_end_exclusive": "2019-11-05T00:00:00Z",
+    "validation_start": "2019-11-04T00:00:00Z"
+  },
+  "diagnostic": {
+    "total_events": 260,
+    "null_event_time_events_in_valid_sessions": 0,
+    "session_buckets": {
+      "test_range": {
+        "sessions": 24,
+        "min_start_utc": "2019-11-05T10:00:00",
+        "max_start_utc": "2019-11-06T10:11:00"
+      },
+      "validation": {
+        "sessions": 12,
+        "min_start_utc": "2019-11-04T10:00:00",
+        "max_start_utc": "2019-11-04T10:11:00"
+      },
+      "train": {
+        "sessions": 36,
+        "min_start_utc": "2019-11-01T10:00:00",
+        "max_start_utc": "2019-11-03T10:11:00"
+      },
+      "censored_train": {
+        "sessions": 0,
+        "min_start_utc": null,
+        "max_start_utc": null
+      },
+      "censored_validation": {
+        "sessions": 0,
+        "min_start_utc": null,
+        "max_start_utc": null
+      },
+      "after_test_end": {
+        "sessions": 0,
+        "min_start_utc": null,
+        "max_start_utc": null
+      },
+      "before_train": {
+        "sessions": 0,
+        "min_start_utc": null,
+        "max_start_utc": null
+      },
+      "excluded_null_event_time": {
+        "sessions": 0,
+        "min_start_utc": null,
+        "max_start_utc": null
+      },
+      "gap": {
+        "sessions": 0,
+        "min_start_utc": null,
+        "max_start_utc": null
+      }
+    },
+    "sessions_with_null_start": 0,
+    "after_test_end_events": 0,
+    "after_test_end_sessions_by_day_first_31": [],
+    "unexplained_gap_sessions": 0,
+    "diagnosis": "no unexplained sessions"
+  }
+}
