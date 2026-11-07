@@ -1,0 +1,81 @@
+# P5 ML Pipeline configuration example
+# Copy to ml_pipeline.yaml and customize for your environment
+
+# Overall pipeline settings
+pipeline:
+  budget_seconds: 10800  # 180 minutes total
+  max_retries: 2
+  work_root: /var/tmp/p5_b6_01_work_student
+
+# Data source settings
+source:
+  hdfs_path: hdfs://localhost:9000/data/curated/events
+  sample_threshold: 455  # hash threshold for sample (< 455 out of 10000)
+  n_groups: 8  # number of hash groups for B6
+
+# S4 Snapshot settings
+snapshot:
+  enabled: true
+  batch_size_files: 16  # files per batch
+  output_dir: /var/tmp/p5_b6_01_work_student/snapshot
+  budget_seconds: 2700  # 45 minutes
+
+# Temporal split (H11)
+split:
+  train_range_start: "2019-10-01"
+  train_range_end: "2019-11-13"
+  validation_range_start: "2019-11-13"
+  validation_range_end: "2019-11-22"
+  test_range_start: "2019-11-22"
+  test_range_end: "2019-12-01"
+
+# B6: Hash group analysis and features
+b6:
+  enabled: true
+  output_dir: /var/tmp/p5_b6_01_work_student/b6_features
+  budget_seconds: 3000  # 50 minutes
+
+# B7: Logistic Regression training
+b7:
+  enabled: true
+  max_iter: 20
+  reg_param: 0.1
+  elastic_net: 0.0
+  output_dir: /var/tmp/p5_b6_01_work_student/b7_model
+  budget_seconds: 1800  # 30 minutes
+
+# B8: Threshold tuning and model freezing
+b8:
+  enabled: true
+  thresholds: [0.3, 0.4, 0.5, 0.6, 0.7]
+  output_dir: /var/tmp/p5_b6_01_work_student/b8_frozen
+  budget_seconds: 900  # 15 minutes
+
+# B9: Final test
+b9:
+  enabled: true
+  output_dir: /var/tmp/p5_b6_01_work_student/b9_results
+  budget_seconds: 900  # 15 minutes
+
+# Spark settings
+spark:
+  app_name: P5_ML_Pipeline
+  master: local[1]
+  driver_memory: 1g
+  executor_memory: 512m
+  shuffle_partitions: 10
+  sql_files_max_partition_bytes: 67108864  # 64 MB
+  sql_parquet_block_size: 33554432  # 32 MB
+
+# Watchdog settings (resource monitoring)
+watchdog:
+  enabled: true
+  check_interval_seconds: 30
+  memory_swap_threshold_mb: 100  # trigger if swap increases by >100MB in interval
+  disk_free_warning_mb: 500  # warn if free disk < 500MB
+  process_check_enabled: true
+
+# Logging
+logging:
+  level: INFO
+  file: /var/tmp/p5_b6_01_work_student/logs/pipeline.log
