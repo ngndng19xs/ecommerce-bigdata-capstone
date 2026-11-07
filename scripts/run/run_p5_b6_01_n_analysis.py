@@ -15,6 +15,7 @@ import argparse
 import json
 import os
 import sys
+import time
 from datetime import datetime, timezone
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -26,7 +27,9 @@ from src.common.logger import get_logger  # noqa: E402
 from src.common.spark_session import get_spark  # noqa: E402
 from src.ml.dataset.n_selection import (  # noqa: E402
     SplitBounds,
+    WindowGroupGateError,
     analyze_n_candidates,
+    analyze_n_candidates_staged,
     assert_session_utc,
     diagnose_session_buckets,
     parse_n_candidates,
@@ -85,9 +88,31 @@ def parse_args(argv=None):
     ap.add_argument("--confirm-full-run", action="store_true")
     ap.add_argument("--diagnose-only", action="store_true",
                     help="Explain session buckets only (no ranking, no labels). Writes gap_diagnostic.json.")
+    ap.add_argument("--engine", choices=["legacy", "staged"], default="legacy",
+                    help="legacy: accepted implementation (oracle). staged: Phase A -> gate -> Phase B.")
+    ap.add_argument("--ranking-input", choices=["semi_join", "time_filter"], default="semi_join",
+                    help="staged engine only: events entering the S2 window.")
+    ap.add_argument("--materialize", choices=["disk_persist", "staging"], default="disk_persist",
+                    help="staged engine only: how the Phase A session summary is kept between actions.")
+    ap.add_argument("--staging-dir", default=None,
+                    help="staged + staging only: NEW local directory URI, e.g. file:///home/student/p5_staging/RUN")
+    ap.add_argument("--max-window-group", type=int, default=None,
+                    help="staged engine only: block Phase B if the largest window group exceeds this "
+                         "(default: record only).")
+    ap.add_argument("--aqe", choices=["keep", "on", "off"], default="keep",
+                    help="spark.sql.adaptive.enabled: keep the session value (Spark 3.1 default false), or set it.")
     ap.add_argument("--output-dir", required=True, help="NEW directory; must not exist.")
     ap.add_argument("--run-id", required=True)
     return ap.parse_args(argv)
+
+
+def _local_path_of(uri: str):
+    """Local filesystem path for file:// URIs (None for HDFS or other schemes)."""
+    if uri.startswith("file://"):
+        from urllib.parse import urlparse
+        from urllib.request import url2pathname
+        return url2pathname(urlparse(uri).path)
+    return None
 
 
 def _qa_pass(result: dict) -> tuple:
@@ -100,10 +125,19 @@ def _qa_pass(result: dict) -> tuple:
                 problems.append(f"N={n} {split}: empty split, no evidence for this N")
         if block["train"]["label_1"] == 0 and block["train"]["eligible"] > 0:
             problems.append(f"N={n} train: no positive label, cannot fit a classifier")
-    if result["leakage_qa"]["candidate_events_at_or_after_own_split_end"] != 0:
+    lq = result["leakage_qa"]
+    # Legacy engine keys
+    if lq.get("candidate_events_at_or_after_own_split_end", 0) != 0:
         problems.append("candidate events at or after own split end")
-    if result["leakage_qa"]["ranked_sessions_outside_train_validation"] != 0:
+    if lq.get("ranked_sessions_outside_train_validation", 0) != 0:
         problems.append("sessions outside train/validation were ranked")
+    # Staged engine keys
+    if lq.get("candidate_sessions_ending_at_or_after_own_split_end", 0) != 0:
+        problems.append("candidate sessions end at or after own split end")
+    if lq.get("ranked_test_range_sessions", 0) != 0:
+        problems.append("test-range sessions reached the ranking phase (test must stay sealed)")
+    if lq.get("length_mismatch_between_summary_and_ranking", 0) != 0:
+        problems.append("ranked session length differs from the Phase A session length")
     gap = result.get("session_buckets", {}).get("gap", {}).get("sessions", 0)
     if gap:
         problems.append(f"{gap} sessions unexplained by any bucket rule (gap): investigate, never dropped silently")
@@ -150,8 +184,18 @@ def main(argv=None) -> int:
     if args.mode == "sample" and percent > 1.0 and os.environ.get("ALLOW_LARGE_SAMPLE") != "1":
         print("BLOCKED: sample percent > 1 needs ALLOW_LARGE_SAMPLE=1.", file=sys.stderr)
         return 2
+    if args.engine == "staged" and args.materialize == "staging":
+        if not args.staging_dir:
+            print("BLOCKED: --materialize staging requires --staging-dir.", file=sys.stderr)
+            return 2
+        local = _local_path_of(args.staging_dir)
+        if local is not None and os.path.exists(local):
+            print(f"BLOCKED: staging directory already exists: {args.staging_dir}", file=sys.stderr)
+            return 2
 
     spark = get_spark(app_name="P5B6N-Analysis", cfg=cfg_spark(cfg))
+    if args.aqe != "keep":
+        spark.conf.set("spark.sql.adaptive.enabled", "true" if args.aqe == "on" else "false")
     spark.sparkContext.setLogLevel("ERROR")
     started = datetime.now(timezone.utc).isoformat()
     try:
@@ -183,11 +227,38 @@ def main(argv=None) -> int:
                              indent=2, ensure_ascii=False))
             return 0
 
-        result = analyze_n_candidates(events, ns, bounds)
+        t0 = time.time()
+        if args.engine == "staged":
+            try:
+                result = analyze_n_candidates_staged(
+                    events, ns, bounds,
+                    ranking_input=args.ranking_input,
+                    materialize=args.materialize,
+                    staging_dir=args.staging_dir,
+                    max_window_group=args.max_window_group,
+                )
+            except WindowGroupGateError as gate_exc:
+                os.makedirs(args.output_dir)
+                with open(os.path.join(args.output_dir, "gate_report.json"), "w", encoding="utf-8") as f:
+                    json.dump({"status": "BLOCKED", "reason": str(gate_exc), "gate": gate_exc.gate,
+                               "run_id": args.run_id, "mode": args.mode}, f, indent=2, ensure_ascii=False)
+                print(f"BLOCKED: {gate_exc}", file=sys.stderr)
+                return 2
+        else:
+            result = analyze_n_candidates(events, ns, bounds)
+        elapsed = round(time.time() - t0, 1)
         ok, problems = _qa_pass(result)
         warnings = _qa_warnings(result)
 
         os.makedirs(args.output_dir)
+        plan_files = {}
+        for phase, text in ((result.get("execution") or {}).pop("plans", {}) or {}).items():
+            name = f"plan_{phase}.txt"
+            with open(os.path.join(args.output_dir, name), "w", encoding="utf-8") as f:
+                f.write(text)
+            plan_files[phase] = name
+        if "execution" in result:
+            result["execution"]["plan_files"] = plan_files
         with open(os.path.join(args.output_dir, "n_candidate_result.json"), "w", encoding="utf-8") as f:
             json.dump(result, f, indent=2, ensure_ascii=False)
         with open(os.path.join(args.output_dir, "n_candidate_table.md"), "w", encoding="utf-8") as f:
@@ -202,6 +273,10 @@ def main(argv=None) -> int:
             "input_path": args.input_path,
             "input_files": input_files,
             "analysis_scope": args.analysis_scope,
+            "engine": args.engine,
+            "ranking_input": args.ranking_input if args.engine == "staged" else None,
+            "materialize": args.materialize if args.engine == "staged" else None,
+            "analysis_elapsed_seconds": elapsed,
             "selected_n": int(cfg["selected_n"]),
             "n_analysed": ns,
             "windows_utc": cfg["windows_utc"],

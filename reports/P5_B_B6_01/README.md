@@ -147,3 +147,56 @@ Kết quả: `gap_diagnostic.json` với số session theo bucket, ngày bắt �
 3. Đã xem `qa_warnings` và chấp nhận từng nhóm loại trừ.
 4. A review nhóm `excluded_null_event_time` và `after_test_end`.
 5. Không thay đổi N=3, thứ tự S2, định nghĩa label, prefix features, ranh giới split hay trạng thái H11 để làm QA PASS.
+
+## 10. Engine staged, so sánh nghiệp vụ và bảo vệ tài nguyên
+
+**Trạng thái:** code và test trên Windows hoàn tất. **Chưa chạy trên VM B. Chưa có số đo benchmark. Chưa chạy Full.**
+
+### 10.1 Hai engine
+- `--engine legacy`: implementation đã nghiệm thu, dùng làm **oracle**. Không xóa, không sửa.
+- `--engine staged`: Phase A (tóm tắt session trên toàn bộ event, một action) → gate độ dài nhóm window → Phase B (ranking S2 đầy đủ với `event_sort_key`, join ở mức session, một action).
+  - `--ranking-input semi_join`: chỉ ranking event của session train/validation (LEFT SEMI JOIN với Phase A).
+  - `--ranking-input time_filter`: ranking event có `event_time < validation_end`.
+  - `--materialize disk_persist` (DISK_ONLY) hoặc `staging` (Parquet trong thư mục mới).
+  - `--max-window-group N`: chặn Phase B (BLOCKED, exit 2) nếu nhóm lớn nhất vượt N. Mặc định chỉ ghi nhận.
+  - `--aqe keep|on|off`: Spark 3.1 mặc định tắt AQE; giá trị thực tế được ghi vào `run_manifest.json`.
+- Physical plan của Phase A và Phase B được ghi vào `plan_phase_a.txt`, `plan_phase_b.txt`. Danh sách action được ghi vào `execution.spark_actions`.
+
+### 10.2 So sánh giá trị nghiệp vụ
+`scripts/run/compare_p5_results.py --baseline A.json --candidate B.json --out cmp.json` so sánh **giá trị**, không so JSON theo byte. So sánh: số event, số session theo bucket, in_scope, too_short, early_purchase, eligible, label_0, label_1, len_equals_n cho train/validation/train+validation, và QA leakage phải bằng 0. Bỏ qua run_id, thời gian, plan, config, thứ tự trường. Exit 1 nếu có khác biệt.
+
+### 10.3 Bảo vệ tài nguyên
+- `scripts/run/p5_resource_preflight.py`: RAM available (mặc định ≥ 1200 MB), swap (cảnh báo), đĩa của `spark.local.dir` (≥ 30 GB), HDFS (≥ 5 GB), không có SparkSubmit khác, thư mục output phải mới. Không đạt → BLOCKED (exit 2).
+- `scripts/run/p5_eventlog_metrics.py`: tổng hợp **số đo thật** từ event log Spark (shuffle đọc/ghi, spill memory/disk, peak execution memory, thời gian). Không ước lượng.
+- Runner ghi `resource_monitor.log` (RAM, swap, đĩa, dung lượng `spark_local`) trong suốt run.
+- Spark local dir, event log và staging nằm dưới `$HOME/p5_b6_01_work/<RUN_ID>`, **không** trong Shared Folder.
+
+### 10.4 Các bước của runner VM B
+| Bước | Nội dung |
+|---|---|
+| E5 | legacy, acceptance N=3, mẫu 0,1% (oracle) |
+| E5b | legacy, reference N=2/3/5 (chỉ so sánh) |
+| E5c | diagnostic gap, không ranking, không nhãn |
+| E5s / E5t / E5p | staged: semi_join+disk_persist / time_filter+disk_persist / semi_join+staging |
+| E5r | staged, reference N=2/3/5 |
+| E5k | staged với `TZ=Asia/Seoul`: kết quả phải không đổi |
+| E5cmp | so sánh E5s/E5t/E5p/E5k với baseline UTC đã nghiệm thu; E5r với E5b |
+| E6p | preflight tài nguyên cho Full |
+| E6 | Full N=3, **chỉ khi** `FULL_RUN=1` và `CONFIRM_FULL=1` và mọi bước trước PASS |
+
+### 10.5 Lệnh chạy (chưa chạy)
+```bash
+cd /media/sf_ecommerce-bigdata-capstone
+# Bước 4: so sánh 0,1% (không Full)
+RUN_ID=p5_staged_cmp_1 bash scripts/run/run_p5_b6_01_vm_b.sh
+# Bước 5: benchmark 1% (không Full)
+RUN_ID=p5_bench_1pct_1 SAMPLE_PCT=1 bash scripts/run/run_p5_b6_01_vm_b.sh
+```
+Full chỉ được xem xét sau khi bước 4 và 5 đạt GO. Lệnh Full không nằm trong tài liệu này để tránh chạy nhầm.
+
+### 10.6 Kết quả kiểm thử Windows (PySpark 4.0.1, Python 3.11.9)
+- `tests/unit/test_p5_b6_01_n_selection.py`: **49 passed, 1 skipped**, exit 0. Test skipped là t34 (chạy KST trên Linux).
+- Mutant tắt containment (censor): 6 test thất bại (t35, t36).
+- Mutant cho phép test range vào ranking: 1 trong 2 biến thể t37 thất bại.
+- CLI staged trên synthetic cùng cửa sổ với bản legacy: **EQUAL** theo `compare_p5_results.py`.
+- Chưa có kiểm chứng trên Spark 3.1.2. Các API mới đã đối chiếu với tài liệu, cần chạy trên VM để xác nhận.

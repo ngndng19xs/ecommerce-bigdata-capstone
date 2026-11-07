@@ -576,7 +576,9 @@ def test_t34_same_buckets_when_os_zone_is_kst(tmp_path):
         encoding="utf-8",
     )
     rows = [[sid, t] for sid, times, _ in BOUNDARY_CASES for t in times]
-    env = dict(os.environ, TZ="Asia/Seoul")
+    # Second JVM next to the pytest one: keep it small so the 4.6 GB VM is not overloaded.
+    env = dict(os.environ, TZ="Asia/Seoul", CAPSTONE_DRIVER_MEMORY="512m",
+               PYSPARK_SUBMIT_ARGS="--driver-memory 512m pyspark-shell")
     proc = subprocess.run(
         [sys.executable, str(script), json.dumps(rows), json.dumps(_example_cfg()["windows_utc"])],
         env=env, capture_output=True, text=True, timeout=600,
@@ -587,6 +589,204 @@ def test_t34_same_buckets_when_os_zone_is_kst(tmp_path):
     if out["offset_hours"] != 9:
         pytest.skip(f"Asia/Seoul zone data not available in this OS (offset={out['offset_hours']})")
     assert out["buckets"] == {sid: bucket for sid, _, bucket in BOUNDARY_CASES}
+
+
+# --- Staged engine (Phase A -> gate -> Phase B) must equal the legacy oracle ------------------
+
+STAGED_COMBOS = [
+    ("semi_join", "disk_persist"),
+    ("time_filter", "disk_persist"),
+    ("semi_join", "staging"),
+    ("time_filter", "staging"),
+]
+
+
+def _load_script(name):
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(name, ROOT / "scripts" / "run" / f"{name}.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def _staged(df, ns, bounds, ranking_input, materialize, tmp_path, **kw):
+    from src.ml.dataset.n_selection import analyze_n_candidates_staged
+    staging = (tmp_path / f"stage_{ranking_input}_{materialize}").as_uri() if materialize == "staging" else None
+    return analyze_n_candidates_staged(df, ns, bounds, ranking_input=ranking_input, materialize=materialize,
+                                       staging_dir=staging, **kw)
+
+
+def _assert_equal_business(legacy, staged):
+    cmp = _load_script("compare_p5_results")
+    report = cmp.compare(legacy, staged)
+    assert report["equal"], report["differences"]
+
+
+def _tie_rows():
+    """Timestamp ties: view (rank 1) and purchase (rank 4) at the same second, in reverse row order."""
+    t = T("2019-10-02T13:00:00")
+    return [
+        ("S_tie", t, "purchase", 4, "{:064x}".format(801), "P0", "C0", "A", 10.0),
+        ("S_tie", t, "view", 1, "{:064x}".format(800), "P0", "C0", "A", 10.0),
+        ("S_tie", t + timedelta(seconds=1), "cart", 2, "{:064x}".format(802), "P0", "C0", "A", 10.0),
+    ]
+
+
+@pytest.mark.parametrize("ranking_input,materialize", STAGED_COMBOS)
+def test_t35_staged_equals_legacy_on_base_edge_and_tie_fixtures(spark, tmp_path, ranking_input, materialize):
+    rows = build_fixture() + _extra_rows() + _tie_rows()
+    legacy = analyze_n_candidates(make_df(spark, rows), [2, 3, 5], BOUNDS)
+    staged = _staged(make_df(spark, rows), [2, 3, 5], BOUNDS, ranking_input, materialize, tmp_path)
+    _assert_equal_business(legacy, staged)
+    assert staged["events"] == legacy["events"]
+
+
+@pytest.mark.parametrize("ranking_input", ["semi_join", "time_filter"])
+def test_t36_staged_equals_legacy_on_h11_boundaries_and_holed_windows(spark, tmp_path, ranking_input):
+    b = _h11_bounds()
+    legacy = analyze_n_candidates(make_df(spark, _boundary_rows()), [3], b)
+    staged = _staged(make_df(spark, _boundary_rows()), [3], b, ranking_input, "disk_persist", tmp_path)
+    _assert_equal_business(legacy, staged)
+    holed = SplitBounds.from_iso({
+        "train_start": "2019-10-01T00:00:00Z", "train_end_exclusive": "2019-10-04T00:00:00Z",
+        "validation_start": "2019-10-05T00:00:00Z", "validation_end_exclusive": "2019-10-08T00:00:00Z",
+        "test_start": "2019-10-08T00:00:00Z", "test_end_exclusive": "2019-10-10T00:00:00Z",
+    })
+    legacy_h = analyze_n_candidates(make_df(spark, build_fixture()), [3], holed)
+    staged_h = _staged(make_df(spark, build_fixture()), [3], holed, ranking_input, "disk_persist", tmp_path)
+    _assert_equal_business(legacy_h, staged_h)
+    assert staged_h["session_buckets"]["gap"]["sessions"] > 0
+
+
+@pytest.mark.parametrize("ranking_input", ["semi_join", "time_filter"])
+def test_t37_staged_keeps_test_sealed(spark, tmp_path, ranking_input):
+    """Test-range purchases must not change anything, and no test-range session may be ranked."""
+    def flip(kinds):
+        return [k if k != "purchase" else "view" for k in kinds] + ["purchase"]
+
+    base = _staged(make_df(spark, build_fixture()), [2, 3, 5], BOUNDS, ranking_input, "disk_persist", tmp_path)
+    poisoned = _staged(
+        make_df(spark, build_fixture(overrides={"X_a": flip, "X_b": lambda k: k + ["purchase", "purchase"]})),
+        [2, 3, 5], BOUNDS, ranking_input, "disk_persist", tmp_path)
+    assert poisoned["per_n"] == base["per_n"]
+    assert base["leakage_qa"]["ranked_test_range_sessions"] == 0
+    assert poisoned["leakage_qa"]["ranked_test_range_sessions"] == 0
+    assert base["leakage_qa"]["length_mismatch_between_summary_and_ranking"] == 0
+
+
+def _long_session_rows(n_events=3000, purchase_at=2500):
+    t0 = T("2019-10-03T00:00:00")
+    rows = []
+    for i in range(n_events):
+        kind = "purchase" if i + 1 == purchase_at else "view"
+        rows.append(("S_long", t0 + timedelta(seconds=i), kind, RANK[kind], "{:064x}".format(10000 + i),
+                     "P0", "C0", "A", 10.0))
+    return rows
+
+
+def test_t38_long_session_equivalence_and_pre_window_gate(spark, tmp_path):
+    from src.ml.dataset.n_selection import WindowGroupGateError
+    rows = build_fixture() + _long_session_rows()
+    legacy = analyze_n_candidates(make_df(spark, rows), [3], BOUNDS)
+    staged = _staged(make_df(spark, rows), [3], BOUNDS, "semi_join", "disk_persist", tmp_path)
+    _assert_equal_business(legacy, staged)
+    gate = staged["execution"]["pre_window_gate"]
+    assert gate["window_group_max"] == 3000 and gate["mode"] == "record_only"
+    with pytest.raises(WindowGroupGateError) as exc:
+        _staged(make_df(spark, rows), [3], BOUNDS, "semi_join", "disk_persist", tmp_path, max_window_group=100)
+    assert exc.value.gate["window_group_max"] == 3000 and exc.value.gate["threshold"] == 100
+
+
+def test_t39_actions_plans_and_materialization_are_recorded(spark, tmp_path):
+    persist = _staged(make_df(spark, build_fixture()), [3], BOUNDS, "semi_join", "disk_persist", tmp_path)
+    ex = persist["execution"]
+    assert ex["spark_actions"] == ["A1_session_summary_aggregate", "B1_rank_and_aggregate"]
+    assert "Window" in ex["plans"]["phase_b"]
+    assert "InMemoryTableScan" in ex["plans"]["phase_b"], "Phase B must reuse the persisted Phase A summary"
+    assert ex["spark_conf"]["spark.sql.session.timeZone"] == "UTC"
+
+    staged = _staged(make_df(spark, build_fixture()), [3], BOUNDS, "semi_join", "staging", tmp_path)
+    ex2 = staged["execution"]
+    assert ex2["spark_actions"][0] == "A0_write_session_summary_staging"
+    assert "session_summary" in ex2["plans"]["phase_b"], "Phase B must read the staged Parquet summary"
+
+
+def test_t40_comparator_detects_any_business_difference(base_result):
+    import copy
+    cmp = _load_script("compare_p5_results")
+    assert cmp.compare(base_result, copy.deepcopy(base_result))["equal"]
+    changed = copy.deepcopy(base_result)
+    changed["per_n"]["3"]["validation"]["label_1"] += 1
+    r = cmp.compare(base_result, changed)
+    assert not r["equal"] and any("per_n.3.validation.label_1" in d for d in r["differences"])
+    changed2 = copy.deepcopy(base_result)
+    changed2["session_buckets"]["test_range"]["sessions"] += 1
+    assert not cmp.compare(base_result, changed2)["equal"]
+    only3 = copy.deepcopy(base_result)
+    only3["per_n"] = {"3": only3["per_n"]["3"]}
+    r3 = cmp.compare(base_result, only3)
+    assert r3["equal"] and r3["n_compared"] == ["3"] and r3["n_only_in_baseline"] == ["2", "5"]
+
+
+def test_t41_resource_preflight_decisions():
+    pf = _load_script("p5_resource_preflight")
+    mi = pf.parse_meminfo("MemTotal: 4810000 kB\nMemAvailable: 1722368 kB\nSwapTotal: 8257532 kB\nSwapFree: 8027900 kB\n")
+    assert round(mi["MemAvailable"] / 1024) == 1682
+    assert pf.parse_hdfs_df("Filesystem Size Used Available Use%\nhdfs://localhost:9000 53660876800 25000000000 28132061184 47%\n") \
+        == 28132061184
+    th = {"min_mem_available_mb": 1200, "max_swap_used_mb": 1024, "swap_policy": "warn",
+          "min_local_free_gb": 30, "min_hdfs_free_gb": 5}
+    ok_values = {"mem_available_mb": 2500, "swap_used_mb": 224, "local_free_gb": 37, "local_dir": "/x",
+                 "hdfs_free_gb": 26.2, "other_spark_submit": 0, "output_dir_exists": False, "output_dir": "/o"}
+    assert pf.evaluate(ok_values, th)["status"] == "PASS"
+    assert pf.evaluate(dict(ok_values, mem_available_mb=1100), th)["status"] == "BLOCKED"
+    assert pf.evaluate(dict(ok_values, local_free_gb=20), th)["status"] == "BLOCKED"
+    assert pf.evaluate(dict(ok_values, other_spark_submit=1), th)["status"] == "BLOCKED"
+    assert pf.evaluate(dict(ok_values, output_dir_exists=True), th)["status"] == "BLOCKED"
+    assert pf.evaluate(dict(ok_values, mem_available_mb=None), th)["status"] == "BLOCKED"
+    warn = pf.evaluate(dict(ok_values, swap_used_mb=2000), th)
+    assert warn["status"] == "PASS" and any(c["status"] == "WARN" for c in warn["checks"])
+    assert pf.evaluate(dict(ok_values, swap_used_mb=2000), dict(th, swap_policy="block"))["status"] == "BLOCKED"
+
+
+def test_t42_eventlog_metrics_are_summed_from_task_end_events():
+    import json
+    el = _load_script("p5_eventlog_metrics")
+    lines = [
+        json.dumps({"Event": "SparkListenerApplicationStart", "Timestamp": 1000}),
+        json.dumps({"Event": "SparkListenerTaskEnd", "Task End Reason": {"Reason": "Success"}, "Task Metrics": {
+            "Shuffle Write Metrics": {"Shuffle Bytes Written": 1048576},
+            "Shuffle Read Metrics": {"Remote Bytes Read": 0, "Local Bytes Read": 2097152},
+            "Memory Bytes Spilled": 3145728, "Disk Bytes Spilled": 1048576,
+            "Peak Execution Memory": 5242880, "Input Metrics": {"Bytes Read": 4194304}}}),
+        json.dumps({"Event": "SparkListenerTaskEnd", "Task End Reason": {"Reason": "ExceptionFailure"},
+                    "Task Metrics": {}}),
+        json.dumps({"Event": "SparkListenerStageCompleted"}),
+        json.dumps({"Event": "SparkListenerApplicationEnd", "Timestamp": 61000}),
+    ]
+    m = el.summarise(lines)
+    assert (m["tasks"], m["failed_tasks"], m["stages_completed"]) == (2, 1, 1)
+    assert m["shuffle_mb_written"] == 1.0 and m["shuffle_mb_read"] == 2.0
+    assert m["memory_mb_spilled"] == 3.0 and m["disk_mb_spilled"] == 1.0
+    assert m["peak_execution_memory_max_mb"] == 5.0 and m["app_duration_seconds"] == 60.0
+
+
+def test_t43_cli_staged_arguments_and_qa_for_staged_keys(tmp_path, monkeypatch):
+    cli = _load_cli()
+    monkeypatch.setattr(sys, "argv", ["x", "--engine", "staged", "--materialize", "staging",
+                                      "--output-dir", str(tmp_path / "o"), "--run-id", "t"])
+    assert cli.main() == 2  # staging without --staging-dir is refused before Spark starts
+    existing = tmp_path / "stage_exists"
+    existing.mkdir()
+    monkeypatch.setattr(sys, "argv", ["x", "--engine", "staged", "--materialize", "staging",
+                                      "--staging-dir", existing.as_uri(),
+                                      "--output-dir", str(tmp_path / "o2"), "--run-id", "t"])
+    assert cli.main() == 2  # existing staging dir is never reused
+    fake = {"per_n": {}, "session_buckets": {"gap": {"sessions": 0}},
+            "leakage_qa": {"candidate_sessions_ending_at_or_after_own_split_end": 0,
+                           "ranked_test_range_sessions": 1, "length_mismatch_between_summary_and_ranking": 0}}
+    ok, problems = cli._qa_pass(fake)
+    assert not ok and any("test must stay sealed" in p for p in problems)
 
 
 if __name__ == "__main__":

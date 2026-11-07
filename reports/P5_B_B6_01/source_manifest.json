@@ -1,13 +1,15 @@
 {
-  "generated_utc": "2026-11-07T12:10:06.938908+00:00",
+  "generated_utc": "2026-11-07T12:32:34.695148+00:00",
   "generated_on": "git-host",
   "git": {
     "available": true,
-    "head": "5012550b2643cdea78b35cbb4fff82779039aa29",
+    "head": "47f0522aed566a62386c148c855c2eec1d6c8f87",
     "branch": "feature/P5-B-B6-01-n-selection",
     "uncommitted_entries": [
-      "M scripts/run/run_p5_b6_01_n_analysis.py",
+      "M reports/P5_B_B6_01/README.md",
+      " M scripts/run/run_p5_b6_01_n_analysis.py",
       " M scripts/run/run_p5_b6_01_vm_b.sh",
+      " M scripts/run/source_manifest_p5.py",
       " M src/ml/dataset/n_selection.py",
       " M tests/unit/test_p5_b6_01_n_selection.py",
       "?? reports/P4_B_B7_01/win_full_synthetic_pass3/",
@@ -15,7 +17,10 @@
       "?? reports/P5_B_B6_01/p5_gap_diag_v2/",
       "?? reports/P5_B_B6_01/p5_n3_utc_v1/",
       "?? reports/P5_B_B6_01/p5_n3_vm_b_sample_v1/",
-      "?? reports/P5_B_B6_01/win_synthetic_utc_fix/"
+      "?? reports/P5_B_B6_01/win_synthetic_staged_e2e/",
+      "?? scripts/run/compare_p5_results.py",
+      "?? scripts/run/p5_eventlog_metrics.py",
+      "?? scripts/run/p5_resource_preflight.py"
     ],
     "working_tree_snapshot": true
   },
@@ -47,18 +52,43 @@
     },
     {
       "path": "src/ml/dataset/n_selection.py",
-      "sha256": "2c518580b6d10e4b8f2623603a5d9fedbc9f196ae0857fdcdb7c5dad72e89eb0",
-      "bytes": 16100
+      "sha256": "d4d51efe7a405881b75937b7ac818343190956f6afb0089885b49ec5efc0d9ff",
+      "bytes": 30570
     },
     {
       "path": "scripts/run/run_p5_b6_01_n_analysis.py",
-      "sha256": "1ad7a7775f7c7a5720dd0a3b8882cb298c4d5f82900408890deda2a64c29d7f5",
-      "bytes": 11520
+      "sha256": "7fea0cd0c34b17c4b4ece49e8a5758a75cf5c6bd1f3f800e565cc755a94bae5e",
+      "bytes": 15746
+    },
+    {
+      "path": "scripts/run/run_p5_b6_01_vm_b.sh",
+      "sha256": "c409d35111db669889dd90c0147109691240f7d22feabeb5d214a769be59f4e6",
+      "bytes": 19636
+    },
+    {
+      "path": "scripts/run/compare_p5_results.py",
+      "sha256": "9665b5dd4ac0f29ab0315dac14211a54f6f8e2ac915cd84a6246de3388fe057e",
+      "bytes": 5059
+    },
+    {
+      "path": "scripts/run/p5_resource_preflight.py",
+      "sha256": "bca15117625ed92faa0e43e3e5f329ebfb2498a0f23b7dc0680ebfc6a2afa190",
+      "bytes": 7245
+    },
+    {
+      "path": "scripts/run/p5_eventlog_metrics.py",
+      "sha256": "dc99da6bc25f896cee670f19b1d91e962a8974d6fc60340665aae3b14df2a62d",
+      "bytes": 4895
+    },
+    {
+      "path": "scripts/run/preflight_b7_01.py",
+      "sha256": "74ff7b0ea3c0c08726a3bda9e483bed8c06051068bb9f47353bcef8eb1c28bb5",
+      "bytes": 3135
     },
     {
       "path": "scripts/run/source_manifest_p5.py",
-      "sha256": "e6d8f1f86d206f6bcf4e0ce8defe8516242be89fd81f9af7f0b141f0e109e77a",
-      "bytes": 1835
+      "sha256": "ad4bc50a1d7192e3aacad7a046cb631533ee7c48825e20b2cfe11a47b1bce172",
+      "bytes": 2040
     },
     {
       "path": "configs/n_candidate_analysis.example.yaml",
@@ -67,8 +97,8 @@
     },
     {
       "path": "tests/unit/test_p5_b6_01_n_selection.py",
-      "sha256": "947d56c86b24fff30f6cb02f91272b252c4ce12fccc7c28f6e66a2cee465ba59",
-      "bytes": 27335
+      "sha256": "df6b4714faecd0017bb0b373c3a7e190e7fd0916bcd52ddd43fe79e2b4192abe",
+      "bytes": 38399
     },
     {
       "path": "tests/unit/test_b6_02.py",

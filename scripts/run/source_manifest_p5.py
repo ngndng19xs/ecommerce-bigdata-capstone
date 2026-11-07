@@ -29,6 +29,11 @@ P5_KEY_FILES = [
     # P5-B-B6-01 deliverables
     "src/ml/dataset/n_selection.py",
     "scripts/run/run_p5_b6_01_n_analysis.py",
+    "scripts/run/run_p5_b6_01_vm_b.sh",
+    "scripts/run/compare_p5_results.py",
+    "scripts/run/p5_resource_preflight.py",
+    "scripts/run/p5_eventlog_metrics.py",
+    "scripts/run/preflight_b7_01.py",
     "scripts/run/source_manifest_p5.py",
     "configs/n_candidate_analysis.example.yaml",
     "tests/unit/test_p5_b6_01_n_selection.py",
