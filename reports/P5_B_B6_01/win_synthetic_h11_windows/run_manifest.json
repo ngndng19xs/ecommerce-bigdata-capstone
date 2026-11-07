@@ -1,0 +1,69 @@
+{
+  "task": "P5-B-B6-01",
+  "run_id": "win_synthetic_h11_windows",
+  "started_utc": "2026-11-07T08:55:42.040453+00:00",
+  "finished_utc": "2026-11-07T08:55:53.520086+00:00",
+  "mode": "sample",
+  "sample_percent": 100.0,
+  "input_path": "C:/Users/Admin/AppData/Local/Temp/claude/c76c7dcd73c98805/a760d702-ed0e-4dfc-a891-bf8b8388b631/scratchpad/e2e_run1/curated",
+  "input_files": 2,
+  "n_candidates": [
+    2,
+    3,
+    5
+  ],
+  "windows_utc": {
+    "train_start": "2019-10-01T00:00:00Z",
+    "train_end_exclusive": "2019-11-13T00:00:00Z",
+    "validation_start": "2019-11-13T00:00:00Z",
+    "validation_end_exclusive": "2019-11-22T00:00:00Z",
+    "test_start": "2019-11-22T00:00:00Z",
+    "test_end_exclusive": "2019-12-01T00:00:00Z"
+  },
+  "config_snapshot": {
+    "n_candidates": [
+      2,
+      3,
+      5
+    ],
+    "n_preferred_initial": 3,
+    "windows_utc": {
+      "train_start": "2019-10-01T00:00:00Z",
+      "train_end_exclusive": "2019-11-13T00:00:00Z",
+      "validation_start": "2019-11-13T00:00:00Z",
+      "validation_end_exclusive": "2019-11-22T00:00:00Z",
+      "test_start": "2019-11-22T00:00:00Z",
+      "test_end_exclusive": "2019-12-01T00:00:00Z"
+    },
+    "temporal_policy": {
+      "session_key": "user_session",
+      "session_time": "min(event_time) and max(event_time) over ALL events of the session",
+      "assignment": "train/validation only if the whole session lies inside the window (session_end < window end)",
+      "censoring": "sessions starting in a window but ending after it are counted as censored, not labelled",
+      "test_range": "counted only by session start; never ranked, never labelled",
+      "invalid_session": "NULL or blank user_session: counted as events, not as sessions"
+    },
+    "sampling": {
+      "test_mode_default_percent": 0.1,
+      "full_run_requires_flag": true
+    },
+    "spark": {
+      "master": "local[2]",
+      "driver_memory": "1g",
+      "shuffle_partitions": 4,
+      "timezone": "UTC"
+    },
+    "seed_policy": {
+      "random_seed_used_by_code": false
+    }
+  },
+  "spark_version": "4.0.1",
+  "python_version": "3.11.9",
+  "qa_pass": false,
+  "qa_problems": [
+    "N=2 validation: empty split, no evidence for this N",
+    "N=3 validation: empty split, no evidence for this N",
+    "N=5 validation: empty split, no evidence for this N"
+  ],
+  "decision_note": "No N is selected by this script. Final N requires evidence review and A/B approval."
+}

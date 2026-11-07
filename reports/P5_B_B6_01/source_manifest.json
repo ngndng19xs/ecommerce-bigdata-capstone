@@ -1,0 +1,88 @@
+{
+  "generated_utc": "2026-11-07T08:57:27.086466+00:00",
+  "generated_on": "git-host",
+  "git": {
+    "available": true,
+    "head": "348a8fdb05e408fb5637ac1eceae82b9bb7fa812",
+    "branch": "feature/P5-B-B6-01-n-selection",
+    "uncommitted_entries": [
+      "?? configs/n_candidate_analysis.example.yaml",
+      "?? reports/P4_B_B7_01/win_full_synthetic_pass3/",
+      "?? reports/P4_B_B7_02/win_b7_02_gate_mismatch/",
+      "?? reports/P5_B_B6_01/",
+      "?? scripts/run/run_p5_b6_01_n_analysis.py",
+      "?? scripts/run/run_p5_b6_01_vm_b.sh",
+      "?? scripts/run/source_manifest_p5.py",
+      "?? src/ml/dataset/n_selection.py",
+      "?? tests/unit/test_p5_b6_01_n_selection.py"
+    ],
+    "working_tree_snapshot": true
+  },
+  "files": [
+    {
+      "path": "ml/features.py",
+      "sha256": "879fa654b2e47776110f09cdad00263308768f27893e13061ded609a32bb670b",
+      "bytes": 1183
+    },
+    {
+      "path": "ml/session_features.py",
+      "sha256": "0654910ac9dc2292149918933b2133fd0283154feac9e41bc3cb58ebc8e51ba6",
+      "bytes": 4757
+    },
+    {
+      "path": "src/common/logger.py",
+      "sha256": "234344441dba1eb45efa83108f38dd38e51979f345bb6c482cbad610ec3f3495",
+      "bytes": 1016
+    },
+    {
+      "path": "src/common/spark_session.py",
+      "sha256": "aa34721c07788028d86c62f6e33025da74bb2090df24a1476c3488f4cdbeb33f",
+      "bytes": 3199
+    },
+    {
+      "path": "src/ml/training/lr_b6_smoke.py",
+      "sha256": "b2af8006a2f42201a95cb248387e63737e545770292a92288720e04400a23620",
+      "bytes": 18769
+    },
+    {
+      "path": "src/ml/dataset/n_selection.py",
+      "sha256": "ec96662ab5aa68fe0cb3efb108d19cdaa5ae43140d74e15d99645d52be687a27",
+      "bytes": 10703
+    },
+    {
+      "path": "scripts/run/run_p5_b6_01_n_analysis.py",
+      "sha256": "217c76db0f713400cc6db12120c48ef73f9d5f26a408efd9554ce1e45baca0c7",
+      "bytes": 7282
+    },
+    {
+      "path": "scripts/run/source_manifest_p5.py",
+      "sha256": "e6d8f1f86d206f6bcf4e0ce8defe8516242be89fd81f9af7f0b141f0e109e77a",
+      "bytes": 1835
+    },
+    {
+      "path": "configs/n_candidate_analysis.example.yaml",
+      "sha256": "814cc07c965f03f9ab0c748cbf41760f9ca676d6713d0692418a1836388ce66f",
+      "bytes": 1679
+    },
+    {
+      "path": "tests/unit/test_p5_b6_01_n_selection.py",
+      "sha256": "ae423a6d0320dfcf9a44fe840b059f7f1494f52910b17933bbd213f4d694c0e5",
+      "bytes": 15810
+    },
+    {
+      "path": "tests/unit/test_b6_02.py",
+      "sha256": "4229fbcd4da394c5219161b7bbd0a0f707a63c5adaaab987b601cc5ce0410db1",
+      "bytes": 6771
+    },
+    {
+      "path": "tests/unit/test_ml_features.py",
+      "sha256": "b44f739e14a5260a1c688dcc52e15537249cfe515699c95808da0e3d89175467",
+      "bytes": 4009
+    },
+    {
+      "path": "tests/unit/test_b6_01_edges.py",
+      "sha256": "94fc78339f4ed9999c2a9417a3ff301a2dced3f758920219ee00e646b33bb630",
+      "bytes": 3076
+    }
+  ]
+}
