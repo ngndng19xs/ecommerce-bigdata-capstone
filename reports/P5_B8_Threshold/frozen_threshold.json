@@ -1,0 +1,32 @@
+{
+  "task": "P5-B8",
+  "status": "PROVISIONAL_PENDING_A_REVIEW",
+  "selection_frozen_for_this_run": true,
+  "model_path": "/var/tmp/p5_b6_01_work_student/b7/b7_h11_lr_fixed2_20261107T231454Z/model",
+  "model_sha256": "7febf66766760eb7a7c101268f3aa23c97945e94d9ef1d9a7a2fca1aa1bf27b6",
+  "validation_scores_path": "/var/tmp/p5_b6_01_work_student/b7/b7_h11_lr_fixed2_20261107T231454Z/evidence/validation_scores.csv",
+  "validation_scores_sha256": "e5eb036a0b64c86e8f8a616e960afd3cf990f686737c8335f203dad1e663b561",
+  "prediction_n": 3,
+  "selection_metric": "positive_class_f1",
+  "tie_break": "smaller_threshold",
+  "threshold_grid": {
+    "start": 0.05,
+    "stop": 0.95,
+    "step": 0.01
+  },
+  "selected_threshold": 0.74,
+  "validation_metrics": {
+    "threshold": 0.74,
+    "tp": 1098,
+    "fp": 3635,
+    "tn": 31458,
+    "fn": 1657,
+    "precision": 0.2319881681808578,
+    "recall": 0.3985480943738657,
+    "f1": 0.2932692307692307,
+    "accuracy": 0.8601775523145212,
+    "predicted_positive": 4733
+  },
+  "test_evaluated": false,
+  "created_utc": "2026-11-07T23:31:13.784701+00:00"
+}

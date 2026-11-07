@@ -1,0 +1,9 @@
+{
+  "validation_rows": 37848,
+  "positive_rows": 2755,
+  "negative_rows": 35093,
+  "auc_roc_spark": 0.6945376358789045,
+  "auc_pr_spark": 0.18269634526434522,
+  "test_access": "NONE",
+  "source": "B7 saved PipelineModel"
+}

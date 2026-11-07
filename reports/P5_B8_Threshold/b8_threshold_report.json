@@ -1,0 +1,25 @@
+{
+  "status": "B8_EXPERIMENT_PASS",
+  "acceptance_status": "PENDING_A_REVIEW",
+  "validation_rows": 37848,
+  "validation_positive": 2755,
+  "validation_negative": 35093,
+  "thresholds_evaluated": 91,
+  "selection_metric": "positive_class_f1",
+  "selected_threshold": 0.74,
+  "best_validation_metrics": {
+    "threshold": 0.74,
+    "tp": 1098,
+    "fp": 3635,
+    "tn": 31458,
+    "fn": 1657,
+    "precision": 0.2319881681808578,
+    "recall": 0.3985480943738657,
+    "f1": 0.2932692307692307,
+    "accuracy": 0.8601775523145212,
+    "predicted_positive": 4733
+  },
+  "b7_validation_auc_roc": 0.6945376358789045,
+  "b7_validation_auc_pr": 0.18269634526434522,
+  "test_access": "NONE"
+}
