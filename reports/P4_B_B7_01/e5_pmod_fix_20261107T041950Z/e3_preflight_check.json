@@ -1,0 +1,27 @@
+{
+  "check": "E3_hdfs_curated_preflight",
+  "curated_path": "/data/curated/events",
+  "checked_utc": "2026-11-06T22:42:17.228007+00:00",
+  "rows_scanned": false,
+  "parquet_files": 774,
+  "schema_columns": [
+    "event_time",
+    "event_type",
+    "product_id",
+    "category_id",
+    "category_code",
+    "brand",
+    "price",
+    "user_id",
+    "user_session",
+    "reject_reason",
+    "event_type_rank",
+    "event_sort_key",
+    "event_date"
+  ],
+  "missing_required_columns": [],
+  "spark_version": "3.1.2",
+  "status": "PASS",
+  "reason": "path readable, parquet files present, schema complete",
+  "exit_code": 0
+}

@@ -1,0 +1,26 @@
+{
+  "check": "TC16_source_integrity",
+  "repo_root": "/media/sf_ecommerce-bigdata-capstone",
+  "manifest_path": "reports/P4_B_B7_01/source_manifest.json",
+  "verified_utc": "2026-11-07T04:37:25.033393+00:00",
+  "manifest_git": {
+    "available": true,
+    "head": "fcccf589bc86d04136f73180ac38f45cf458847a",
+    "branch": "feature/P4-B-B7-01",
+    "uncommitted_entries": [
+      "M src/ml/training/lr_b6_smoke.py",
+      " M tests/unit/test_b7_01_lr_smoke.py",
+      " M tests/unit/test_b7_01_tooling.py",
+      "?? reports/P4_B_B7_01/win_full_synthetic_pass3/"
+    ],
+    "working_tree_snapshot": true
+  },
+  "vm_git_available": false,
+  "files_total": 24,
+  "files_matched": 24,
+  "files_mismatched": [],
+  "files_missing": [],
+  "working_tree_snapshot": true,
+  "status": "PASS",
+  "reason": "all key files match the manifest SHA-256; commit not independently verified (git not available on this host); manifest describes a WORKING TREE SNAPSHOT, not a clean commit"
+}
