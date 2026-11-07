@@ -49,9 +49,21 @@ def extract(result: dict) -> dict:
     }
 
 
-def compare(baseline: dict, candidate: dict) -> dict:
+def compare(baseline: dict, candidate: dict, require_n=None) -> dict:
+    """Compare business values. require_n: N values (strings) that BOTH files must contain.
+
+    A candidate missing a required N is a difference (never EQUAL). A baseline missing a required N
+    raises ValueError: the comparison cannot be made.
+    """
     a, b = extract(baseline), extract(candidate)
     diffs = []
+    if require_n:
+        missing_in_base = [n for n in require_n if n not in a["per_n"]]
+        if missing_in_base:
+            raise ValueError(f"baseline has no N {missing_in_base}; cannot compare")
+        missing_in_cand = [n for n in require_n if n not in b["per_n"]]
+        if missing_in_cand:
+            diffs.append(f"missing N in candidate: {missing_in_cand} (required {list(require_n)})")
     for k in EVENT_KEYS:
         if a["events"][k] != b["events"][k]:
             diffs.append(f"events.{k}: baseline={a['events'][k]} candidate={b['events'][k]}")
@@ -72,6 +84,7 @@ def compare(baseline: dict, candidate: dict) -> dict:
         diffs.append(f"leakage: baseline_zero={a['leakage_zero']} candidate_zero={b['leakage_zero']}")
     return {
         "equal": not diffs,
+        "required_n": list(require_n) if require_n else None,
         "n_compared": common,
         "n_only_in_baseline": sorted(set(a["per_n"]) - set(b["per_n"]), key=int),
         "n_only_in_candidate": sorted(set(b["per_n"]) - set(a["per_n"]), key=int),
@@ -84,6 +97,8 @@ def main(argv=None) -> int:
     ap.add_argument("--baseline", required=True)
     ap.add_argument("--candidate", action="append", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--require-n", default=None,
+                    help="Comma-separated N that every candidate must contain, e.g. 3 or 2,3,5 (missing = mismatch).")
     args = ap.parse_args(argv)
 
     try:
@@ -97,9 +112,21 @@ def main(argv=None) -> int:
         print(f"BLOCKED: cannot read result file: {exc}", file=sys.stderr)
         return 2
 
+    require_n = None
+    if args.require_n:
+        try:
+            require_n = [str(int(x)) for x in args.require_n.split(",") if x.strip()]
+        except ValueError:
+            print(f"BLOCKED: --require-n must be integers, got {args.require_n!r}", file=sys.stderr)
+            return 2
+
     report = {"baseline": args.baseline, "comparisons": []}
     for path, cand in cands:
-        r = compare(base, cand)
+        try:
+            r = compare(base, cand, require_n)
+        except ValueError as exc:
+            print(f"BLOCKED: {exc}", file=sys.stderr)
+            return 2
         r["candidate"] = path
         report["comparisons"].append(r)
     report["all_equal"] = all(r["equal"] for r in report["comparisons"])

@@ -1,0 +1,61 @@
+# P5-B-B6-01 / ML stage 1 configuration (starting values, to be calibrated on the pilot).
+#
+# Nothing here approves N, H11 windows or the main run. H11 remains PENDING_A_REVIEW.
+# Every output built from the snapshot is a SAMPLED_SESSIONS result, never a Full result.
+
+snapshot:
+  threshold: 455              # hash < 455 of 10000 buckets = 4.55% of sessions (~5 million events)
+  pilot_threshold: 57         # nested pilot, about 1/8 of the snapshot (~0.6 million events)
+  check_threshold: 10         # nested check against the 0.1% evidence of P5 (E5)
+  check_expect_rows: 107965   # events in the 0.1% evidence (E5, total)
+  check_expect_sessions: 22923
+  coalesce: 16
+  source_rows_reference: 109950743
+
+b6_02:
+  # Longest session allowed before B6-02 starts. null = record only. Set after the pilot, never by guess.
+  max_session_events_gate: null
+  # Only read when the snapshot has an is_valid column: ignore | apply. Chosen by member B, never by the agent.
+  is_valid_rule: null
+
+watchdog:
+  interval: 5                 # seconds between samples
+  warn_mem_mb: 800            # MemAvailable: warning only
+  emergency_mem_mb: 300       # MemAvailable below this for emergency_seconds: stop now
+  emergency_seconds: 5
+  stop_mem_mb: 500            # MemAvailable below this for stop_mem_seconds: stop
+  stop_mem_seconds: 30
+  swap_kib_s: 1024            # swap-in + swap-out average over swap_seconds
+  swap_seconds: 30
+  stop_disk_gb: 10            # free space of disk_path
+  kill_grace: 20              # SIGTERM first, SIGKILL after this many seconds
+  disk_path: /var/tmp
+
+timeouts_seconds:
+  env: 300
+  tests: 1500
+  watchdog_selftest: 150
+  snapshot_build: 1800
+  snapshot_verify: 900
+  subsets: 900
+  check10: 1200
+  pilot_b6_01: 1800
+  pilot_b6_02: 1800
+  checks: 600
+  compare: 300
+  report: 300
+
+gates:
+  preflight_min_mem_available_mb: 1200
+  preflight_min_var_tmp_free_gb: 20
+  read_once_ratio_min: 0.8    # bytes read by the snapshot job / size of Curated (hdfs dfs -du -s)
+  read_once_ratio_max: 1.25
+
+forecast:
+  safety_factor: 2.0          # forecast for the main run = pilot time x (455 / 57) x safety_factor
+
+spark:
+  master: "local[2]"
+  driver_memory: "1g"
+  shuffle_partitions: 64
+  ui_enabled: false

@@ -78,6 +78,14 @@ def get_spark(
         .config("spark.sql.legacy.timeParserPolicy", "CORRECTED")
     )
 
+    # Optional extra Spark settings for VM runs (event log, local dir, UI off). Unset = unchanged behaviour.
+    extra_conf = os.environ.get("CAPSTONE_SPARK_CONF_JSON")
+    if extra_conf:
+        import json
+
+        for key, value in json.loads(extra_conf).items():
+            builder = builder.config(key, str(value))
+
     spark = builder.getOrCreate()
     spark.sparkContext.setLogLevel(log_level)
     logger.info(

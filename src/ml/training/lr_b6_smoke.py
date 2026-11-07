@@ -81,6 +81,13 @@ FORBIDDEN_FEATURE_COLUMNS = {
     "session_start_date",
     "brands_seen",
     "class_weight",
+    # P5 stage 1: H11 split and session-level audit columns (future information, never features).
+    "h11_split",
+    "session_start",
+    "session_end",
+    "session_length",
+    "purchased_by_n",
+    "status",
 }
 
 # Official paths that a smoke run must never write to (config/config.example.yaml,

@@ -6,12 +6,20 @@ from ml.features import (
 )
 
 
-def build_session_features(events, n):
+def build_session_features(events, n, is_valid_rule=None, session_keys=None):
     """
     Returns:
       dataset: one row per eligible session
       audit: session-level exclusion audit
       invalid_session_rows: events with null/blank session
+
+    Optional arguments (defaults keep the historical behaviour):
+      is_valid_rule: None = filter is_valid == True when the column exists (legacy, used by the
+                     B7-01/B7-02 evidence); 'apply' = same filter explicitly; 'ignore' = keep every
+                     event, as B6-01 does.
+      session_keys:  DataFrame with a user_session column. When given, only those sessions are
+                     ranked (left semi join BEFORE ranking). Ranking is per session, so the rows of
+                     the kept sessions are identical to ranking the whole source.
     """
 
     if isinstance(n, bool) or not isinstance(n, int) or n < 1:
@@ -39,19 +47,26 @@ def build_session_features(events, n):
             + ", ".join(sorted(missing))
         )
 
-    # 1. Chi giu cac event hop le neu co is_valid.
+    # 1. Quy tac is_valid. None = hanh vi cu (loc khi co cot is_valid).
+    if is_valid_rule not in (None, "apply", "ignore"):
+        raise ValueError("is_valid_rule must be None, 'apply' or 'ignore'")
     source = events
 
-    if "is_valid" in source.columns:
+    if "is_valid" in source.columns and is_valid_rule != "ignore":
         source = source.filter(
             F.col("is_valid") == F.lit(True)
         )
 
-    # 2. Luu rieng so event khong co session hop le.
+    # 2. Luu rieng so event khong co session hop le (truoc khi gioi han session).
     invalid_session_rows = source.filter(
         F.col("user_session").isNull()
         | (F.trim(F.col("user_session")) == "")
     )
+
+    # 2b. Gioi han session TRUOC khi xep hang (semi join). Xep hang theo session nen ket qua
+    #     cua cac session duoc giu giong het khi xep hang toan bo source.
+    if session_keys is not None:
+        source = source.join(session_keys, on="user_session", how="left_semi")
 
     # 3. Rank theo S2 / B6-01.
     ranked = rank_session_events(source)

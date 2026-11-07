@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# DEPRECATED for stage 1 (P5-B-B6-01 ML). Use scripts/run/run_p5_ml_stage1_vm_b.sh instead.
+# This file is kept to reproduce the P5 evidence. Its fixes: an interrupt (INT, TERM, HUP) gives
+# INCOMPLETE with exit 3, and OVERALL is never PASS when a mandatory step is missing.
+#
 # P5-B-B6-01 acceptance runner for Linux VM B (N candidate analysis, selected_n=3).
 #
 # Usage (repository mounted at /media/sf_ecommerce-bigdata-capstone):
@@ -183,6 +187,15 @@ finalize() {
       if [ "$s" = "BLOCKED" ] || [ "$s" = "SKIPPED" ] || [ "$s" = "NOT_RUN" ]; then overall="BLOCKED"; fi
     done
   fi
+  if [ "${INTERRUPTED}" = "1" ] && [ "${overall}" != "FAIL" ]; then overall="INCOMPLETE"; fi
+  for n in ${MANDATORY_STEPS}; do
+    found=0
+    for e in "${STEPS[@]:-}"; do
+      IFS='|' read -r en _ _ _ <<< "$e"
+      if [ "$en" = "$n" ]; then found=1; fi
+    done
+    if [ "$found" = "0" ] && [ "${overall}" != "FAIL" ]; then overall="INCOMPLETE"; fi
+  done
   {
     echo "TASK=P5-B-B6-01"
     echo "RUN_ID=${RUN_ID}"
@@ -199,9 +212,14 @@ finalize() {
     printf '%s\n' "${STEPS[@]:-}"
   } > "${SUMMARY}"
   echo; echo "===== SUMMARY ====="; cat "${SUMMARY}"
-  case "${overall}" in PASS) exit 0 ;; FAIL) exit 1 ;; *) exit 2 ;; esac
+  case "${overall}" in PASS) exit 0 ;; FAIL) exit 1 ;; INCOMPLETE) exit 3 ;; *) exit 2 ;; esac
 }
+INTERRUPTED=0
+trap 'INTERRUPTED=1; finalize' INT TERM HUP
 trap finalize EXIT
+# Mandatory steps for this configuration. A mandatory step that never reached STEPS is INCOMPLETE.
+MANDATORY_STEPS="E1_environment E2_source_integrity E3_hdfs_preflight E4a_p5_unit_tests E4b_regression_b6_group E5_sample_analysis E5b_reference_table E5c_gap_diagnostic"
+if [ "${STAGED_CHECKS:-1}" = "1" ]; then MANDATORY_STEPS="${MANDATORY_STEPS} E5s_staged_semi_join E5t_staged_time_filter E5p_staged_staging E5r_staged_reference E5k_staged_kst E5cmp_business_comparison"; fi
 
 ANALYSIS=(scripts/run/run_p5_b6_01_n_analysis.py --input-path "${CURATED}")
 

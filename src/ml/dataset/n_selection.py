@@ -157,6 +157,31 @@ def classify_sessions(valid: DataFrame, b: SplitBounds) -> DataFrame:
     return sess.withColumn("bucket", bucket)
 
 
+H11_SPLIT_OF_BUCKET = {"train": "train", "validation": "validation", "test_range": "test"}
+
+
+def h11_split_table(events: DataFrame, b: SplitBounds) -> DataFrame:
+    """One row per valid session that belongs to train, validation or test under H11.
+
+    Uses classify_sessions() (the B6-01 rule) and only renames its buckets:
+    train -> train, validation -> validation, test_range -> test. Every other bucket
+    (censored_*, before_train, after_test_end, excluded_null_event_time, gap) is NOT returned;
+    callers count them through session_buckets. Columns: user_session, h11_split.
+    """
+    assert_session_utc(spark_of(events))
+    sessions = classify_sessions(valid_session_events(events), b)
+    split = (
+        F.when(F.col("bucket") == "train", F.lit("train"))
+        .when(F.col("bucket") == "validation", F.lit("validation"))
+        .when(F.col("bucket") == "test_range", F.lit("test"))
+    )
+    return (
+        sessions.withColumn("h11_split", split)
+        .filter(F.col("h11_split").isNotNull())
+        .select("user_session", "h11_split")
+    )
+
+
 def _split_end_expr(b: SplitBounds):
     return F.when(F.col("bucket") == "train", utc_ts_literal(b.train_end)).otherwise(utc_ts_literal(b.val_end))
 

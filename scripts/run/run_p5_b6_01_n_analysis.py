@@ -3,6 +3,8 @@
 Modes:
   sample (default): whole-session hash sample (default 0.1% of sessions). Development and QA only.
   full            : all of Curated. Requires --confirm-full-run. Never started by default.
+  snapshot        : reads a stage-1 snapshot or nested subset (part=sample or subsets/<name>) with its
+                    manifest. No sampling is applied again. Manifest must match schema and row count.
 
 Writes ONLY to a NEW --output-dir (refuses to overwrite). Never writes to HDFS and never
 touches Curated, ML features, models or B7 outputs.
@@ -35,6 +37,7 @@ from src.ml.dataset.n_selection import (  # noqa: E402
     parse_n_candidates,
 )
 from src.ml.training.lr_b6_smoke import sample_whole_sessions  # noqa: E402
+from src.ml.dataset.ml_stage1 import check_input_manifest, file_uri, load_json, sha256_file  # noqa: E402
 
 logger = get_logger("run_p5_b6_01")
 
@@ -81,7 +84,9 @@ def parse_args(argv=None):
     ap = argparse.ArgumentParser(description="P5-B-B6-01 N analysis (no full run by default).")
     ap.add_argument("--config", default=os.path.join(ROOT, "configs", "n_candidate_analysis.example.yaml"))
     ap.add_argument("--input-path", default="/data/curated/events")
-    ap.add_argument("--mode", choices=["sample", "full"], default="sample")
+    ap.add_argument("--mode", choices=["sample", "full", "snapshot"], default="sample")
+    ap.add_argument("--input-manifest", default=None,
+                    help="snapshot mode only: manifest JSON of --input-path (snapshot_manifest.json or _subset_manifest.json).")
     ap.add_argument("--analysis-scope", choices=["acceptance", "reference"], default="acceptance",
                     help="acceptance: official selected_n only (default). reference: N candidates table.")
     ap.add_argument("--sample-percent", type=float, default=None)
@@ -193,6 +198,22 @@ def main(argv=None) -> int:
             print(f"BLOCKED: staging directory already exists: {args.staging_dir}", file=sys.stderr)
             return 2
 
+    if args.mode == "snapshot":
+        if args.sample_percent is not None:
+            print("BLOCKED: --mode snapshot does not sample; do not pass --sample-percent.", file=sys.stderr)
+            return 2
+        if not args.input_manifest or not os.path.exists(args.input_manifest):
+            print("BLOCKED: --mode snapshot needs --input-manifest pointing to an existing manifest.", file=sys.stderr)
+            return 2
+        snap_manifest = load_json(args.input_manifest)
+        if snap_manifest.get("kind") not in ("snapshot", "subset"):
+            print("BLOCKED: manifest kind must be snapshot or subset.", file=sys.stderr)
+            return 2
+        if snap_manifest["kind"] == "snapshot" and os.path.basename(args.input_path.rstrip("/\\")) != "part=sample":
+            print("BLOCKED: a snapshot must be read from its part=sample directory, never the root.", file=sys.stderr)
+            return 2
+        snap_manifest_sha = sha256_file(args.input_manifest)
+
     spark = get_spark(app_name="P5B6N-Analysis", cfg=cfg_spark(cfg))
     if args.aqe != "keep":
         spark.conf.set("spark.sql.adaptive.enabled", "true" if args.aqe == "on" else "false")
@@ -206,13 +227,23 @@ def main(argv=None) -> int:
         return 2
     python_offset_hours = datetime.now().astimezone().utcoffset().total_seconds() / 3600
     try:
-        raw = spark.read.parquet(args.input_path)
+        read_path = args.input_path
+        if args.mode == "snapshot" and "://" not in read_path:
+            read_path = file_uri(read_path)  # local snapshot: never resolved against HDFS
+        raw = spark.read.parquet(read_path)
         missing = [c for c in REQUIRED_COLUMNS if c not in raw.columns]
         if missing:
             print(f"BLOCKED: input missing columns {missing}", file=sys.stderr)
             return 2
         input_files = len(raw.inputFiles())
-        events = raw if args.mode == "full" else sample_whole_sessions(raw, percent)
+        if args.mode == "snapshot":
+            problems_in = check_input_manifest(raw, snap_manifest)
+            if problems_in:
+                print(f"BLOCKED: input does not match its manifest: {problems_in}", file=sys.stderr)
+                return 2
+            events = raw
+        else:
+            events = raw if args.mode == "full" else sample_whole_sessions(raw, percent)
         logger.info("Mode=%s percent=%s input_files=%d N=%s", args.mode, percent, input_files, ns)
 
         if args.diagnose_only:
@@ -269,7 +300,15 @@ def main(argv=None) -> int:
             "started_utc": started,
             "finished_utc": datetime.now(timezone.utc).isoformat(),
             "mode": args.mode,
-            "sample_percent": None if args.mode == "full" else percent,
+            "sample_percent": None if args.mode in ("full", "snapshot") else percent,
+            "source_scope": "FULL" if args.mode == "full" else "SAMPLED_SESSIONS",
+            "sample_threshold": (int(snap_manifest["threshold"]) if args.mode == "snapshot"
+                                 else (None if args.mode == "full" else int(round(percent * 100)))),
+            "input_kind": ("snapshot_" + snap_manifest["kind"]) if args.mode == "snapshot" else args.mode,
+            "input_name": snap_manifest.get("name") if args.mode == "snapshot" else None,
+            "input_manifest": args.input_manifest,
+            "input_manifest_sha256": snap_manifest_sha if args.mode == "snapshot" else None,
+            "shuffle_partitions_config": cfg_spark(cfg)["ml"]["shuffle_partitions"],
             "input_path": args.input_path,
             "input_files": input_files,
             "analysis_scope": args.analysis_scope,
