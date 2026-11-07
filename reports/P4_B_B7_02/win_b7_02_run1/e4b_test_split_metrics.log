@@ -1,0 +1,5 @@
+....                                                                     [100%]
+4 passed in 68.51s (0:01:08)
+SUCCESS: The process with PID 6812 (child process of PID 16668) has been terminated.
+SUCCESS: The process with PID 16668 (child process of PID 25276) has been terminated.
+SUCCESS: The process with PID 25276 (child process of PID 21792) has been terminated.

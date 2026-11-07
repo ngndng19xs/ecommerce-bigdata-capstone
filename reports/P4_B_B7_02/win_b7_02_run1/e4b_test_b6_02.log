@@ -1,0 +1,5 @@
+..........                                                               [100%]
+10 passed in 48.11s
+SUCCESS: The process with PID 23832 (child process of PID 26144) has been terminated.
+SUCCESS: The process with PID 26144 (child process of PID 26284) has been terminated.
+SUCCESS: The process with PID 26284 (child process of PID 23540) has been terminated.

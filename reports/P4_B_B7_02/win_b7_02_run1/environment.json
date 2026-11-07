@@ -1,0 +1,6 @@
+{
+  "python": "3.11.9",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "pyspark": "4.0.1",
+  "java": "openjdk version \"21.0.12\" 2026-07-21 LTS"
+}
