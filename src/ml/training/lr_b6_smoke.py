@@ -113,9 +113,14 @@ def sample_whole_sessions(events: DataFrame, percent: float) -> DataFrame:
     threshold = int(round(percent * HASH_BUCKETS / 100.0))
     if threshold < 1:
         raise ValueError("sample percent too small for hash buckets; increase percent")
-    return events.filter(
-        F.pmod(F.xxhash64(F.col("user_session")), F.lit(HASH_BUCKETS)) < F.lit(threshold)
-    )
+    # pmod is not in the PySpark 3.1.2 Python API (verified in its source). The SQL function is
+    # available in Spark 3.1.2 and returns a non-negative result for negative hash values.
+    return events.filter(session_bucket_expr() < F.lit(threshold))
+
+
+def session_bucket_expr():
+    """Column expression for the deterministic session bucket in [0, HASH_BUCKETS)."""
+    return F.expr(f"pmod(xxhash64(user_session), {HASH_BUCKETS})")
 
 
 def assert_smoke_output_path(path: str) -> None:

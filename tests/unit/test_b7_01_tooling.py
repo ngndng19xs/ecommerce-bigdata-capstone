@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import pytest
+from pyspark.sql import functions as F
 from pyspark.sql.types import DoubleType, IntegerType, StringType, StructField, StructType, TimestampType
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -198,6 +199,65 @@ def test_sampling_rejects_invalid_percent(spark):
         sample_whole_sessions(df, 150.0)
     with pytest.raises(ValueError):
         sample_whole_sessions(df, 0.001)  # rounds to 0 buckets
+
+
+def _ids_df(spark, ids):
+    schema = StructType([StructField("user_session", StringType(), True)])
+    return spark.createDataFrame([(i,) for i in ids], schema)
+
+
+def test_bucket_is_non_negative_for_negative_raw_hashes(spark):
+    """xxhash64 can be negative; pmod must map every value into [0, 10000)."""
+    ids = [f"sess-{i:05d}" for i in range(3000)]
+    rows = _ids_df(spark, ids).select(
+        F.expr("xxhash64(user_session)").alias("h"),
+        F.expr("pmod(xxhash64(user_session), 10000)").alias("b"),
+    ).collect()
+    assert any(r["h"] < 0 for r in rows), "fixture must contain negative raw hashes"
+    buckets = [r["b"] for r in rows]
+    assert min(buckets) >= 0
+    assert max(buckets) < 10000
+    # Negative raw hashes must land in the same bucket as Python's non-negative modulo.
+    for r in rows:
+        assert r["b"] == r["h"] % 10000
+
+
+def test_bucket_positive_hashes_and_threshold_selection(spark):
+    ids = [f"pos-{i:05d}" for i in range(3000)]
+    rows = _ids_df(spark, ids).select(
+        F.expr("xxhash64(user_session)").alias("h"),
+        F.expr("pmod(xxhash64(user_session), 10000)").alias("b"),
+    ).collect()
+    assert any(r["h"] > 0 for r in rows)
+    kept = _ids_df(spark, ids).filter(F.expr("pmod(xxhash64(user_session), 10000)") < 500).count()
+    expected = sum(1 for r in rows if r["b"] < 500)
+    assert kept == expected
+    assert 0 < kept < len(ids)
+
+
+def test_null_session_decision_is_deterministic_and_does_not_fail(spark):
+    """Null user_session rows are hashed like any value; B6 later drops them as invalid."""
+    df = _ids_df(spark, [None, None, "a", "b"])
+    first = sorted((r["user_session"], r["b"]) for r in df.select(
+        "user_session", F.expr("pmod(xxhash64(user_session), 10000)").alias("b")).collect()
+        if r["user_session"] is None)
+    second = sorted((r["user_session"], r["b"]) for r in df.select(
+        "user_session", F.expr("pmod(xxhash64(user_session), 10000)").alias("b")).collect()
+        if r["user_session"] is None)
+    assert first == second
+    assert all(0 <= b < 10000 for _, b in first)
+    sampled = sample_whole_sessions(df, 100.0).count()
+    assert sampled == 4  # at 100 percent every row (including the two null-session rows) is kept
+
+
+def test_sampling_repeatable_across_partitionings(spark):
+    ids = [f"rep-{i:05d}" for i in range(400)]
+    df = _ids_df(spark, ids)
+    a = sorted(r[0] for r in sample_whole_sessions(df, 10.0).collect())
+    b = sorted(r[0] for r in sample_whole_sessions(df.repartition(7), 10.0).collect())
+    c = sorted(r[0] for r in sample_whole_sessions(df, 10.0).collect())
+    assert a == b == c
+    assert 0 < len(a) < len(ids)
 
 
 if __name__ == "__main__":
