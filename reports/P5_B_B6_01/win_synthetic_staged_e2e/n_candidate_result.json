@@ -1,0 +1,163 @@
+{
+  "n_candidates": [
+    3
+  ],
+  "bounds_utc": {
+    "train": [
+      "2019-11-01T00:00:00Z",
+      "2019-11-04T00:00:00Z"
+    ],
+    "validation": [
+      "2019-11-04T00:00:00Z",
+      "2019-11-05T00:00:00Z"
+    ],
+    "test": [
+      "2019-11-05T00:00:00Z",
+      "2019-11-07T00:00:00Z"
+    ]
+  },
+  "events": {
+    "total": 260,
+    "invalid_session_events": 0,
+    "null_event_time_events_in_valid_sessions": 0
+  },
+  "session_buckets": {
+    "train": {
+      "sessions": 36
+    },
+    "censored_train": {
+      "sessions": 0
+    },
+    "validation": {
+      "sessions": 12
+    },
+    "censored_validation": {
+      "sessions": 0
+    },
+    "test_range": {
+      "sessions": 24
+    },
+    "after_test_end": {
+      "sessions": 0
+    },
+    "before_train": {
+      "sessions": 0
+    },
+    "excluded_null_event_time": {
+      "sessions": 0
+    },
+    "gap": {
+      "sessions": 0
+    }
+  },
+  "boundary_qa": {
+    "train_censored_sessions": 0,
+    "validation_censored_sessions": 0,
+    "test_range_sessions_not_labelled": 24,
+    "after_test_end_sessions": 0,
+    "excluded_null_event_time_sessions": 0,
+    "gap_sessions": 0
+  },
+  "leakage_qa": {
+    "candidate_sessions_ending_at_or_after_own_split_end": 0,
+    "ranked_test_range_sessions": 0,
+    "ranked_sessions_by_bucket": {
+      "validation": 12,
+      "train": 36
+    },
+    "length_mismatch_between_summary_and_ranking": 0
+  },
+  "per_n": {
+    "3": {
+      "train": {
+        "in_scope_sessions": 36,
+        "too_short": 0,
+        "early_purchase": 3,
+        "eligible": 33,
+        "label_0": 21,
+        "label_1": 12,
+        "coverage_ratio": 0.916667,
+        "positive_rate": 0.363636,
+        "len_equals_n": 12,
+        "checks": {
+          "partition_ok": true,
+          "label_sum_ok": true
+        }
+      },
+      "validation": {
+        "in_scope_sessions": 12,
+        "too_short": 0,
+        "early_purchase": 1,
+        "eligible": 11,
+        "label_0": 7,
+        "label_1": 4,
+        "coverage_ratio": 0.916667,
+        "positive_rate": 0.363636,
+        "len_equals_n": 4,
+        "checks": {
+          "partition_ok": true,
+          "label_sum_ok": true
+        }
+      },
+      "train_plus_validation": {
+        "in_scope_sessions": 48,
+        "too_short": 0,
+        "early_purchase": 4,
+        "eligible": 44,
+        "label_0": 28,
+        "label_1": 16,
+        "len_equals_n": 16,
+        "coverage_ratio": 0.916667,
+        "positive_rate": 0.363636
+      }
+    }
+  },
+  "execution": {
+    "engine": "staged",
+    "ranking_input": "semi_join",
+    "materialize": "disk_persist",
+    "staging_path": null,
+    "spark_actions": [
+      "A1_session_summary_aggregate",
+      "B1_rank_and_aggregate"
+    ],
+    "pre_window_gate": {
+      "ranking_input": "semi_join",
+      "window_group_max": 4,
+      "metric": "max n_events over train/validation sessions (window groups with semi_join)",
+      "threshold": null,
+      "mode": "record_only",
+      "max_n_events_by_bucket": {
+        "test_range": 4,
+        "validation": 4,
+        "train": 4
+      },
+      "n_events_p50_p99_p999_by_split": {
+        "train": [
+          4,
+          4,
+          4
+        ],
+        "validation": [
+          4,
+          4,
+          4
+        ]
+      }
+    },
+    "spark_conf": {
+      "spark.sql.session.timeZone": "UTC",
+      "spark.sql.shuffle.partitions": "4",
+      "spark.sql.adaptive.enabled": "true",
+      "spark.sql.windowExec.buffer.in.memory.threshold": "4096",
+      "spark.sql.windowExec.buffer.spill.threshold": "2147483647",
+      "spark.driver.memory": "1g",
+      "spark.master": "local[2]",
+      "spark.local.dir": "unset"
+    },
+    "plan_files": {
+      "phase_a": "plan_phase_a.txt",
+      "phase_b": "plan_phase_b.txt"
+    }
+  }
+}

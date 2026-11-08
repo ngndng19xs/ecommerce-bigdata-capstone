@@ -1,0 +1,60 @@
+===== E1 environment =====
+student
+/media/sf_ecommerce-bigdata-capstone
+              total        used        free      shared  buff/cache   available
+Mem:           4697        1959        1010          13        1727        2484
+Swap:          8063           0        8063
+2
+{
+  "python": "3.8.11",
+  "platform": "Linux-3.10.0-1160.31.1.el7.x86_64-x86_64-with-glibc2.17",
+  "pyspark": "3.1.2",
+  "java": "java version \"1.8.0_291\""
+}
+
+===== E4a_b7_02_tests: tests/unit/test_b7_02_preprocessing_seed.py (JUnit XML) =====
+E4a_b7_02_tests exit=0
+19 passed in 64.00s (0:01:04)
+
+===== E4b_test_b7_01_tooling: tests/unit/test_b7_01_tooling.py in its own process =====
+E4b_test_b7_01_tooling exit=0
+18 passed in 19.63s
+
+===== E4b_test_b7_01_lr_smoke: tests/unit/test_b7_01_lr_smoke.py in its own process =====
+E4b_test_b7_01_lr_smoke exit=0
+22 passed in 75.02s (0:01:15)
+
+===== E4b_test_b6_02: tests/unit/test_b6_02.py in its own process =====
+E4b_test_b6_02 exit=0
+10 passed in 86.08s (0:01:26)
+
+===== E4b_test_split_metrics: tests/unit/test_split_metrics.py in its own process =====
+E4b_test_split_metrics exit=0
+4 passed in 18.43s
+
+===== E5_evidence_criteria: required TC list vs JUnit results =====
+{
+  "OVERALL": "PASS",
+  "out": "reports/P4_B_B7_02/vm_b_b7_02_20261107T055949Z/evidence_check.json"
+}
+E5_evidence_criteria exit=0
+
+===== SUMMARY =====
+TASK=P4-B-B7-02
+RUN_ID=vm_b_b7_02_20261107T055949Z
+REPO=/media/sf_ecommerce-bigdata-capstone
+PYTHON=Python 3.8.11
+SPARK_MASTER=local[2] DRIVER_MEMORY=1g SHUFFLE_PARTITIONS=4
+DATA=synthetic only (no HDFS read, no test range read)
+REPORT_DIR=/media/sf_ecommerce-bigdata-capstone/reports/P4_B_B7_02/vm_b_b7_02_20261107T055949Z
+OVERALL=PASS
+--- steps (NAME|STATUS|EXIT|NOTE) ---
+E1_environment|PASS|0|environment recorded
+E2_source_integrity|PASS|0|B7-02 manifest SHA-256 match
+E4a_b7_02_tests|PASS|0|tests/unit/test_b7_02_preprocessing_seed.py (JUnit XML)
+E4b_test_b7_01_tooling|PASS|0|tests/unit/test_b7_01_tooling.py in its own process
+E4b_test_b7_01_lr_smoke|PASS|0|tests/unit/test_b7_01_lr_smoke.py in its own process
+E4b_test_b6_02|PASS|0|tests/unit/test_b6_02.py in its own process
+E4b_test_split_metrics|PASS|0|tests/unit/test_split_metrics.py in its own process
+E4b_regression_group|PASS|0|all regression files PASS
+E5_evidence_criteria|PASS|0|required TC list vs JUnit results

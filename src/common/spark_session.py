@@ -60,9 +60,12 @@ def get_spark(
 
     spark_cfg = (cfg or {}).get("spark", {})
     # Enforce local[2] and 2g as specified for ML environment
-    master = (cfg or {}).get("ml", {}).get("spark_master", "local[2]")
-    driver_memory = (cfg or {}).get("ml", {}).get("driver_memory", "2g")
-    shuffle_partitions = str((cfg or {}).get("ml", {}).get("shuffle_partitions", spark_cfg.get("shuffle_partitions", 8)))
+    master = os.environ.get("CAPSTONE_SPARK_MASTER") or (cfg or {}).get("ml", {}).get("spark_master", "local[2]")
+    driver_memory = os.environ.get("CAPSTONE_DRIVER_MEMORY") or (cfg or {}).get("ml", {}).get("driver_memory", "2g")
+    shuffle_partitions = str(
+        os.environ.get("CAPSTONE_SHUFFLE_PARTITIONS")
+        or (cfg or {}).get("ml", {}).get("shuffle_partitions", spark_cfg.get("shuffle_partitions", 8))
+    )
     log_level = spark_cfg.get("log_level", "WARN")
 
     builder = (
@@ -74,6 +77,14 @@ def get_spark(
         .config("spark.sql.ansi.enabled", "false")
         .config("spark.sql.legacy.timeParserPolicy", "CORRECTED")
     )
+
+    # Optional extra Spark settings for VM runs (event log, local dir, UI off). Unset = unchanged behaviour.
+    extra_conf = os.environ.get("CAPSTONE_SPARK_CONF_JSON")
+    if extra_conf:
+        import json
+
+        for key, value in json.loads(extra_conf).items():
+            builder = builder.config(key, str(value))
 
     spark = builder.getOrCreate()
     spark.sparkContext.setLogLevel(log_level)

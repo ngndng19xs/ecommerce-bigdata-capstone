@@ -1,0 +1,5 @@
+..................                                                       [100%]
+18 passed in 55.64s
+SUCCESS: The process with PID 25796 (child process of PID 23008) has been terminated.
+SUCCESS: The process with PID 23008 (child process of PID 13444) has been terminated.
+SUCCESS: The process with PID 13444 (child process of PID 22708) has been terminated.

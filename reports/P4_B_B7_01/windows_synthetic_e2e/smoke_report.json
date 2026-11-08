@@ -1,0 +1,186 @@
+{
+  "task": "P4-B-B7-01",
+  "scope": "LR smoke on B6 Session Features; train and validation only; test never read",
+  "git_commit": "ab24868bd511002557b2db084373f57ff2c6a93f",
+  "spark_version": "4.0.1",
+  "python_version": "3.11.9",
+  "started_utc": "2026-11-06T21:33:03.595427+00:00",
+  "args": {
+    "input_path": "C:/Users/Admin/AppData/Local/Temp/claude/c76c7dcd73c98805/a760d702-ed0e-4dfc-a891-bf8b8388b631/scratchpad/e2e_run1/session_features",
+    "output_dir": "C:/Users/Admin/AppData/Local/Temp/claude/c76c7dcd73c98805/a760d702-ed0e-4dfc-a891-bf8b8388b631/scratchpad/e2e_run1/model",
+    "report_dir": "C:/Users/Admin/AppData/Local/Temp/claude/c76c7dcd73c98805/a760d702-ed0e-4dfc-a891-bf8b8388b631/scratchpad/e2e_run1/reports",
+    "max_iter": 50,
+    "reg_param": 0.01,
+    "train_ratio": 0.7,
+    "val_ratio": 0.15,
+    "no_save_model": false
+  },
+  "input_schema": [
+    {
+      "name": "user_session",
+      "type": "string"
+    },
+    {
+      "name": "n_view",
+      "type": "bigint"
+    },
+    {
+      "name": "n_cart",
+      "type": "bigint"
+    },
+    {
+      "name": "n_remove_from_cart",
+      "type": "bigint"
+    },
+    {
+      "name": "n_unique_products",
+      "type": "bigint"
+    },
+    {
+      "name": "n_unique_categories",
+      "type": "bigint"
+    },
+    {
+      "name": "n_unique_brands",
+      "type": "bigint"
+    },
+    {
+      "name": "brands_seen",
+      "type": "array<string>"
+    },
+    {
+      "name": "avg_price",
+      "type": "double"
+    },
+    {
+      "name": "max_price",
+      "type": "double"
+    },
+    {
+      "name": "prefix_start",
+      "type": "timestamp"
+    },
+    {
+      "name": "prediction_time",
+      "type": "timestamp"
+    },
+    {
+      "name": "last_event_type",
+      "type": "string"
+    },
+    {
+      "name": "prefix_duration_seconds",
+      "type": "bigint"
+    },
+    {
+      "name": "label",
+      "type": "int"
+    },
+    {
+      "name": "prediction_n",
+      "type": "int"
+    }
+  ],
+  "input_path": "C:/Users/Admin/AppData/Local/Temp/claude/c76c7dcd73c98805/a760d702-ed0e-4dfc-a891-bf8b8388b631/scratchpad/e2e_run1/session_features",
+  "input_columns": [
+    "user_session",
+    "n_view",
+    "n_cart",
+    "n_remove_from_cart",
+    "n_unique_products",
+    "n_unique_categories",
+    "n_unique_brands",
+    "brands_seen",
+    "avg_price",
+    "max_price",
+    "prefix_start",
+    "prediction_time",
+    "last_event_type",
+    "prefix_duration_seconds",
+    "label",
+    "prediction_n"
+  ],
+  "prediction_n": 2,
+  "split": {
+    "train_ratio": 0.7,
+    "val_ratio": 0.15,
+    "train_dates": [
+      "2019-11-01",
+      "2019-11-02",
+      "2019-11-03",
+      "2019-11-04"
+    ],
+    "val_dates": [
+      "2019-11-05"
+    ],
+    "dates_not_read": 1
+  },
+  "train": {
+    "sessions": 44,
+    "pos": 16,
+    "neg": 28,
+    "pos_rate": 0.363636
+  },
+  "validation": {
+    "sessions": 11,
+    "pos": 4,
+    "neg": 7,
+    "pos_rate": 0.363636,
+    "auc_sanity_only": 1.0,
+    "validation_rows_in": 11,
+    "validation_rows_out": 11,
+    "bad_prob_size": 0,
+    "bad_prob_value": 0,
+    "bad_features": 0,
+    "null_prediction": 0
+  },
+  "class_weight_label1": 1.75,
+  "lr": {
+    "max_iter": 50,
+    "reg_param": 0.01
+  },
+  "pipeline_stages": [
+    "StringIndexerModel",
+    "OneHotEncoderModel",
+    "VectorAssembler",
+    "StandardScalerModel",
+    "LogisticRegressionModel"
+  ],
+  "feature_columns_numeric": [
+    "n_view",
+    "n_cart",
+    "n_remove_from_cart",
+    "n_unique_products",
+    "n_unique_categories",
+    "n_unique_brands",
+    "avg_price",
+    "max_price",
+    "prefix_duration_seconds"
+  ],
+  "feature_columns_categorical": [
+    "last_event_type"
+  ],
+  "forbidden_feature_columns": [
+    "brands_seen",
+    "class_weight",
+    "label",
+    "prediction_n",
+    "prediction_time",
+    "prefix_start",
+    "session_start_date",
+    "user_session"
+  ],
+  "indexer_labels": {
+    "last_event_type": [
+      "cart",
+      "view"
+    ]
+  },
+  "coefficients_count": 12,
+  "coefficient_l2_norm": 1.1716456532,
+  "intercept": 0.5437955064788096,
+  "model_path": "C:/Users/Admin/AppData/Local/Temp/claude/c76c7dcd73c98805/a760d702-ed0e-4dfc-a891-bf8b8388b631/scratchpad/e2e_run1/model/lr_smoke_model",
+  "smoke_status": "PASS",
+  "finished_utc": "2026-11-06T21:33:35.121159+00:00",
+  "exit_code": 0
+}

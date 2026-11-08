@@ -1,0 +1,250 @@
+== Physical Plan ==
+AdaptiveSparkPlan (39)
++- HashAggregate (38)
+   +- Exchange (37)
+      +- HashAggregate (36)
+         +- Project (35)
+            +- BroadcastHashJoin Inner BuildRight (34)
+               :- HashAggregate (29)
+               :  +- HashAggregate (28)
+               :     +- Project (27)
+               :        +- Window (26)
+               :           +- Sort (25)
+               :              +- Exchange (24)
+               :                 +- BroadcastHashJoin LeftSemi BuildRight (23)
+               :                    :- Filter (2)
+               :                    :  +- Scan parquet  (1)
+               :                    +- BroadcastExchange (22)
+               :                       +- Project (21)
+               :                          +- Filter (20)
+               :                             +- InMemoryTableScan (3)
+               :                                   +- InMemoryRelation (4)
+               :                                         +- AdaptiveSparkPlan (19)
+                                                            +- == Final Plan ==
+                                                               ResultQueryStage (13)
+                                                               +- * Project (12)
+                                                                  +- * HashAggregate (11)
+                                                                     +- ShuffleQueryStage (10), Statistics(sizeInBytes=4.6 KiB, rowCount=73)
+                                                                        +- Exchange (9)
+                                                                           +- * HashAggregate (8)
+                                                                              +- * Filter (7)
+                                                                                 +- * ColumnarToRow (6)
+                                                                                    +- Scan parquet  (5)
+                                                            +- == Initial Plan ==
+                                                               Project (18)
+                                                               +- HashAggregate (17)
+                                                                  +- Exchange (16)
+                                                                     +- HashAggregate (15)
+                                                                        +- Filter (14)
+                                                                           +- Scan parquet  (5)
+               +- BroadcastExchange (33)
+                  +- Filter (32)
+                     +- InMemoryTableScan (30)
+                           +- InMemoryRelation (31)
+                                 +- AdaptiveSparkPlan (19)
+                                    +- == Final Plan ==
+                                       ResultQueryStage (13)
+                                       +- * Project (12)
+                                          +- * HashAggregate (11)
+                                             +- ShuffleQueryStage (10), Statistics(sizeInBytes=4.6 KiB, rowCount=73)
+                                                +- Exchange (9)
+                                                   +- * HashAggregate (8)
+                                                      +- * Filter (7)
+                                                         +- * ColumnarToRow (6)
+                                                            +- Scan parquet  (5)
+                                    +- == Initial Plan ==
+                                       Project (18)
+                                       +- HashAggregate (17)
+                                          +- Exchange (16)
+                                             +- HashAggregate (15)
+                                                +- Filter (14)
+                                                   +- Scan parquet  (5)
+
+
+(1) Scan parquet 
+Output [5]: [user_session#0, event_time#1, event_type#2, event_type_rank#3, event_sort_key#4]
+Batched: true
+Location: InMemoryFileIndex [file:/C:/Users/Admin/AppData/Local/Temp/claude/c76c7dcd73c98805/a760d702-ed0e-4dfc-a891-bf8b8388b631/scratchpad/e2e_run1/curated]
+PushedFilters: [IsNotNull(user_session)]
+ReadSchema: struct<user_session:string,event_time:timestamp,event_type:string,event_type_rank:int,event_sort_key:string>
+
+(2) Filter
+Input [5]: [user_session#0, event_time#1, event_type#2, event_type_rank#3, event_sort_key#4]
+Condition : (((pmod(xxhash64(user_session#0, 42), 10000) < 10000) AND isnotnull(user_session#0)) AND NOT (trim(user_session#0, None) = ))
+
+(3) InMemoryTableScan
+Output [2]: [bucket#29, user_session#321]
+Arguments: [bucket#29, user_session#321], [bucket#29 IN (train,validation), (pmod(xxhash64(user_session#321, 42), 10000) < 10000), NOT (trim(user_session#321, None) = ), isnotnull(user_session#321)]
+
+(4) InMemoryRelation
+Arguments: [user_session#321, session_start#10, session_end#11, n_events#12L, n_null_time#13L, n_before_val_end#14L, bucket#29], StorageLevel(disk, 1 replicas)
+
+(5) Scan parquet 
+Output [2]: [user_session#0, event_time#1]
+Batched: true
+Location: InMemoryFileIndex [file:/C:/Users/Admin/AppData/Local/Temp/claude/c76c7dcd73c98805/a760d702-ed0e-4dfc-a891-bf8b8388b631/scratchpad/e2e_run1/curated]
+ReadSchema: struct<user_session:string,event_time:timestamp>
+
+(6) ColumnarToRow [codegen id : 1]
+Input [2]: [user_session#0, event_time#1]
+
+(7) Filter [codegen id : 1]
+Input [2]: [user_session#0, event_time#1]
+Condition : (pmod(xxhash64(user_session#0, 42), 10000) < 10000)
+
+(8) HashAggregate [codegen id : 1]
+Input [2]: [user_session#0, event_time#1]
+Keys [1]: [user_session#0]
+Functions [5]: [partial_min(event_time#1), partial_max(event_time#1), partial_count(1), partial_sum(CASE WHEN isnull(event_time#1) THEN 1 ELSE 0 END), partial_sum(CASE WHEN (event_time#1 < 2019-11-05 00:00:00) THEN 1 ELSE 0 END)]
+Aggregate Attributes [5]: [min#30, max#31, count#32L, sum#33L, sum#34L]
+Results [6]: [user_session#0, min#35, max#36, count#37L, sum#38L, sum#39L]
+
+(9) Exchange
+Input [6]: [user_session#0, min#35, max#36, count#37L, sum#38L, sum#39L]
+Arguments: hashpartitioning(user_session#0, 4), ENSURE_REQUIREMENTS, [plan_id=58]
+
+(10) ShuffleQueryStage
+Output [6]: [user_session#0, min#35, max#36, count#37L, sum#38L, sum#39L]
+Arguments: 0
+
+(11) HashAggregate [codegen id : 2]
+Input [6]: [user_session#0, min#35, max#36, count#37L, sum#38L, sum#39L]
+Keys [1]: [user_session#0]
+Functions [5]: [min(event_time#1), max(event_time#1), count(1), sum(CASE WHEN isnull(event_time#1) THEN 1 ELSE 0 END), sum(CASE WHEN (event_time#1 < 2019-11-05 00:00:00) THEN 1 ELSE 0 END)]
+Aggregate Attributes [5]: [min(event_time#1)#24, max(event_time#1)#25, count(1)#26L, sum(CASE WHEN isnull(event_time#1) THEN 1 ELSE 0 END)#27L, sum(CASE WHEN (event_time#1 < 2019-11-05 00:00:00) THEN 1 ELSE 0 END)#28L]
+Results [6]: [user_session#0, min(event_time#1)#24 AS session_start#10, max(event_time#1)#25 AS session_end#11, count(1)#26L AS n_events#12L, sum(CASE WHEN isnull(event_time#1) THEN 1 ELSE 0 END)#27L AS n_null_time#13L, sum(CASE WHEN (event_time#1 < 2019-11-05 00:00:00) THEN 1 ELSE 0 END)#28L AS n_before_val_end#14L]
+
+(12) Project [codegen id : 2]
+Output [7]: [user_session#0, session_start#10, session_end#11, n_events#12L, n_null_time#13L, n_before_val_end#14L, CASE WHEN (isnull(user_session#0) OR (trim(user_session#0, None) = )) THEN invalid_session_key WHEN (n_null_time#13L > 0) THEN excluded_null_event_time WHEN isnull(session_start#10) THEN excluded_null_event_time WHEN (((session_start#10 >= 2019-11-01 00:00:00) AND (session_start#10 < 2019-11-04 00:00:00)) AND (session_end#11 < 2019-11-04 00:00:00)) THEN train WHEN ((session_start#10 >= 2019-11-01 00:00:00) AND (session_start#10 < 2019-11-04 00:00:00)) THEN censored_train WHEN (((session_start#10 >= 2019-11-04 00:00:00) AND (session_start#10 < 2019-11-05 00:00:00)) AND (session_end#11 < 2019-11-05 00:00:00)) THEN validation WHEN ((session_start#10 >= 2019-11-04 00:00:00) AND (session_start#10 < 2019-11-05 00:00:00)) THEN censored_validation WHEN ((session_start#10 >= 2019-11-05 00:00:00) AND (session_start#10 < 2019-11-07 00:00:00)) THEN test_range WHEN (session_start#10 >= 2019-11-07 00:00:00) THEN after_test_end WHEN (session_start#10 < 2019-11-01 00:00:00) THEN before_train ELSE gap END AS bucket#29]
+Input [6]: [user_session#0, session_start#10, session_end#11, n_events#12L, n_null_time#13L, n_before_val_end#14L]
+
+(13) ResultQueryStage
+Output [7]: [user_session#0, session_start#10, session_end#11, n_events#12L, n_null_time#13L, n_before_val_end#14L, bucket#29]
+Arguments: 1
+
+(14) Filter
+Input [2]: [user_session#0, event_time#1]
+Condition : (pmod(xxhash64(user_session#0, 42), 10000) < 10000)
+
+(15) HashAggregate
+Input [2]: [user_session#0, event_time#1]
+Keys [1]: [user_session#0]
+Functions [5]: [partial_min(event_time#1), partial_max(event_time#1), partial_count(1), partial_sum(CASE WHEN isnull(event_time#1) THEN 1 ELSE 0 END), partial_sum(CASE WHEN (event_time#1 < 2019-11-05 00:00:00) THEN 1 ELSE 0 END)]
+Aggregate Attributes [5]: [min#30, max#31, count#32L, sum#33L, sum#34L]
+Results [6]: [user_session#0, min#35, max#36, count#37L, sum#38L, sum#39L]
+
+(16) Exchange
+Input [6]: [user_session#0, min#35, max#36, count#37L, sum#38L, sum#39L]
+Arguments: hashpartitioning(user_session#0, 4), ENSURE_REQUIREMENTS, [plan_id=17]
+
+(17) HashAggregate
+Input [6]: [user_session#0, min#35, max#36, count#37L, sum#38L, sum#39L]
+Keys [1]: [user_session#0]
+Functions [5]: [min(event_time#1), max(event_time#1), count(1), sum(CASE WHEN isnull(event_time#1) THEN 1 ELSE 0 END), sum(CASE WHEN (event_time#1 < 2019-11-05 00:00:00) THEN 1 ELSE 0 END)]
+Aggregate Attributes [5]: [min(event_time#1)#24, max(event_time#1)#25, count(1)#26L, sum(CASE WHEN isnull(event_time#1) THEN 1 ELSE 0 END)#27L, sum(CASE WHEN (event_time#1 < 2019-11-05 00:00:00) THEN 1 ELSE 0 END)#28L]
+Results [6]: [user_session#0, min(event_time#1)#24 AS session_start#10, max(event_time#1)#25 AS session_end#11, count(1)#26L AS n_events#12L, sum(CASE WHEN isnull(event_time#1) THEN 1 ELSE 0 END)#27L AS n_null_time#13L, sum(CASE WHEN (event_time#1 < 2019-11-05 00:00:00) THEN 1 ELSE 0 END)#28L AS n_before_val_end#14L]
+
+(18) Project
+Output [7]: [user_session#0, session_start#10, session_end#11, n_events#12L, n_null_time#13L, n_before_val_end#14L, CASE WHEN (isnull(user_session#0) OR (trim(user_session#0, None) = )) THEN invalid_session_key WHEN (n_null_time#13L > 0) THEN excluded_null_event_time WHEN isnull(session_start#10) THEN excluded_null_event_time WHEN (((session_start#10 >= 2019-11-01 00:00:00) AND (session_start#10 < 2019-11-04 00:00:00)) AND (session_end#11 < 2019-11-04 00:00:00)) THEN train WHEN ((session_start#10 >= 2019-11-01 00:00:00) AND (session_start#10 < 2019-11-04 00:00:00)) THEN censored_train WHEN (((session_start#10 >= 2019-11-04 00:00:00) AND (session_start#10 < 2019-11-05 00:00:00)) AND (session_end#11 < 2019-11-05 00:00:00)) THEN validation WHEN ((session_start#10 >= 2019-11-04 00:00:00) AND (session_start#10 < 2019-11-05 00:00:00)) THEN censored_validation WHEN ((session_start#10 >= 2019-11-05 00:00:00) AND (session_start#10 < 2019-11-07 00:00:00)) THEN test_range WHEN (session_start#10 >= 2019-11-07 00:00:00) THEN after_test_end WHEN (session_start#10 < 2019-11-01 00:00:00) THEN before_train ELSE gap END AS bucket#29]
+Input [6]: [user_session#0, session_start#10, session_end#11, n_events#12L, n_null_time#13L, n_before_val_end#14L]
+
+(19) AdaptiveSparkPlan
+Output [7]: [user_session#0, session_start#10, session_end#11, n_events#12L, n_null_time#13L, n_before_val_end#14L, bucket#29]
+Arguments: isFinalPlan=true
+
+(20) Filter
+Input [2]: [bucket#29, user_session#321]
+Condition : (((bucket#29 IN (train,validation) AND (pmod(xxhash64(user_session#321, 42), 10000) < 10000)) AND NOT (trim(user_session#321, None) = )) AND isnotnull(user_session#321))
+
+(21) Project
+Output [1]: [user_session#321]
+Input [2]: [bucket#29, user_session#321]
+
+(22) BroadcastExchange
+Input [1]: [user_session#321]
+Arguments: HashedRelationBroadcastMode(List(input[0, string, true]),false), [plan_id=163]
+
+(23) BroadcastHashJoin
+Left keys [1]: [user_session#0]
+Right keys [1]: [user_session#321]
+Join type: LeftSemi
+Join condition: None
+
+(24) Exchange
+Input [5]: [user_session#0, event_time#1, event_type#2, event_type_rank#3, event_sort_key#4]
+Arguments: hashpartitioning(user_session#0, 4), ENSURE_REQUIREMENTS, [plan_id=166]
+
+(25) Sort
+Input [5]: [user_session#0, event_time#1, event_type#2, event_type_rank#3, event_sort_key#4]
+Arguments: [user_session#0 ASC NULLS FIRST, event_time#1 ASC NULLS FIRST, event_type_rank#3 ASC NULLS FIRST, event_sort_key#4 ASC NULLS FIRST], false, 0
+
+(26) Window
+Input [5]: [user_session#0, event_time#1, event_type#2, event_type_rank#3, event_sort_key#4]
+Arguments: [row_number() windowspecdefinition(user_session#0, event_time#1 ASC NULLS FIRST, event_type_rank#3 ASC NULLS FIRST, event_sort_key#4 ASC NULLS FIRST, specifiedwindowframe(RowFrame, unboundedpreceding$(), currentrow$())) AS event_idx#331], [user_session#0], [event_time#1 ASC NULLS FIRST, event_type_rank#3 ASC NULLS FIRST, event_sort_key#4 ASC NULLS FIRST]
+
+(27) Project
+Output [3]: [user_session#0, event_type#2, event_idx#331]
+Input [6]: [user_session#0, event_time#1, event_type#2, event_type_rank#3, event_sort_key#4, event_idx#331]
+
+(28) HashAggregate
+Input [3]: [user_session#0, event_type#2, event_idx#331]
+Keys [1]: [user_session#0]
+Functions [2]: [partial_count(1), partial_min(CASE WHEN (event_type#2 = purchase) THEN event_idx#331 END)]
+Aggregate Attributes [2]: [count#608L, min#609]
+Results [3]: [user_session#0, count#610L, min#611]
+
+(29) HashAggregate
+Input [3]: [user_session#0, count#610L, min#611]
+Keys [1]: [user_session#0]
+Functions [2]: [count(1), min(CASE WHEN (event_type#2 = purchase) THEN event_idx#331 END)]
+Aggregate Attributes [2]: [count(1)#341L, min(CASE WHEN (event_type#2 = purchase) THEN event_idx#331 END)#342]
+Results [3]: [user_session#0, count(1)#341L AS ranked_length#333L, min(CASE WHEN (event_type#2 = purchase) THEN event_idx#331 END)#342 AS first_purchase_idx#334]
+
+(30) InMemoryTableScan
+Output [3]: [user_session#343, bucket#357, n_events#354L]
+Arguments: [user_session#343, bucket#357, n_events#354L], [NOT (bucket#357 = invalid_session_key), (pmod(xxhash64(user_session#343, 42), 10000) < 10000), NOT (trim(user_session#343, None) = ), isnotnull(user_session#343)]
+
+(31) InMemoryRelation
+Arguments: [user_session#343, session_start#352, session_end#353, n_events#354L, n_null_time#355L, n_before_val_end#356L, bucket#357], StorageLevel(disk, 1 replicas)
+
+(32) Filter
+Input [3]: [user_session#343, bucket#357, n_events#354L]
+Condition : (((NOT (bucket#357 = invalid_session_key) AND (pmod(xxhash64(user_session#343, 42), 10000) < 10000)) AND NOT (trim(user_session#343, None) = )) AND isnotnull(user_session#343))
+
+(33) BroadcastExchange
+Input [3]: [user_session#343, bucket#357, n_events#354L]
+Arguments: HashedRelationBroadcastMode(List(input[0, string, false]),false), [plan_id=173]
+
+(34) BroadcastHashJoin
+Left keys [1]: [user_session#0]
+Right keys [1]: [user_session#343]
+Join type: Inner
+Join condition: None
+
+(35) Project
+Output [5]: [ranked_length#333L, first_purchase_idx#334, bucket#357, n_events#354L, n_events#354L AS length#359L]
+Input [6]: [user_session#0, ranked_length#333L, first_purchase_idx#334, user_session#343, bucket#357, n_events#354L]
+
+(36) HashAggregate
+Input [5]: [ranked_length#333L, first_purchase_idx#334, bucket#357, n_events#354L, length#359L]
+Keys [1]: [bucket#357]
+Functions [8]: [partial_count(1), partial_sum(CASE WHEN (bucket#357 IN (train,validation) AND NOT (ranked_length#333L = n_events#354L)) THEN 1 ELSE 0 END), partial_sum(CASE WHEN (length#359L < 3) THEN 1 ELSE 0 END), partial_sum(CASE WHEN (((length#359L >= 3) AND isnotnull(first_purchase_idx#334)) AND (first_purchase_idx#334 <= 3)) THEN 1 ELSE 0 END), partial_sum(CASE WHEN ((length#359L >= 3) AND (((length#359L < 3) OR isnull(first_purchase_idx#334)) OR (first_purchase_idx#334 > 3))) THEN 1 ELSE 0 END), partial_sum(CASE WHEN (((length#359L >= 3) AND (((length#359L < 3) OR isnull(first_purchase_idx#334)) OR (first_purchase_idx#334 > 3))) AND isnotnull(first_purchase_idx#334)) THEN 1 ELSE 0 END), partial_sum(CASE WHEN (((length#359L >= 3) AND (((length#359L < 3) OR isnull(first_purchase_idx#334)) OR (first_purchase_idx#334 > 3))) AND isnull(first_purchase_idx#334)) THEN 1 ELSE 0 END), partial_sum(CASE WHEN (length#359L = 3) THEN 1 ELSE 0 END)]
+Aggregate Attributes [8]: [count#592L, sum#593L, sum#594L, sum#595L, sum#596L, sum#597L, sum#598L, sum#599L]
+Results [9]: [bucket#357, count#600L, sum#601L, sum#602L, sum#603L, sum#604L, sum#605L, sum#606L, sum#607L]
+
+(37) Exchange
+Input [9]: [bucket#357, count#600L, sum#601L, sum#602L, sum#603L, sum#604L, sum#605L, sum#606L, sum#607L]
+Arguments: hashpartitioning(bucket#357, 4), ENSURE_REQUIREMENTS, [plan_id=178]
+
+(38) HashAggregate
+Input [9]: [bucket#357, count#600L, sum#601L, sum#602L, sum#603L, sum#604L, sum#605L, sum#606L, sum#607L]
+Keys [1]: [bucket#357]
+Functions [8]: [count(1), sum(CASE WHEN (bucket#357 IN (train,validation) AND NOT (ranked_length#333L = n_events#354L)) THEN 1 ELSE 0 END), sum(CASE WHEN (length#359L < 3) THEN 1 ELSE 0 END), sum(CASE WHEN (((length#359L >= 3) AND isnotnull(first_purchase_idx#334)) AND (first_purchase_idx#334 <= 3)) THEN 1 ELSE 0 END), sum(CASE WHEN ((length#359L >= 3) AND (((length#359L < 3) OR isnull(first_purchase_idx#334)) OR (first_purchase_idx#334 > 3))) THEN 1 ELSE 0 END), sum(CASE WHEN (((length#359L >= 3) AND (((length#359L < 3) OR isnull(first_purchase_idx#334)) OR (first_purchase_idx#334 > 3))) AND isnotnull(first_purchase_idx#334)) THEN 1 ELSE 0 END), sum(CASE WHEN (((length#359L >= 3) AND (((length#359L < 3) OR isnull(first_purchase_idx#334)) OR (first_purchase_idx#334 > 3))) AND isnull(first_purchase_idx#334)) THEN 1 ELSE 0 END), sum(CASE WHEN (length#359L = 3) THEN 1 ELSE 0 END)]
+Aggregate Attributes [8]: [count(1)#374L, sum(CASE WHEN (bucket#357 IN (train,validation) AND NOT (ranked_length#333L = n_events#354L)) THEN 1 ELSE 0 END)#375L, sum(CASE WHEN (length#359L < 3) THEN 1 ELSE 0 END)#376L, sum(CASE WHEN (((length#359L >= 3) AND isnotnull(first_purchase_idx#334)) AND (first_purchase_idx#334 <= 3)) THEN 1 ELSE 0 END)#377L, sum(CASE WHEN ((length#359L >= 3) AND (((length#359L < 3) OR isnull(first_purchase_idx#334)) OR (first_purchase_idx#334 > 3))) THEN 1 ELSE 0 END)#378L, sum(CASE WHEN (((length#359L >= 3) AND (((length#359L < 3) OR isnull(first_purchase_idx#334)) OR (first_purchase_idx#334 > 3))) AND isnotnull(first_purchase_idx#334)) THEN 1 ELSE 0 END)#379L, sum(CASE WHEN (((length#359L >= 3) AND (((length#359L < 3) OR isnull(first_purchase_idx#334)) OR (first_purchase_idx#334 > 3))) AND isnull(first_purchase_idx#334)) THEN 1 ELSE 0 END)#380L, sum(CASE WHEN (length#359L = 3) THEN 1 ELSE 0 END)#381L]
+Results [9]: [bucket#357, count(1)#374L AS in_scope_all#360L, sum(CASE WHEN (bucket#357 IN (train,validation) AND NOT (ranked_length#333L = n_events#354L)) THEN 1 ELSE 0 END)#375L AS length_mismatch#361L, sum(CASE WHEN (length#359L < 3) THEN 1 ELSE 0 END)#376L AS n3_too_short#362L, sum(CASE WHEN (((length#359L >= 3) AND isnotnull(first_purchase_idx#334)) AND (first_purchase_idx#334 <= 3)) THEN 1 ELSE 0 END)#377L AS n3_early_purchase#363L, sum(CASE WHEN ((length#359L >= 3) AND (((length#359L < 3) OR isnull(first_purchase_idx#334)) OR (first_purchase_idx#334 > 3))) THEN 1 ELSE 0 END)#378L AS n3_eligible#364L, sum(CASE WHEN (((length#359L >= 3) AND (((length#359L < 3) OR isnull(first_purchase_idx#334)) OR (first_purchase_idx#334 > 3))) AND isnotnull(first_purchase_idx#334)) THEN 1 ELSE 0 END)#379L AS n3_label1#365L, sum(CASE WHEN (((length#359L >= 3) AND (((length#359L < 3) OR isnull(first_purchase_idx#334)) OR (first_purchase_idx#334 > 3))) AND isnull(first_purchase_idx#334)) THEN 1 ELSE 0 END)#380L AS n3_label0#366L, sum(CASE WHEN (length#359L = 3) THEN 1 ELSE 0 END)#381L AS n3_len_equals_n#367L]
+
+(39) AdaptiveSparkPlan
+Output [9]: [bucket#357, in_scope_all#360L, length_mismatch#361L, n3_too_short#362L, n3_early_purchase#363L, n3_eligible#364L, n3_label1#365L, n3_label0#366L, n3_len_equals_n#367L]
+Arguments: isFinalPlan=false
+
+

@@ -1,0 +1,5 @@
+......................                                                   [100%]
+22 passed in 225.54s (0:03:45)
+SUCCESS: The process with PID 26472 (child process of PID 14048) has been terminated.
+SUCCESS: The process with PID 14048 (child process of PID 4220) has been terminated.
+SUCCESS: The process with PID 4220 (child process of PID 22912) has been terminated.

@@ -1,0 +1,6 @@
+{
+  "python": "3.8.11",
+  "platform": "Linux-3.10.0-1160.31.1.el7.x86_64-x86_64-with-glibc2.17",
+  "pyspark": "3.1.2",
+  "java": "java version \"1.8.0_291\""
+}

@@ -1,0 +1,5 @@
+...................                                                      [100%]
+19 passed in 208.25s (0:03:28)
+SUCCESS: The process with PID 3020 (child process of PID 23088) has been terminated.
+SUCCESS: The process with PID 23088 (child process of PID 26084) has been terminated.
+SUCCESS: The process with PID 26084 (child process of PID 25248) has been terminated.

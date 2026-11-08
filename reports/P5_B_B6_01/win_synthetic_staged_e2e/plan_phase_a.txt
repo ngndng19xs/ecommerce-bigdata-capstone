@@ -1,0 +1,82 @@
+== Physical Plan ==
+AdaptiveSparkPlan (13)
++- ObjectHashAggregate (12)
+   +- Exchange (11)
+      +- ObjectHashAggregate (10)
+         +- InMemoryTableScan (1)
+               +- InMemoryRelation (2)
+                     +- AdaptiveSparkPlan (9)
+                        +- Project (8)
+                           +- HashAggregate (7)
+                              +- Exchange (6)
+                                 +- HashAggregate (5)
+                                    +- Filter (4)
+                                       +- Scan parquet  (3)
+
+
+(1) InMemoryTableScan
+Output [5]: [session_end#11, n_events#12L, n_null_time#13L, n_before_val_end#14L, bucket#29]
+Arguments: [session_end#11, n_events#12L, n_null_time#13L, n_before_val_end#14L, bucket#29]
+
+(2) InMemoryRelation
+Arguments: [user_session#0, session_start#10, session_end#11, n_events#12L, n_null_time#13L, n_before_val_end#14L, bucket#29], StorageLevel(disk, 1 replicas)
+
+(3) Scan parquet 
+Output [2]: [user_session#0, event_time#1]
+Batched: true
+Location: InMemoryFileIndex [file:/C:/Users/Admin/AppData/Local/Temp/claude/c76c7dcd73c98805/a760d702-ed0e-4dfc-a891-bf8b8388b631/scratchpad/e2e_run1/curated]
+ReadSchema: struct<user_session:string,event_time:timestamp>
+
+(4) Filter
+Input [2]: [user_session#0, event_time#1]
+Condition : (pmod(xxhash64(user_session#0, 42), 10000) < 10000)
+
+(5) HashAggregate
+Input [2]: [user_session#0, event_time#1]
+Keys [1]: [user_session#0]
+Functions [5]: [partial_min(event_time#1), partial_max(event_time#1), partial_count(1), partial_sum(CASE WHEN isnull(event_time#1) THEN 1 ELSE 0 END), partial_sum(CASE WHEN (event_time#1 < 2019-11-05 00:00:00) THEN 1 ELSE 0 END)]
+Aggregate Attributes [5]: [min#30, max#31, count#32L, sum#33L, sum#34L]
+Results [6]: [user_session#0, min#35, max#36, count#37L, sum#38L, sum#39L]
+
+(6) Exchange
+Input [6]: [user_session#0, min#35, max#36, count#37L, sum#38L, sum#39L]
+Arguments: hashpartitioning(user_session#0, 4), ENSURE_REQUIREMENTS, [plan_id=17]
+
+(7) HashAggregate
+Input [6]: [user_session#0, min#35, max#36, count#37L, sum#38L, sum#39L]
+Keys [1]: [user_session#0]
+Functions [5]: [min(event_time#1), max(event_time#1), count(1), sum(CASE WHEN isnull(event_time#1) THEN 1 ELSE 0 END), sum(CASE WHEN (event_time#1 < 2019-11-05 00:00:00) THEN 1 ELSE 0 END)]
+Aggregate Attributes [5]: [min(event_time#1)#24, max(event_time#1)#25, count(1)#26L, sum(CASE WHEN isnull(event_time#1) THEN 1 ELSE 0 END)#27L, sum(CASE WHEN (event_time#1 < 2019-11-05 00:00:00) THEN 1 ELSE 0 END)#28L]
+Results [6]: [user_session#0, min(event_time#1)#24 AS session_start#10, max(event_time#1)#25 AS session_end#11, count(1)#26L AS n_events#12L, sum(CASE WHEN isnull(event_time#1) THEN 1 ELSE 0 END)#27L AS n_null_time#13L, sum(CASE WHEN (event_time#1 < 2019-11-05 00:00:00) THEN 1 ELSE 0 END)#28L AS n_before_val_end#14L]
+
+(8) Project
+Output [7]: [user_session#0, session_start#10, session_end#11, n_events#12L, n_null_time#13L, n_before_val_end#14L, CASE WHEN (isnull(user_session#0) OR (trim(user_session#0, None) = )) THEN invalid_session_key WHEN (n_null_time#13L > 0) THEN excluded_null_event_time WHEN isnull(session_start#10) THEN excluded_null_event_time WHEN (((session_start#10 >= 2019-11-01 00:00:00) AND (session_start#10 < 2019-11-04 00:00:00)) AND (session_end#11 < 2019-11-04 00:00:00)) THEN train WHEN ((session_start#10 >= 2019-11-01 00:00:00) AND (session_start#10 < 2019-11-04 00:00:00)) THEN censored_train WHEN (((session_start#10 >= 2019-11-04 00:00:00) AND (session_start#10 < 2019-11-05 00:00:00)) AND (session_end#11 < 2019-11-05 00:00:00)) THEN validation WHEN ((session_start#10 >= 2019-11-04 00:00:00) AND (session_start#10 < 2019-11-05 00:00:00)) THEN censored_validation WHEN ((session_start#10 >= 2019-11-05 00:00:00) AND (session_start#10 < 2019-11-07 00:00:00)) THEN test_range WHEN (session_start#10 >= 2019-11-07 00:00:00) THEN after_test_end WHEN (session_start#10 < 2019-11-01 00:00:00) THEN before_train ELSE gap END AS bucket#29]
+Input [6]: [user_session#0, session_start#10, session_end#11, n_events#12L, n_null_time#13L, n_before_val_end#14L]
+
+(9) AdaptiveSparkPlan
+Output [7]: [user_session#0, session_start#10, session_end#11, n_events#12L, n_null_time#13L, n_before_val_end#14L, bucket#29]
+Arguments: isFinalPlan=false
+
+(10) ObjectHashAggregate
+Input [5]: [session_end#11, n_events#12L, n_null_time#13L, n_before_val_end#14L, bucket#29]
+Keys [1]: [bucket#29]
+Functions [7]: [partial_count(1), partial_sum(n_events#12L), partial_sum(n_null_time#13L), partial_max(n_events#12L), partial_max(n_before_val_end#14L), partial_sum(CASE WHEN (((bucket#29 = train) AND (session_end#11 >= 2019-11-04 00:00:00)) OR ((bucket#29 = validation) AND (session_end#11 >= 2019-11-05 00:00:00))) THEN 1 ELSE 0 END), partial_percentile_approx(n_events#12L, [0.5,0.99,0.999], 10000, 0, 0)]
+Aggregate Attributes [7]: [count#201L, sum#202L, sum#203L, max#204L, max#205L, sum#206L, buf#207]
+Results [8]: [bucket#29, count#208L, sum#209L, sum#210L, max#211L, max#212L, sum#213L, buf#214]
+
+(11) Exchange
+Input [8]: [bucket#29, count#208L, sum#209L, sum#210L, max#211L, max#212L, sum#213L, buf#214]
+Arguments: hashpartitioning(bucket#29, 4), ENSURE_REQUIREMENTS, [plan_id=31]
+
+(12) ObjectHashAggregate
+Input [8]: [bucket#29, count#208L, sum#209L, sum#210L, max#211L, max#212L, sum#213L, buf#214]
+Keys [1]: [bucket#29]
+Functions [7]: [count(1), sum(n_events#12L), sum(n_null_time#13L), max(n_events#12L), max(n_before_val_end#14L), sum(CASE WHEN (((bucket#29 = train) AND (session_end#11 >= 2019-11-04 00:00:00)) OR ((bucket#29 = validation) AND (session_end#11 >= 2019-11-05 00:00:00))) THEN 1 ELSE 0 END), percentile_approx(n_events#12L, [0.5,0.99,0.999], 10000, 0, 0)]
+Aggregate Attributes [7]: [count(1)#89L, sum(n_events#12L)#90L, sum(n_null_time#13L)#91L, max(n_events#12L)#92L, max(n_before_val_end#14L)#93L, sum(CASE WHEN (((bucket#29 = train) AND (session_end#11 >= 2019-11-04 00:00:00)) OR ((bucket#29 = validation) AND (session_end#11 >= 2019-11-05 00:00:00))) THEN 1 ELSE 0 END)#94L, percentile_approx(n_events#12L, [0.5,0.99,0.999], 10000, 0, 0)#95]
+Results [8]: [bucket#29, count(1)#89L AS sessions#75L, sum(n_events#12L)#90L AS events#76L, sum(n_null_time#13L)#91L AS null_time_events#77L, max(n_events#12L)#92L AS max_n_events#78L, max(n_before_val_end#14L)#93L AS max_n_before_val_end#79L, sum(CASE WHEN (((bucket#29 = train) AND (session_end#11 >= 2019-11-04 00:00:00)) OR ((bucket#29 = validation) AND (session_end#11 >= 2019-11-05 00:00:00))) THEN 1 ELSE 0 END)#94L AS leak_sessions#80L, percentile_approx(n_events#12L, [0.5,0.99,0.999], 10000, 0, 0)#95 AS n_events_pct#81]
+
+(13) AdaptiveSparkPlan
+Output [8]: [bucket#29, sessions#75L, events#76L, null_time_events#77L, max_n_events#78L, max_n_before_val_end#79L, leak_sessions#80L, n_events_pct#81]
+Arguments: isFinalPlan=false
+
+

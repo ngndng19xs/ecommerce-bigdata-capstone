@@ -1,0 +1,23 @@
+{
+  "status": "B9_PROVISIONAL_PASS",
+  "acceptance_status": "PENDING_A_REVIEW",
+  "evaluation_type": "ONE_TIME_FROZEN_TEST",
+  "test_rows": 19297,
+  "prediction_n": 3,
+  "threshold": 0.74,
+  "tp": 741,
+  "fp": 1290,
+  "tn": 16446,
+  "fn": 820,
+  "precision": 0.36484490398818314,
+  "recall": 0.4746957078795644,
+  "f1": 0.4125835189309577,
+  "accuracy": 0.8906565787428098,
+  "specificity": 0.9272665764546685,
+  "auc_roc": 0.7446318334794013,
+  "auc_pr": 0.2941807302653112,
+  "model_sha256": "7febf66766760eb7a7c101268f3aa23c97945e94d9ef1d9a7a2fca1aa1bf27b6",
+  "training_performed": false,
+  "threshold_retuned_on_test": false,
+  "evaluated_utc": "2026-11-07T23:36:30.859667+00:00"
+}

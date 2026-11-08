@@ -1,0 +1,34 @@
+# P4-B-B7-02 example hyperparameter configuration for the B7 smoke path.
+# Example only: no model binary is committed. Values must equal the defaults in
+# src/ml/training/lr_b6_smoke.py (checked by tests/unit/test_b7_02_preprocessing_seed.py::test_tc18).
+
+prediction_n: 2                  # N prediction point (test value; official N is TBD)
+
+sampling:
+  unit: session                  # sampling is over sessions, never over rows
+  method: hash_user_session      # pmod(xxhash64(user_session), 10000) < threshold
+  sample_percent_default: 0.1    # percent of sessions; >1 requires explicit approval
+
+split:
+  strategy: chronological        # by session_start_date (UTC); no random split
+  train_ratio: 0.70
+  val_ratio: 0.15                # remaining dates are not read by the smoke run
+
+lr:
+  max_iter: 50
+  reg_param: 0.01
+
+preprocessing:
+  string_indexer_handle_invalid: keep
+  one_hot_handle_invalid: keep
+  one_hot_drop_last: true
+  vector_assembler_handle_invalid: error
+  scaler_with_mean: false
+  scaler_with_std: true
+  fit_scope: train_only
+
+seed_policy:
+  # Seeds are not used by any stage on the B7 path (see TC14 audit). Setting a seed here
+  # would NOT change results; the field documents that fact for reviewers.
+  random_seed_used_by_code: false
+  note: "chronological split and hash sampling are deterministic; LogisticRegression is fitted without a seed"

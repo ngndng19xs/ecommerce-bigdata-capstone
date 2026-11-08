@@ -1,0 +1,42 @@
+{
+  "run_timestamp_utc": "2026-11-07T04:24:01.708014+00:00",
+  "curated_path": "/data/curated/events",
+  "curated_input_files": 774,
+  "output_path": "/data/ml/smoke/p4_b_b7_01/e5_pmod_fix_20261107T041950Z/session_features",
+  "prediction_n": 2,
+  "sample_percent": 0.1,
+  "sample_scope": "deterministic hash(user_session) mod 10000 < threshold over the WHOLE Curated source; all events of a selected session are kept; no date filter; sessions crossing date boundaries are kept whole; sessions truncated by the end of the dataset are not corrected (see F8)",
+  "hash_threshold_of_10000": 10,
+  "sampled_event_rows": 107965,
+  "sampled_distinct_sessions": 22923,
+  "spark_version": "3.1.2",
+  "audit_status_counts": {
+    "eligible": 14506,
+    "purchased_by_n": 231,
+    "too_short": 8186
+  },
+  "invalid_session_rows": 0,
+  "output_session_rows": 14506,
+  "output_label_counts": {
+    "0": 13280,
+    "1": 1226
+  },
+  "output_columns": [
+    "user_session",
+    "n_view",
+    "n_cart",
+    "n_remove_from_cart",
+    "n_unique_products",
+    "n_unique_categories",
+    "n_unique_brands",
+    "brands_seen",
+    "avg_price",
+    "max_price",
+    "prefix_start",
+    "prediction_time",
+    "last_event_type",
+    "prefix_duration_seconds",
+    "label",
+    "prediction_n"
+  ]
+}

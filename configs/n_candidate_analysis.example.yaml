@@ -1,0 +1,55 @@
+# P5-B-B6-01 N candidate analysis configuration.
+#
+# STATUS: PROPOSED H11 windows from member A, review PENDING (A_REVIEW), S2 joint approval NOT CONFIRMED.
+# This file is a candidate configuration for analysis. It does not approve N, windows or thresholds.
+# Final N is decided from evidence in reports/P5_B_B6_01/, never from the test range.
+
+# Official prediction point. Decided by member B as a design choice (see prediction_point below).
+selected_n: 3
+
+# Reference candidates: used only for the comparison table in the reference analysis scope.
+# They never change selected_n.
+n_candidates: [2, 3, 5]
+
+prediction_point:
+  selected_n: 3
+  decision_owner: "member B (design decision)"
+  decision_basis: >-
+    Early prediction with enough observed history. Reference: proposal P5-A-S2-01 by member A
+    (N=3 preferred) and the H10 session-length distribution. This is a design choice, not the
+    result of an N optimisation.
+  validation_or_test_used_for_selection: false
+  test_labels_used_for_selection: false
+  approval_status: "H11 = PENDING_A_REVIEW. Member A has NOT approved. S2 joint approval NOT CONFIRMED."
+  label_definition: "label=1 if a purchase exists with event_idx > selected_n in the session; label=0 otherwise within valid label scope"
+  features_scope: "first selected_n events only"
+  early_purchase_rule: "purchase at or before event selected_n -> session excluded"
+
+windows_utc:                     # start inclusive, end exclusive, ISO-8601 with Z
+  train_start: "2019-10-01T00:00:00Z"
+  train_end_exclusive: "2019-11-13T00:00:00Z"
+  validation_start: "2019-11-13T00:00:00Z"
+  validation_end_exclusive: "2019-11-22T00:00:00Z"
+  test_start: "2019-11-22T00:00:00Z"
+  test_end_exclusive: "2019-12-01T00:00:00Z"
+
+temporal_policy:
+  session_key: user_session
+  session_time: "min(event_time) and max(event_time) over ALL events of the session"
+  assignment: "train/validation only if the whole session lies inside the window (session_end < window end)"
+  censoring: "sessions starting in a window but ending after it are counted as censored, not labelled"
+  test_range: "counted only by session start; never ranked, never labelled"
+  invalid_session: "NULL or blank user_session: counted as events, not as sessions"
+
+sampling:
+  test_mode_default_percent: 0.1      # percent of SESSIONS, whole-session hash (dev/QA only)
+  full_run_requires_flag: true        # --confirm-full-run must be passed explicitly
+
+spark:
+  master: "local[2]"
+  driver_memory: "1g"
+  shuffle_partitions: 4
+  timezone: "UTC"
+
+seed_policy:
+  random_seed_used_by_code: false     # no random step in this analysis; results are deterministic

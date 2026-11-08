@@ -1,0 +1,233 @@
+{
+  "task": "P4-B-B7-01",
+  "scope": "LR smoke on B6 Session Features; train and validation only; test never read",
+  "git_commit": "UNKNOWN",
+  "spark_version": "3.1.2",
+  "python_version": "3.8.11",
+  "started_utc": "2026-11-07T04:27:04.564503+00:00",
+  "args": {
+    "input_path": "/data/ml/smoke/p4_b_b7_01/e5_pmod_fix_20261107T041950Z/session_features",
+    "output_dir": "/data/ml/smoke/p4_b_b7_01/e5_pmod_fix_20261107T041950Z/model",
+    "report_dir": "/media/sf_ecommerce-bigdata-capstone/reports/P4_B_B7_01/e5_pmod_fix_20261107T041950Z",
+    "max_iter": 50,
+    "reg_param": 0.01,
+    "train_ratio": 0.7,
+    "val_ratio": 0.15,
+    "no_save_model": false
+  },
+  "input_schema": [
+    {
+      "name": "user_session",
+      "type": "string"
+    },
+    {
+      "name": "n_view",
+      "type": "bigint"
+    },
+    {
+      "name": "n_cart",
+      "type": "bigint"
+    },
+    {
+      "name": "n_remove_from_cart",
+      "type": "bigint"
+    },
+    {
+      "name": "n_unique_products",
+      "type": "bigint"
+    },
+    {
+      "name": "n_unique_categories",
+      "type": "bigint"
+    },
+    {
+      "name": "n_unique_brands",
+      "type": "bigint"
+    },
+    {
+      "name": "brands_seen",
+      "type": "array<string>"
+    },
+    {
+      "name": "avg_price",
+      "type": "double"
+    },
+    {
+      "name": "max_price",
+      "type": "double"
+    },
+    {
+      "name": "prefix_start",
+      "type": "timestamp"
+    },
+    {
+      "name": "prediction_time",
+      "type": "timestamp"
+    },
+    {
+      "name": "last_event_type",
+      "type": "string"
+    },
+    {
+      "name": "prefix_duration_seconds",
+      "type": "bigint"
+    },
+    {
+      "name": "label",
+      "type": "int"
+    },
+    {
+      "name": "prediction_n",
+      "type": "int"
+    }
+  ],
+  "input_path": "/data/ml/smoke/p4_b_b7_01/e5_pmod_fix_20261107T041950Z/session_features",
+  "input_columns": [
+    "user_session",
+    "n_view",
+    "n_cart",
+    "n_remove_from_cart",
+    "n_unique_products",
+    "n_unique_categories",
+    "n_unique_brands",
+    "brands_seen",
+    "avg_price",
+    "max_price",
+    "prefix_start",
+    "prediction_time",
+    "last_event_type",
+    "prefix_duration_seconds",
+    "label",
+    "prediction_n"
+  ],
+  "prediction_n": 2,
+  "split": {
+    "train_ratio": 0.7,
+    "val_ratio": 0.15,
+    "train_dates": [
+      "2019-10-01",
+      "2019-10-02",
+      "2019-10-03",
+      "2019-10-04",
+      "2019-10-05",
+      "2019-10-06",
+      "2019-10-07",
+      "2019-10-08",
+      "2019-10-09",
+      "2019-10-10",
+      "2019-10-11",
+      "2019-10-12",
+      "2019-10-13",
+      "2019-10-14",
+      "2019-10-15",
+      "2019-10-16",
+      "2019-10-17",
+      "2019-10-18",
+      "2019-10-19",
+      "2019-10-20",
+      "2019-10-21",
+      "2019-10-22",
+      "2019-10-23",
+      "2019-10-24",
+      "2019-10-25",
+      "2019-10-26",
+      "2019-10-27",
+      "2019-10-28",
+      "2019-10-29",
+      "2019-10-30",
+      "2019-10-31",
+      "2019-11-01",
+      "2019-11-02",
+      "2019-11-03",
+      "2019-11-04",
+      "2019-11-05",
+      "2019-11-06",
+      "2019-11-07",
+      "2019-11-08",
+      "2019-11-09",
+      "2019-11-10",
+      "2019-11-11"
+    ],
+    "val_dates": [
+      "2019-11-12",
+      "2019-11-13",
+      "2019-11-14",
+      "2019-11-15",
+      "2019-11-16",
+      "2019-11-17",
+      "2019-11-18",
+      "2019-11-19",
+      "2019-11-20"
+    ],
+    "dates_not_read": 10,
+    "distinct_session_dates_total": 61
+  },
+  "train": {
+    "sessions": 8453,
+    "pos": 670,
+    "neg": 7783,
+    "pos_rate": 0.079262
+  },
+  "validation": {
+    "sessions": 3766,
+    "pos": 324,
+    "neg": 3442,
+    "pos_rate": 0.086033,
+    "auc_sanity_only": 0.69664,
+    "validation_rows_in": 3766,
+    "validation_rows_out": 3766,
+    "bad_prob_size": 0,
+    "bad_prob_value": 0,
+    "bad_features": 0,
+    "null_prediction": 0
+  },
+  "class_weight_label1": 11.616417910447762,
+  "lr": {
+    "max_iter": 50,
+    "reg_param": 0.01
+  },
+  "pipeline_stages": [
+    "StringIndexerModel",
+    "OneHotEncoderModel",
+    "VectorAssembler",
+    "StandardScalerModel",
+    "LogisticRegressionModel"
+  ],
+  "feature_columns_numeric": [
+    "n_view",
+    "n_cart",
+    "n_remove_from_cart",
+    "n_unique_products",
+    "n_unique_categories",
+    "n_unique_brands",
+    "avg_price",
+    "max_price",
+    "prefix_duration_seconds"
+  ],
+  "feature_columns_categorical": [
+    "last_event_type"
+  ],
+  "forbidden_feature_columns": [
+    "brands_seen",
+    "class_weight",
+    "label",
+    "prediction_n",
+    "prediction_time",
+    "prefix_start",
+    "session_start_date",
+    "user_session"
+  ],
+  "indexer_labels": {
+    "last_event_type": [
+      "view",
+      "cart"
+    ]
+  },
+  "coefficients_count": 12,
+  "coefficient_l2_norm": 0.47398938,
+  "intercept": 2.410354435360921,
+  "model_path": "/data/ml/smoke/p4_b_b7_01/e5_pmod_fix_20261107T041950Z/model/lr_smoke_model",
+  "smoke_status": "PASS",
+  "finished_utc": "2026-11-07T04:28:09.522127+00:00",
+  "exit_code": 0
+}

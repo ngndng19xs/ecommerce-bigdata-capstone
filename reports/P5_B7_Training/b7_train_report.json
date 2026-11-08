@@ -1,0 +1,43 @@
+{
+  "status": "B7_EXPERIMENT_PASS",
+  "task": "P5-B7-H11-EXPERIMENT",
+  "input_dir": "/var/tmp/p5_b6_01_work_student/b602/b602_n3_fixed_20261107T225335Z/features",
+  "split_policy": "H11_PREDEFINED",
+  "prediction_n": 3,
+  "test_access": "NONE",
+  "started_utc": "2026-11-07T23:15:02.470904+00:00",
+  "train": {
+    "total": 85237,
+    "pos": 5961,
+    "neg": 79276,
+    "invalid": 0
+  },
+  "validation": {
+    "total": 37848,
+    "pos": 2755,
+    "neg": 35093,
+    "invalid": 0
+  },
+  "train_class_weight_positive": 13.299110887434994,
+  "numeric_features": [
+    "n_view",
+    "n_cart",
+    "n_remove_from_cart",
+    "n_unique_products",
+    "n_unique_categories",
+    "n_unique_brands",
+    "avg_price",
+    "max_price",
+    "prefix_duration_seconds"
+  ],
+  "categorical_features": [
+    "last_event_type"
+  ],
+  "max_iter": 50,
+  "reg_param": 0.01,
+  "validation_auc_roc": 0.6945376358789045,
+  "validation_auc_pr": 0.18269634526434522,
+  "model_path": "/var/tmp/p5_b6_01_work_student/b7/b7_h11_lr_fixed2_20261107T231454Z/model",
+  "test_evaluated": false,
+  "finished_utc": "2026-11-07T23:16:32.181074+00:00"
+}

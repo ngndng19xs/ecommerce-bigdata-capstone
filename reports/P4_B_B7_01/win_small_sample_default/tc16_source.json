@@ -1,0 +1,34 @@
+{
+  "check": "TC16_source_integrity",
+  "repo_root": "E:\\Data_SamSung\\Github\\ecommerce-bigdata-capstone",
+  "manifest_path": "reports\\P4_B_B7_01\\source_manifest.json",
+  "verified_utc": "2026-11-06T22:27:02.879496+00:00",
+  "manifest_git": {
+    "available": true,
+    "head": "ab24868bd511002557b2db084373f57ff2c6a93f",
+    "branch": "feature/P3-B-B6-02-labels",
+    "uncommitted_entries": [
+      "M src/common/spark_session.py",
+      "?? docs/qa/",
+      "?? reports/P4_B_B7_01/",
+      "?? scripts/run/check_b7_01_evidence.py",
+      "?? scripts/run/preflight_b7_01.py",
+      "?? scripts/run/run_b6_session_features.py",
+      "?? scripts/run/run_b7_01_vm_b.sh",
+      "?? scripts/run/run_b7_lr_smoke.py",
+      "?? scripts/run/source_manifest.py",
+      "?? src/ml/training/lr_b6_smoke.py",
+      "?? tests/unit/test_b7_01_lr_smoke.py",
+      "?? tests/unit/test_b7_01_tooling.py"
+    ],
+    "working_tree_snapshot": true
+  },
+  "vm_git_available": true,
+  "files_total": 24,
+  "files_matched": 24,
+  "files_mismatched": [],
+  "files_missing": [],
+  "working_tree_snapshot": true,
+  "status": "PASS",
+  "reason": "all key files match the manifest SHA-256; manifest describes a WORKING TREE SNAPSHOT, not a clean commit"
+}

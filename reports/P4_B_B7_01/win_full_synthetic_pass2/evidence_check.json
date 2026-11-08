@@ -1,0 +1,42 @@
+{
+  "report_dir": "E:/Data_SamSung/Github/ecommerce-bigdata-capstone/reports/P4_B_B7_01/win_full_synthetic_pass2",
+  "evidence_missing": [],
+  "OVERALL": "PASS",
+  "criteria": [
+    {
+      "criterion": "E6 smoke_status PASS and exit_code 0",
+      "status": "PASS",
+      "detail": "smoke_status=PASS exit_code=0"
+    },
+    {
+      "criterion": "TC16 source integrity PASS (manifest SHA-256 match)",
+      "status": "PASS",
+      "detail": "status=PASS files_matched=24/24"
+    },
+    {
+      "criterion": "TC14 test range not read: date identity holds and split is chronological",
+      "status": "PASS",
+      "detail": "distinct_total=6 train=4 val=1 not_read=1 chronological=True"
+    },
+    {
+      "criterion": "TC05 train has both classes",
+      "status": "PASS",
+      "detail": "train pos=16 neg=28"
+    },
+    {
+      "criterion": "TC13 validation transform row count preserved and outputs finite",
+      "status": "PASS",
+      "detail": "in=11 out=11"
+    },
+    {
+      "criterion": "B6 writer produced a non-empty, two-class dataset",
+      "status": "PASS",
+      "detail": "rows=66 labels={'1': 24, '0': 42}"
+    },
+    {
+      "criterion": "B6 writer sample is consistent (eligible <= sampled sessions, same N)",
+      "status": "PASS",
+      "detail": "eligible=66 sampled=72 N writer=2 smoke=2"
+    }
+  ]
+}

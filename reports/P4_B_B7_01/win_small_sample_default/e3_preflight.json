@@ -1,0 +1,23 @@
+{
+  "check": "E3_hdfs_curated_preflight",
+  "curated_path": "C:/Users/Admin/AppData/Local/Temp/claude/c76c7dcd73c98805/a760d702-ed0e-4dfc-a891-bf8b8388b631/scratchpad/e2e_run1/curated",
+  "checked_utc": "2026-11-06T22:36:24.331244+00:00",
+  "rows_scanned": false,
+  "parquet_files": 2,
+  "schema_columns": [
+    "user_session",
+    "event_time",
+    "event_type",
+    "event_type_rank",
+    "event_sort_key",
+    "product_id",
+    "category_id",
+    "brand",
+    "price"
+  ],
+  "missing_required_columns": [],
+  "spark_version": "4.0.1",
+  "status": "PASS",
+  "reason": "path readable, parquet files present, schema complete",
+  "exit_code": 0
+}

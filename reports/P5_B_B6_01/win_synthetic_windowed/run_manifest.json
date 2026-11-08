@@ -1,0 +1,46 @@
+{
+  "task": "P5-B-B6-01",
+  "run_id": "win_synthetic_windowed",
+  "started_utc": "2026-11-07T08:56:45.838888+00:00",
+  "finished_utc": "2026-11-07T08:56:57.590551+00:00",
+  "mode": "sample",
+  "sample_percent": 100.0,
+  "input_path": "C:/Users/Admin/AppData/Local/Temp/claude/c76c7dcd73c98805/a760d702-ed0e-4dfc-a891-bf8b8388b631/scratchpad/e2e_run1/curated",
+  "input_files": 2,
+  "n_candidates": [
+    2,
+    3,
+    5
+  ],
+  "windows_utc": {
+    "train_start": "2019-11-01T00:00:00Z",
+    "train_end_exclusive": "2019-11-04T00:00:00Z",
+    "validation_start": "2019-11-04T00:00:00Z",
+    "validation_end_exclusive": "2019-11-05T00:00:00Z",
+    "test_start": "2019-11-05T00:00:00Z",
+    "test_end_exclusive": "2019-11-07T00:00:00Z"
+  },
+  "config_snapshot": {
+    "n_candidates": [
+      2,
+      3,
+      5
+    ],
+    "windows_utc": {
+      "train_start": "2019-11-01T00:00:00Z",
+      "train_end_exclusive": "2019-11-04T00:00:00Z",
+      "validation_start": "2019-11-04T00:00:00Z",
+      "validation_end_exclusive": "2019-11-05T00:00:00Z",
+      "test_start": "2019-11-05T00:00:00Z",
+      "test_end_exclusive": "2019-11-07T00:00:00Z"
+    },
+    "sampling": {
+      "test_mode_default_percent": 0.1
+    }
+  },
+  "spark_version": "4.0.1",
+  "python_version": "3.11.9",
+  "qa_pass": true,
+  "qa_problems": [],
+  "decision_note": "No N is selected by this script. Final N requires evidence review and A/B approval."
+}

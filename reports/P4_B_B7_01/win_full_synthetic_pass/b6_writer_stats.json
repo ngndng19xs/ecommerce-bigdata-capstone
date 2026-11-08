@@ -1,0 +1,41 @@
+{
+  "run_timestamp_utc": "2026-11-06T22:46:57.887965+00:00",
+  "curated_path": "C:/Users/Admin/AppData/Local/Temp/claude/c76c7dcd73c98805/a760d702-ed0e-4dfc-a891-bf8b8388b631/scratchpad/e2e_run1/curated",
+  "curated_input_files": 2,
+  "output_path": "C:/Users/Admin/AppData/Local/Temp/claude/c76c7dcd73c98805/a760d702-ed0e-4dfc-a891-bf8b8388b631/scratchpad/runner_smoke/b/session_features",
+  "prediction_n": 2,
+  "sample_percent": 100.0,
+  "sample_scope": "deterministic hash(user_session) mod 10000 < threshold over the WHOLE Curated source; all events of a selected session are kept; no date filter; sessions crossing date boundaries are kept whole; sessions truncated by the end of the dataset are not corrected (see F8)",
+  "hash_threshold_of_10000": 10000,
+  "sampled_event_rows": 260,
+  "sampled_distinct_sessions": 72,
+  "spark_version": "4.0.1",
+  "audit_status_counts": {
+    "eligible": 66,
+    "purchased_by_n": 6
+  },
+  "invalid_session_rows": 0,
+  "output_session_rows": 66,
+  "output_label_counts": {
+    "1": 24,
+    "0": 42
+  },
+  "output_columns": [
+    "user_session",
+    "n_view",
+    "n_cart",
+    "n_remove_from_cart",
+    "n_unique_products",
+    "n_unique_categories",
+    "n_unique_brands",
+    "brands_seen",
+    "avg_price",
+    "max_price",
+    "prefix_start",
+    "prediction_time",
+    "last_event_type",
+    "prefix_duration_seconds",
+    "label",
+    "prediction_n"
+  ]
+}
