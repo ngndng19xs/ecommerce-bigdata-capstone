@@ -1,0 +1,204 @@
+2026-11-07 13:34:02,678 WARN util.Utils: Your hostname, localhost.localdomain resolves to a loopback address: 127.0.0.1, but we couldn't find any external IP address!
+2026-11-07 13:34:02,678 WARN util.Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+2026-11-07 13:34:02,943 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2026-11-07 13:34:03,750 INFO spark.SparkContext: Running Spark version 3.1.2
+2026-11-07 13:34:03,791 INFO resource.ResourceUtils: ==============================================================
+2026-11-07 13:34:03,792 INFO resource.ResourceUtils: No custom resources configured for spark.driver.
+2026-11-07 13:34:03,793 INFO resource.ResourceUtils: ==============================================================
+2026-11-07 13:34:03,794 INFO spark.SparkContext: Submitted application: A9_E3_Projection_Pushdown
+2026-11-07 13:34:03,820 INFO resource.ResourceProfile: Default ResourceProfile created, executor resources: Map(cores -> name: cores, amount: 1, script: , vendor: , memory -> name: memory, amount: 1024, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+2026-11-07 13:34:03,831 INFO resource.ResourceProfile: Limiting resource is cpu
+2026-11-07 13:34:03,832 INFO resource.ResourceProfileManager: Added ResourceProfile id: 0
+2026-11-07 13:34:03,878 INFO spark.SecurityManager: Changing view acls to: student
+2026-11-07 13:34:03,878 INFO spark.SecurityManager: Changing modify acls to: student
+2026-11-07 13:34:03,878 INFO spark.SecurityManager: Changing view acls groups to: 
+2026-11-07 13:34:03,878 INFO spark.SecurityManager: Changing modify acls groups to: 
+2026-11-07 13:34:03,879 INFO spark.SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(student); groups with view permissions: Set(); users  with modify permissions: Set(student); groups with modify permissions: Set()
+2026-11-07 13:34:04,055 WARN internal.MacAddressUtil: Failed to find a usable hardware address from the network interfaces; using random bytes: e7:d0:a5:62:46:0f:73:9d
+2026-11-07 13:34:04,105 INFO util.Utils: Successfully started service 'sparkDriver' on port 46544.
+2026-11-07 13:34:04,147 INFO spark.SparkEnv: Registering MapOutputTracker
+2026-11-07 13:34:04,176 INFO spark.SparkEnv: Registering BlockManagerMaster
+2026-11-07 13:34:04,196 INFO storage.BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+2026-11-07 13:34:04,196 INFO storage.BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+2026-11-07 13:34:04,200 INFO spark.SparkEnv: Registering BlockManagerMasterHeartbeat
+2026-11-07 13:34:04,221 INFO storage.DiskBlockManager: Created local directory at /tmp/blockmgr-f0021bd8-cde0-4636-83b1-5c637c796614
+2026-11-07 13:34:04,245 INFO memory.MemoryStore: MemoryStore started with capacity 1458.6 MiB
+2026-11-07 13:34:04,265 INFO spark.SparkEnv: Registering OutputCommitCoordinator
+2026-11-07 13:34:04,371 INFO util.log: Logging initialized @2459ms to org.sparkproject.jetty.util.log.Slf4jLog
+2026-11-07 13:34:04,470 INFO server.Server: jetty-9.4.40.v20210413; built: 2021-04-13T20:42:42.668Z; git: b881a572662e1943a14ae12e7e1207989f218b74; jvm 1.8.0_291-b10
+2026-11-07 13:34:04,516 INFO server.Server: Started @2604ms
+2026-11-07 13:34:04,554 INFO server.AbstractConnector: Started ServerConnector@7160056{HTTP/1.1, (http/1.1)}{0.0.0.0:4040}
+2026-11-07 13:34:04,554 INFO util.Utils: Successfully started service 'SparkUI' on port 4040.
+2026-11-07 13:34:04,586 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@1cf3162f{/jobs,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,589 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@1d8092bc{/jobs/json,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,591 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@6c4ba300{/jobs/job,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,595 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@7f71e83{/jobs/job/json,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,596 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@7df1f662{/stages,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,597 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@5b064ac4{/stages/json,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,597 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@23783de6{/stages/stage,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,599 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@b61c77c{/stages/stage/json,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,600 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@2b381684{/stages/pool,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,601 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@65bd1bf9{/stages/pool/json,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,602 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@5f446df{/storage,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,602 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@7bdfd429{/storage/json,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,604 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@2d552153{/storage/rdd,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,605 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@5d357043{/storage/rdd/json,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,605 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@51b528ba{/environment,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,606 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@bd9928a{/environment/json,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,608 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@50bb7be4{/executors,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,608 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@2886b90a{/executors/json,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,609 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@10dce015{/executors/threadDump,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,610 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@3d0b4ad{/executors/threadDump/json,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,618 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@71abd9ba{/static,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,619 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@6e01d92a{/,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,620 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@5328abed{/api,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,622 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@60615283{/jobs/job/kill,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,623 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@17cd2fef{/stages/stage/kill,null,AVAILABLE,@Spark}
+2026-11-07 13:34:04,625 INFO ui.SparkUI: Bound SparkUI to 0.0.0.0, and started at http://localhost:4040
+2026-11-07 13:34:04,885 INFO executor.Executor: Starting executor ID driver on host localhost
+2026-11-07 13:34:04,910 INFO util.Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 38378.
+2026-11-07 13:34:04,910 INFO netty.NettyBlockTransferService: Server created on localhost:38378
+2026-11-07 13:34:04,911 INFO storage.BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+2026-11-07 13:34:04,915 INFO storage.BlockManagerMaster: Registering BlockManager BlockManagerId(driver, localhost, 38378, None)
+2026-11-07 13:34:04,919 INFO storage.BlockManagerMasterEndpoint: Registering block manager localhost:38378 with 1458.6 MiB RAM, BlockManagerId(driver, localhost, 38378, None)
+2026-11-07 13:34:04,921 INFO storage.BlockManagerMaster: Registered BlockManager BlockManagerId(driver, localhost, 38378, None)
+2026-11-07 13:34:04,924 INFO storage.BlockManager: Initialized BlockManager: BlockManagerId(driver, localhost, 38378, None)
+2026-11-07 13:34:05,063 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@4c3f1092{/metrics/json,null,AVAILABLE,@Spark}
+2026-11-07 13:34:05,326 INFO internal.SharedState: Setting hive.metastore.warehouse.dir ('/user/hive/warehouse') to the value of spark.sql.warehouse.dir ('/user/hive/warehouse').
+2026-11-07 13:34:05,327 INFO internal.SharedState: Warehouse path is '/user/hive/warehouse'.
+2026-11-07 13:34:05,341 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@6943d97a{/SQL,null,AVAILABLE,@Spark}
+2026-11-07 13:34:05,342 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@21848176{/SQL/json,null,AVAILABLE,@Spark}
+2026-11-07 13:34:05,345 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@a37c262{/SQL/execution,null,AVAILABLE,@Spark}
+2026-11-07 13:34:05,346 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@749a5d7d{/SQL/execution/json,null,AVAILABLE,@Spark}
+2026-11-07 13:34:05,364 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@29fa245c{/static/sql,null,AVAILABLE,@Spark}
+
+===== E3-A: FULL COLUMNS =====
+== Physical Plan ==
+* Sort (8)
++- Exchange (7)
+   +- * HashAggregate (6)
+      +- Exchange (5)
+         +- * HashAggregate (4)
+            +- * Project (3)
+               +- * ColumnarToRow (2)
+                  +- Scan parquet  (1)
+
+
+(1) Scan parquet 
+Output [3]: [event_type#1, price#6, event_date#12]
+Batched: true
+Location: InMemoryFileIndex [hdfs://localhost:9000/data/curated/events]
+PartitionFilters: [isnotnull(event_date#12), (event_date#12 >= 18170), (event_date#12 < 18201)]
+ReadSchema: struct<event_type:string,price:double>
+
+(2) ColumnarToRow [codegen id : 1]
+Input [3]: [event_type#1, price#6, event_date#12]
+
+(3) Project [codegen id : 1]
+Output [2]: [event_type#1, price#6]
+Input [3]: [event_type#1, price#6, event_date#12]
+
+(4) HashAggregate [codegen id : 1]
+Input [2]: [event_type#1, price#6]
+Keys [1]: [event_type#1]
+Functions [2]: [partial_count(1), partial_avg(price#6)]
+Aggregate Attributes [3]: [count#85L, sum#86, count#87L]
+Results [4]: [event_type#1, count#88L, sum#89, count#90L]
+
+(5) Exchange
+Input [4]: [event_type#1, count#88L, sum#89, count#90L]
+Arguments: hashpartitioning(event_type#1, 24), ENSURE_REQUIREMENTS, [id=#33]
+
+(6) HashAggregate [codegen id : 2]
+Input [4]: [event_type#1, count#88L, sum#89, count#90L]
+Keys [1]: [event_type#1]
+Functions [2]: [count(1), avg(price#6)]
+Aggregate Attributes [2]: [count(1)#39L, avg(price#6)#41]
+Results [3]: [event_type#1, count(1)#39L AS event_count#40L, round(avg(price#6)#41, 4) AS avg_price#42]
+
+(7) Exchange
+Input [3]: [event_type#1, event_count#40L, avg_price#42]
+Arguments: rangepartitioning(event_type#1 ASC NULLS FIRST, 24), ENSURE_REQUIREMENTS, [id=#37]
+
+(8) Sort [codegen id : 3]
+Input [3]: [event_type#1, event_count#40L, avg_price#42]
+Arguments: [event_type#1 ASC NULLS FIRST], true, 0
+
+
+Warm-up: completed
+Run 1: 0.076s
+Run 2: 0.082s
+Run 3: 0.065s
+Median: 0.076s
+Hash: 18c4e717f8113b51052f54f991fe5763
+Result: [{'event_type': 'cart', 'event_count': 926516, 'avg_price': 333.83}, {'event_type': 'purchase', 'event_count': 742849, 'avg_price': 309.5616}, {'event_type': 'view', 'event_count': 40779399, 'avg_price': 288.9847}]
+
+===== E3-B: SELECT REQUIRED COLUMNS =====
+== Physical Plan ==
+* Sort (8)
++- Exchange (7)
+   +- * HashAggregate (6)
+      +- Exchange (5)
+         +- * HashAggregate (4)
+            +- * Project (3)
+               +- * ColumnarToRow (2)
+                  +- Scan parquet  (1)
+
+
+(1) Scan parquet 
+Output [3]: [event_type#47, price#52, event_date#58]
+Batched: true
+Location: InMemoryFileIndex [hdfs://localhost:9000/data/curated/events]
+PartitionFilters: [isnotnull(event_date#58), (event_date#58 >= 18170), (event_date#58 < 18201)]
+ReadSchema: struct<event_type:string,price:double>
+
+(2) ColumnarToRow [codegen id : 1]
+Input [3]: [event_type#47, price#52, event_date#58]
+
+(3) Project [codegen id : 1]
+Output [2]: [event_type#47, price#52]
+Input [3]: [event_type#47, price#52, event_date#58]
+
+(4) HashAggregate [codegen id : 1]
+Input [2]: [event_type#47, price#52]
+Keys [1]: [event_type#47]
+Functions [2]: [partial_count(1), partial_avg(price#52)]
+Aggregate Attributes [3]: [count#91L, sum#92, count#93L]
+Results [4]: [event_type#47, count#94L, sum#95, count#96L]
+
+(5) Exchange
+Input [4]: [event_type#47, count#94L, sum#95, count#96L]
+Arguments: hashpartitioning(event_type#47, 24), ENSURE_REQUIREMENTS, [id=#74]
+
+(6) HashAggregate [codegen id : 2]
+Input [4]: [event_type#47, count#94L, sum#95, count#96L]
+Keys [1]: [event_type#47]
+Functions [2]: [count(1), avg(price#52)]
+Aggregate Attributes [2]: [count(1)#78L, avg(price#52)#80]
+Results [3]: [event_type#47, count(1)#78L AS event_count#79L, round(avg(price#52)#80, 4) AS avg_price#81]
+
+(7) Exchange
+Input [3]: [event_type#47, event_count#79L, avg_price#81]
+Arguments: rangepartitioning(event_type#47 ASC NULLS FIRST, 24), ENSURE_REQUIREMENTS, [id=#78]
+
+(8) Sort [codegen id : 3]
+Input [3]: [event_type#47, event_count#79L, avg_price#81]
+Arguments: [event_type#47 ASC NULLS FIRST], true, 0
+
+
+Warm-up: completed
+Run 1: 0.068s
+Run 2: 0.055s
+Run 3: 0.072s
+Median: 0.068s
+Hash: 18c4e717f8113b51052f54f991fe5763
+Result: [{'event_type': 'cart', 'event_count': 926516, 'avg_price': 333.83}, {'event_type': 'purchase', 'event_count': 742849, 'avg_price': 309.5616}, {'event_type': 'view', 'event_count': 40779399, 'avg_price': 288.9847}]
+
+===== E3 COMPARISON =====
+A median: 0.07611392199942202
+B median: 0.06797110600018641
+Result match: True
+A hash: 18c4e717f8113b51052f54f991fe5763
+B hash: 18c4e717f8113b51052f54f991fe5763
+
+Saved: /home/student/capstone/benchmark/results/e3_results.csv

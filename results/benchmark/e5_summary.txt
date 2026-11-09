@@ -1,0 +1,27 @@
+E5 - CACHE BENCHMARK
+====================
+Input: /data/curated/events
+Date range: 2019-10-01 to 2019-11-01
+Master: local[4]
+Driver memory: 3g
+Shuffle partitions: 24
+Timezone: UTC
+Warm-up: 1 run per configuration
+Measured runs: 3 per configuration
+
+E5-A: Without cache
+Run 1: 0.079s
+Run 2: 0.077s
+Run 3: 0.064s
+Median: 0.077s
+Hash: 18c4e717f8113b51052f54f991fe5763
+
+E5-B: With MEMORY_AND_DISK
+Run 1: 0.046s
+Run 2: 0.069s
+Run 3: 0.048s
+Median: 0.048s
+Cache preparation: 25.908s
+Hash: 18c4e717f8113b51052f54f991fe5763
+
+ALL RESULTS MATCH: True

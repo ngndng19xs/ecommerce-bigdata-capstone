@@ -1,0 +1,32 @@
+E4 - SHUFFLE PARTITIONS BENCHMARK
+=================================
+Input: /data/curated/events
+Date range: 2019-10-01 to 2019-11-01
+Master: local[4]
+Driver memory: 3g
+Timezone: UTC
+Warm-up: 1 run per configuration
+Measured runs: 3 per configuration
+
+Shuffle partitions: 12
+Run 1: 0.071s
+Run 2: 0.086s
+Run 3: 0.080s
+Median: 0.080s
+Hash: 18c4e717f8113b51052f54f991fe5763
+
+Shuffle partitions: 24
+Run 1: 0.066s
+Run 2: 0.067s
+Run 3: 0.063s
+Median: 0.066s
+Hash: 18c4e717f8113b51052f54f991fe5763
+
+Shuffle partitions: 48
+Run 1: 0.074s
+Run 2: 0.068s
+Run 3: 0.066s
+Median: 0.068s
+Hash: 18c4e717f8113b51052f54f991fe5763
+
+ALL RESULTS MATCH: True

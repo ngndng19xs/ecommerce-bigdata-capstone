@@ -1,0 +1,416 @@
+2026-11-07 11:22:59,884 WARN util.Utils: Your hostname, localhost.localdomain resolves to a loopback address: 127.0.0.1; using 10.0.2.15 instead (on interface enp0s3)
+2026-11-07 11:22:59,887 WARN util.Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+2026-11-07 11:23:01,188 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2026-11-07 11:23:04,356 INFO spark.SparkContext: Running Spark version 3.1.2
+2026-11-07 11:23:04,493 INFO resource.ResourceUtils: ==============================================================
+2026-11-07 11:23:04,493 INFO resource.ResourceUtils: No custom resources configured for spark.driver.
+2026-11-07 11:23:04,494 INFO resource.ResourceUtils: ==============================================================
+2026-11-07 11:23:04,495 INFO spark.SparkContext: Submitted application: A9-Inspect-Parquet-Schema
+2026-11-07 11:23:04,574 INFO resource.ResourceProfile: Default ResourceProfile created, executor resources: Map(cores -> name: cores, amount: 1, script: , vendor: , memory -> name: memory, amount: 1024, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+2026-11-07 11:23:04,604 INFO resource.ResourceProfile: Limiting resource is cpu
+2026-11-07 11:23:04,609 INFO resource.ResourceProfileManager: Added ResourceProfile id: 0
+2026-11-07 11:23:04,824 INFO spark.SecurityManager: Changing view acls to: student
+2026-11-07 11:23:04,824 INFO spark.SecurityManager: Changing modify acls to: student
+2026-11-07 11:23:04,824 INFO spark.SecurityManager: Changing view acls groups to: 
+2026-11-07 11:23:04,825 INFO spark.SecurityManager: Changing modify acls groups to: 
+2026-11-07 11:23:04,825 INFO spark.SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(student); groups with view permissions: Set(); users  with modify permissions: Set(student); groups with modify permissions: Set()
+2026-11-07 11:23:05,541 INFO util.Utils: Successfully started service 'sparkDriver' on port 44648.
+2026-11-07 11:23:05,667 INFO spark.SparkEnv: Registering MapOutputTracker
+2026-11-07 11:23:05,798 INFO spark.SparkEnv: Registering BlockManagerMaster
+2026-11-07 11:23:05,867 INFO storage.BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+2026-11-07 11:23:05,870 INFO storage.BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+2026-11-07 11:23:05,881 INFO spark.SparkEnv: Registering BlockManagerMasterHeartbeat
+2026-11-07 11:23:05,975 INFO storage.DiskBlockManager: Created local directory at /tmp/blockmgr-5bd0aa64-c696-4147-8dca-aacd79a096f5
+2026-11-07 11:23:06,066 INFO memory.MemoryStore: MemoryStore started with capacity 912.3 MiB
+2026-11-07 11:23:06,135 INFO spark.SparkEnv: Registering OutputCommitCoordinator
+2026-11-07 11:23:06,442 INFO util.log: Logging initialized @8753ms to org.sparkproject.jetty.util.log.Slf4jLog
+2026-11-07 11:23:06,686 INFO server.Server: jetty-9.4.40.v20210413; built: 2021-04-13T20:42:42.668Z; git: b881a572662e1943a14ae12e7e1207989f218b74; jvm 1.8.0_291-b10
+2026-11-07 11:23:06,792 INFO server.Server: Started @9109ms
+2026-11-07 11:23:06,917 INFO server.AbstractConnector: Started ServerConnector@753c57d5{HTTP/1.1, (http/1.1)}{0.0.0.0:4040}
+2026-11-07 11:23:06,927 INFO util.Utils: Successfully started service 'SparkUI' on port 4040.
+2026-11-07 11:23:07,038 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@533ef928{/jobs,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,047 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@1f389a8c{/jobs/json,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,049 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@43b81085{/jobs/job,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,069 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@5fc5b9a2{/jobs/job/json,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,073 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@3ce3be03{/stages,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,076 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@475ef686{/stages/json,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,078 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@547c37c{/stages/stage,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,088 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@16289ac4{/stages/stage/json,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,101 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@776379ba{/stages/pool,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,116 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@77d309c5{/stages/pool/json,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,119 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@4898c78c{/storage,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,161 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@78823e78{/storage/json,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,168 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@4a0bde2{/storage/rdd,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,172 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@7e58437a{/storage/rdd/json,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,175 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@20bfa337{/environment,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,179 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@d612f80{/environment/json,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,181 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@7b6a2971{/executors,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,182 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@39e1fe6f{/executors/json,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,184 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@39d5169f{/executors/threadDump,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,190 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@74298d41{/executors/threadDump/json,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,222 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@2c1d553{/static,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,227 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@30fc6f05{/,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,256 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@151f5296{/api,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,281 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@72117536{/jobs/job/kill,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,284 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@5e86c8b{/stages/stage/kill,null,AVAILABLE,@Spark}
+2026-11-07 11:23:07,295 INFO ui.SparkUI: Bound SparkUI to 0.0.0.0, and started at http://10.0.2.15:4040
+2026-11-07 11:23:08,195 INFO executor.Executor: Starting executor ID driver on host 10.0.2.15
+2026-11-07 11:23:08,289 INFO util.Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 40571.
+2026-11-07 11:23:08,289 INFO netty.NettyBlockTransferService: Server created on 10.0.2.15:40571
+2026-11-07 11:23:08,292 INFO storage.BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+2026-11-07 11:23:08,303 INFO storage.BlockManagerMaster: Registering BlockManager BlockManagerId(driver, 10.0.2.15, 40571, None)
+2026-11-07 11:23:08,321 INFO storage.BlockManagerMasterEndpoint: Registering block manager 10.0.2.15:40571 with 912.3 MiB RAM, BlockManagerId(driver, 10.0.2.15, 40571, None)
+2026-11-07 11:23:08,335 INFO storage.BlockManagerMaster: Registered BlockManager BlockManagerId(driver, 10.0.2.15, 40571, None)
+2026-11-07 11:23:08,337 INFO storage.BlockManager: Initialized BlockManager: BlockManagerId(driver, 10.0.2.15, 40571, None)
+2026-11-07 11:23:08,650 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@19302125{/metrics/json,null,AVAILABLE,@Spark}
+2026-11-07 11:23:09,906 INFO internal.SharedState: Setting hive.metastore.warehouse.dir ('/user/hive/warehouse') to the value of spark.sql.warehouse.dir ('/user/hive/warehouse').
+2026-11-07 11:23:09,907 INFO internal.SharedState: Warehouse path is '/user/hive/warehouse'.
+2026-11-07 11:23:09,977 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@5690eb76{/SQL,null,AVAILABLE,@Spark}
+2026-11-07 11:23:09,983 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@26d1bec0{/SQL/json,null,AVAILABLE,@Spark}
+2026-11-07 11:23:09,985 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@2574a968{/SQL/execution,null,AVAILABLE,@Spark}
+2026-11-07 11:23:09,987 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@33897b{/SQL/execution/json,null,AVAILABLE,@Spark}
+2026-11-07 11:23:10,008 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@3a06cb07{/static/sql,null,AVAILABLE,@Spark}
+2026-11-07 11:23:12,385 INFO Configuration.deprecation: No unit for dfs.client.datanode-restart.timeout(30) assuming SECONDS
+2026-11-07 11:23:13,710 INFO util.HadoopFSUtils: Listing leaf files and directories in parallel under 61 paths. The first several paths are: hdfs://localhost:9000/data/curated/events/event_date=2019-10-01, hdfs://localhost:9000/data/curated/events/event_date=2019-10-02, hdfs://localhost:9000/data/curated/events/event_date=2019-10-03, hdfs://localhost:9000/data/curated/events/event_date=2019-10-04, hdfs://localhost:9000/data/curated/events/event_date=2019-10-05, hdfs://localhost:9000/data/curated/events/event_date=2019-10-06, hdfs://localhost:9000/data/curated/events/event_date=2019-10-07, hdfs://localhost:9000/data/curated/events/event_date=2019-10-08, hdfs://localhost:9000/data/curated/events/event_date=2019-10-09, hdfs://localhost:9000/data/curated/events/event_date=2019-10-10.
+2026-11-07 11:23:14,476 INFO spark.SparkContext: Starting job: parquet at NativeMethodAccessorImpl.java:0
+2026-11-07 11:23:14,529 INFO scheduler.DAGScheduler: Got job 0 (parquet at NativeMethodAccessorImpl.java:0) with 61 output partitions
+2026-11-07 11:23:14,533 INFO scheduler.DAGScheduler: Final stage: ResultStage 0 (parquet at NativeMethodAccessorImpl.java:0)
+2026-11-07 11:23:14,534 INFO scheduler.DAGScheduler: Parents of final stage: List()
+2026-11-07 11:23:14,538 INFO scheduler.DAGScheduler: Missing parents: List()
+2026-11-07 11:23:14,559 INFO scheduler.DAGScheduler: Submitting ResultStage 0 (MapPartitionsRDD[2] at parquet at NativeMethodAccessorImpl.java:0), which has no missing parents
+2026-11-07 11:23:14,783 INFO memory.MemoryStore: Block broadcast_0 stored as values in memory (estimated size 86.1 KiB, free 912.2 MiB)
+2026-11-07 11:23:14,957 INFO memory.MemoryStore: Block broadcast_0_piece0 stored as bytes in memory (estimated size 30.7 KiB, free 912.2 MiB)
+2026-11-07 11:23:14,995 INFO storage.BlockManagerInfo: Added broadcast_0_piece0 in memory on 10.0.2.15:40571 (size: 30.7 KiB, free: 912.3 MiB)
+2026-11-07 11:23:14,999 INFO spark.SparkContext: Created broadcast 0 from broadcast at DAGScheduler.scala:1388
+2026-11-07 11:23:15,049 INFO scheduler.DAGScheduler: Submitting 61 missing tasks from ResultStage 0 (MapPartitionsRDD[2] at parquet at NativeMethodAccessorImpl.java:0) (first 15 tasks are for partitions Vector(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14))
+2026-11-07 11:23:15,052 INFO scheduler.TaskSchedulerImpl: Adding task set 0.0 with 61 tasks resource profile 0
+2026-11-07 11:23:15,270 INFO scheduler.TaskSetManager: Starting task 0.0 in stage 0.0 (TID 0) (10.0.2.15, executor driver, partition 0, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:15,310 INFO scheduler.TaskSetManager: Starting task 1.0 in stage 0.0 (TID 1) (10.0.2.15, executor driver, partition 1, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:15,353 INFO executor.Executor: Running task 0.0 in stage 0.0 (TID 0)
+2026-11-07 11:23:15,353 INFO executor.Executor: Running task 1.0 in stage 0.0 (TID 1)
+2026-11-07 11:23:17,507 INFO executor.Executor: Finished task 1.0 in stage 0.0 (TID 1). 7442 bytes result sent to driver
+2026-11-07 11:23:17,509 INFO executor.Executor: Finished task 0.0 in stage 0.0 (TID 0). 7442 bytes result sent to driver
+2026-11-07 11:23:17,522 INFO scheduler.TaskSetManager: Starting task 2.0 in stage 0.0 (TID 2) (10.0.2.15, executor driver, partition 2, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:17,524 INFO executor.Executor: Running task 2.0 in stage 0.0 (TID 2)
+2026-11-07 11:23:17,529 INFO scheduler.TaskSetManager: Starting task 3.0 in stage 0.0 (TID 3) (10.0.2.15, executor driver, partition 3, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:17,530 INFO executor.Executor: Running task 3.0 in stage 0.0 (TID 3)
+2026-11-07 11:23:17,544 INFO scheduler.TaskSetManager: Finished task 1.0 in stage 0.0 (TID 1) in 2231 ms on 10.0.2.15 (executor driver) (1/61)
+2026-11-07 11:23:17,576 INFO scheduler.TaskSetManager: Finished task 0.0 in stage 0.0 (TID 0) in 2371 ms on 10.0.2.15 (executor driver) (2/61)
+2026-11-07 11:23:17,660 INFO executor.Executor: Finished task 2.0 in stage 0.0 (TID 2). 7356 bytes result sent to driver
+2026-11-07 11:23:17,665 INFO scheduler.TaskSetManager: Starting task 4.0 in stage 0.0 (TID 4) (10.0.2.15, executor driver, partition 4, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:17,666 INFO executor.Executor: Running task 4.0 in stage 0.0 (TID 4)
+2026-11-07 11:23:17,667 INFO executor.Executor: Finished task 3.0 in stage 0.0 (TID 3). 7399 bytes result sent to driver
+2026-11-07 11:23:17,667 INFO scheduler.TaskSetManager: Finished task 2.0 in stage 0.0 (TID 2) in 149 ms on 10.0.2.15 (executor driver) (3/61)
+2026-11-07 11:23:17,672 INFO scheduler.TaskSetManager: Starting task 5.0 in stage 0.0 (TID 5) (10.0.2.15, executor driver, partition 5, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:17,677 INFO executor.Executor: Running task 5.0 in stage 0.0 (TID 5)
+2026-11-07 11:23:17,683 INFO scheduler.TaskSetManager: Finished task 3.0 in stage 0.0 (TID 3) in 155 ms on 10.0.2.15 (executor driver) (4/61)
+2026-11-07 11:23:17,762 INFO executor.Executor: Finished task 4.0 in stage 0.0 (TID 4). 7399 bytes result sent to driver
+2026-11-07 11:23:17,768 INFO executor.Executor: Finished task 5.0 in stage 0.0 (TID 5). 7356 bytes result sent to driver
+2026-11-07 11:23:17,776 INFO scheduler.TaskSetManager: Starting task 6.0 in stage 0.0 (TID 6) (10.0.2.15, executor driver, partition 6, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:17,777 INFO executor.Executor: Running task 6.0 in stage 0.0 (TID 6)
+2026-11-07 11:23:17,780 INFO scheduler.TaskSetManager: Starting task 7.0 in stage 0.0 (TID 7) (10.0.2.15, executor driver, partition 7, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:17,782 INFO scheduler.TaskSetManager: Finished task 4.0 in stage 0.0 (TID 4) in 118 ms on 10.0.2.15 (executor driver) (5/61)
+2026-11-07 11:23:17,782 INFO executor.Executor: Running task 7.0 in stage 0.0 (TID 7)
+2026-11-07 11:23:17,787 INFO scheduler.TaskSetManager: Finished task 5.0 in stage 0.0 (TID 5) in 116 ms on 10.0.2.15 (executor driver) (6/61)
+2026-11-07 11:23:17,858 INFO executor.Executor: Finished task 6.0 in stage 0.0 (TID 6). 7399 bytes result sent to driver
+2026-11-07 11:23:17,858 INFO executor.Executor: Finished task 7.0 in stage 0.0 (TID 7). 7399 bytes result sent to driver
+2026-11-07 11:23:17,865 INFO scheduler.TaskSetManager: Starting task 8.0 in stage 0.0 (TID 8) (10.0.2.15, executor driver, partition 8, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:17,868 INFO executor.Executor: Running task 8.0 in stage 0.0 (TID 8)
+2026-11-07 11:23:17,869 INFO scheduler.TaskSetManager: Starting task 9.0 in stage 0.0 (TID 9) (10.0.2.15, executor driver, partition 9, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:17,870 INFO scheduler.TaskSetManager: Finished task 6.0 in stage 0.0 (TID 6) in 96 ms on 10.0.2.15 (executor driver) (7/61)
+2026-11-07 11:23:17,871 INFO executor.Executor: Running task 9.0 in stage 0.0 (TID 9)
+2026-11-07 11:23:17,874 INFO scheduler.TaskSetManager: Finished task 7.0 in stage 0.0 (TID 7) in 94 ms on 10.0.2.15 (executor driver) (8/61)
+2026-11-07 11:23:17,941 INFO executor.Executor: Finished task 8.0 in stage 0.0 (TID 8). 7356 bytes result sent to driver
+2026-11-07 11:23:17,943 INFO scheduler.TaskSetManager: Starting task 10.0 in stage 0.0 (TID 10) (10.0.2.15, executor driver, partition 10, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:17,945 INFO executor.Executor: Running task 10.0 in stage 0.0 (TID 10)
+2026-11-07 11:23:17,946 INFO scheduler.TaskSetManager: Finished task 8.0 in stage 0.0 (TID 8) in 85 ms on 10.0.2.15 (executor driver) (9/61)
+2026-11-07 11:23:17,950 INFO executor.Executor: Finished task 9.0 in stage 0.0 (TID 9). 7356 bytes result sent to driver
+2026-11-07 11:23:17,952 INFO scheduler.TaskSetManager: Starting task 11.0 in stage 0.0 (TID 11) (10.0.2.15, executor driver, partition 11, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:17,954 INFO scheduler.TaskSetManager: Finished task 9.0 in stage 0.0 (TID 9) in 85 ms on 10.0.2.15 (executor driver) (10/61)
+2026-11-07 11:23:17,956 INFO executor.Executor: Running task 11.0 in stage 0.0 (TID 11)
+2026-11-07 11:23:18,008 INFO executor.Executor: Finished task 10.0 in stage 0.0 (TID 10). 7356 bytes result sent to driver
+2026-11-07 11:23:18,011 INFO scheduler.TaskSetManager: Starting task 12.0 in stage 0.0 (TID 12) (10.0.2.15, executor driver, partition 12, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,013 INFO executor.Executor: Running task 12.0 in stage 0.0 (TID 12)
+2026-11-07 11:23:18,013 INFO scheduler.TaskSetManager: Finished task 10.0 in stage 0.0 (TID 10) in 70 ms on 10.0.2.15 (executor driver) (11/61)
+2026-11-07 11:23:18,026 INFO executor.Executor: Finished task 11.0 in stage 0.0 (TID 11). 7356 bytes result sent to driver
+2026-11-07 11:23:18,029 INFO scheduler.TaskSetManager: Starting task 13.0 in stage 0.0 (TID 13) (10.0.2.15, executor driver, partition 13, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,043 INFO executor.Executor: Running task 13.0 in stage 0.0 (TID 13)
+2026-11-07 11:23:18,044 INFO scheduler.TaskSetManager: Finished task 11.0 in stage 0.0 (TID 11) in 92 ms on 10.0.2.15 (executor driver) (12/61)
+2026-11-07 11:23:18,063 INFO executor.Executor: Finished task 12.0 in stage 0.0 (TID 12). 7356 bytes result sent to driver
+2026-11-07 11:23:18,066 INFO scheduler.TaskSetManager: Starting task 14.0 in stage 0.0 (TID 14) (10.0.2.15, executor driver, partition 14, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,068 INFO executor.Executor: Running task 14.0 in stage 0.0 (TID 14)
+2026-11-07 11:23:18,069 INFO scheduler.TaskSetManager: Finished task 12.0 in stage 0.0 (TID 12) in 58 ms on 10.0.2.15 (executor driver) (13/61)
+2026-11-07 11:23:18,101 INFO executor.Executor: Finished task 13.0 in stage 0.0 (TID 13). 7356 bytes result sent to driver
+2026-11-07 11:23:18,117 INFO scheduler.TaskSetManager: Starting task 15.0 in stage 0.0 (TID 15) (10.0.2.15, executor driver, partition 15, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,118 INFO executor.Executor: Running task 15.0 in stage 0.0 (TID 15)
+2026-11-07 11:23:18,123 INFO scheduler.TaskSetManager: Finished task 13.0 in stage 0.0 (TID 13) in 95 ms on 10.0.2.15 (executor driver) (14/61)
+2026-11-07 11:23:18,123 INFO executor.Executor: Finished task 14.0 in stage 0.0 (TID 14). 7356 bytes result sent to driver
+2026-11-07 11:23:18,139 INFO scheduler.TaskSetManager: Starting task 16.0 in stage 0.0 (TID 16) (10.0.2.15, executor driver, partition 16, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,159 INFO executor.Executor: Running task 16.0 in stage 0.0 (TID 16)
+2026-11-07 11:23:18,159 INFO scheduler.TaskSetManager: Finished task 14.0 in stage 0.0 (TID 14) in 94 ms on 10.0.2.15 (executor driver) (15/61)
+2026-11-07 11:23:18,189 INFO executor.Executor: Finished task 15.0 in stage 0.0 (TID 15). 7356 bytes result sent to driver
+2026-11-07 11:23:18,197 INFO scheduler.TaskSetManager: Starting task 17.0 in stage 0.0 (TID 17) (10.0.2.15, executor driver, partition 17, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,199 INFO executor.Executor: Running task 17.0 in stage 0.0 (TID 17)
+2026-11-07 11:23:18,199 INFO scheduler.TaskSetManager: Finished task 15.0 in stage 0.0 (TID 15) in 86 ms on 10.0.2.15 (executor driver) (16/61)
+2026-11-07 11:23:18,218 INFO executor.Executor: Finished task 16.0 in stage 0.0 (TID 16). 7356 bytes result sent to driver
+2026-11-07 11:23:18,235 INFO scheduler.TaskSetManager: Starting task 18.0 in stage 0.0 (TID 18) (10.0.2.15, executor driver, partition 18, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,236 INFO executor.Executor: Running task 18.0 in stage 0.0 (TID 18)
+2026-11-07 11:23:18,257 INFO scheduler.TaskSetManager: Finished task 16.0 in stage 0.0 (TID 16) in 120 ms on 10.0.2.15 (executor driver) (17/61)
+2026-11-07 11:23:18,257 INFO executor.Executor: Finished task 17.0 in stage 0.0 (TID 17). 7356 bytes result sent to driver
+2026-11-07 11:23:18,260 INFO scheduler.TaskSetManager: Starting task 19.0 in stage 0.0 (TID 19) (10.0.2.15, executor driver, partition 19, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,267 INFO executor.Executor: Running task 19.0 in stage 0.0 (TID 19)
+2026-11-07 11:23:18,267 INFO scheduler.TaskSetManager: Finished task 17.0 in stage 0.0 (TID 17) in 75 ms on 10.0.2.15 (executor driver) (18/61)
+2026-11-07 11:23:18,288 INFO executor.Executor: Finished task 18.0 in stage 0.0 (TID 18). 7356 bytes result sent to driver
+2026-11-07 11:23:18,298 INFO scheduler.TaskSetManager: Starting task 20.0 in stage 0.0 (TID 20) (10.0.2.15, executor driver, partition 20, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,300 INFO executor.Executor: Running task 20.0 in stage 0.0 (TID 20)
+2026-11-07 11:23:18,300 INFO scheduler.TaskSetManager: Finished task 18.0 in stage 0.0 (TID 18) in 67 ms on 10.0.2.15 (executor driver) (19/61)
+2026-11-07 11:23:18,326 INFO executor.Executor: Finished task 19.0 in stage 0.0 (TID 19). 7399 bytes result sent to driver
+2026-11-07 11:23:18,345 INFO scheduler.TaskSetManager: Starting task 21.0 in stage 0.0 (TID 21) (10.0.2.15, executor driver, partition 21, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,347 INFO executor.Executor: Running task 21.0 in stage 0.0 (TID 21)
+2026-11-07 11:23:18,348 INFO executor.Executor: Finished task 20.0 in stage 0.0 (TID 20). 7356 bytes result sent to driver
+2026-11-07 11:23:18,349 INFO scheduler.TaskSetManager: Finished task 19.0 in stage 0.0 (TID 19) in 89 ms on 10.0.2.15 (executor driver) (20/61)
+2026-11-07 11:23:18,352 INFO scheduler.TaskSetManager: Starting task 22.0 in stage 0.0 (TID 22) (10.0.2.15, executor driver, partition 22, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,355 INFO executor.Executor: Running task 22.0 in stage 0.0 (TID 22)
+2026-11-07 11:23:18,355 INFO scheduler.TaskSetManager: Finished task 20.0 in stage 0.0 (TID 20) in 62 ms on 10.0.2.15 (executor driver) (21/61)
+2026-11-07 11:23:18,397 INFO executor.Executor: Finished task 21.0 in stage 0.0 (TID 21). 7356 bytes result sent to driver
+2026-11-07 11:23:18,399 INFO scheduler.TaskSetManager: Starting task 23.0 in stage 0.0 (TID 23) (10.0.2.15, executor driver, partition 23, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,401 INFO scheduler.TaskSetManager: Finished task 21.0 in stage 0.0 (TID 21) in 56 ms on 10.0.2.15 (executor driver) (22/61)
+2026-11-07 11:23:18,401 INFO executor.Executor: Running task 23.0 in stage 0.0 (TID 23)
+2026-11-07 11:23:18,408 INFO executor.Executor: Finished task 22.0 in stage 0.0 (TID 22). 7356 bytes result sent to driver
+2026-11-07 11:23:18,424 INFO scheduler.TaskSetManager: Starting task 24.0 in stage 0.0 (TID 24) (10.0.2.15, executor driver, partition 24, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,425 INFO executor.Executor: Running task 24.0 in stage 0.0 (TID 24)
+2026-11-07 11:23:18,431 INFO scheduler.TaskSetManager: Finished task 22.0 in stage 0.0 (TID 22) in 79 ms on 10.0.2.15 (executor driver) (23/61)
+2026-11-07 11:23:18,445 INFO executor.Executor: Finished task 23.0 in stage 0.0 (TID 23). 7399 bytes result sent to driver
+2026-11-07 11:23:18,449 INFO scheduler.TaskSetManager: Starting task 25.0 in stage 0.0 (TID 25) (10.0.2.15, executor driver, partition 25, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,451 INFO executor.Executor: Running task 25.0 in stage 0.0 (TID 25)
+2026-11-07 11:23:18,453 INFO scheduler.TaskSetManager: Finished task 23.0 in stage 0.0 (TID 23) in 54 ms on 10.0.2.15 (executor driver) (24/61)
+2026-11-07 11:23:18,470 INFO executor.Executor: Finished task 24.0 in stage 0.0 (TID 24). 7356 bytes result sent to driver
+2026-11-07 11:23:18,473 INFO scheduler.TaskSetManager: Starting task 26.0 in stage 0.0 (TID 26) (10.0.2.15, executor driver, partition 26, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,476 INFO executor.Executor: Running task 26.0 in stage 0.0 (TID 26)
+2026-11-07 11:23:18,477 INFO scheduler.TaskSetManager: Finished task 24.0 in stage 0.0 (TID 24) in 53 ms on 10.0.2.15 (executor driver) (25/61)
+2026-11-07 11:23:18,519 INFO executor.Executor: Finished task 25.0 in stage 0.0 (TID 25). 7356 bytes result sent to driver
+2026-11-07 11:23:18,521 INFO scheduler.TaskSetManager: Starting task 27.0 in stage 0.0 (TID 27) (10.0.2.15, executor driver, partition 27, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,522 INFO executor.Executor: Running task 27.0 in stage 0.0 (TID 27)
+2026-11-07 11:23:18,524 INFO scheduler.TaskSetManager: Finished task 25.0 in stage 0.0 (TID 25) in 76 ms on 10.0.2.15 (executor driver) (26/61)
+2026-11-07 11:23:18,525 INFO executor.Executor: Finished task 26.0 in stage 0.0 (TID 26). 7356 bytes result sent to driver
+2026-11-07 11:23:18,526 INFO scheduler.TaskSetManager: Starting task 28.0 in stage 0.0 (TID 28) (10.0.2.15, executor driver, partition 28, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,527 INFO executor.Executor: Running task 28.0 in stage 0.0 (TID 28)
+2026-11-07 11:23:18,529 INFO scheduler.TaskSetManager: Finished task 26.0 in stage 0.0 (TID 26) in 57 ms on 10.0.2.15 (executor driver) (27/61)
+2026-11-07 11:23:18,564 INFO executor.Executor: Finished task 27.0 in stage 0.0 (TID 27). 7356 bytes result sent to driver
+2026-11-07 11:23:18,569 INFO executor.Executor: Finished task 28.0 in stage 0.0 (TID 28). 7356 bytes result sent to driver
+2026-11-07 11:23:18,569 INFO scheduler.TaskSetManager: Starting task 29.0 in stage 0.0 (TID 29) (10.0.2.15, executor driver, partition 29, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,570 INFO executor.Executor: Running task 29.0 in stage 0.0 (TID 29)
+2026-11-07 11:23:18,573 INFO scheduler.TaskSetManager: Starting task 30.0 in stage 0.0 (TID 30) (10.0.2.15, executor driver, partition 30, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,576 INFO scheduler.TaskSetManager: Finished task 27.0 in stage 0.0 (TID 27) in 55 ms on 10.0.2.15 (executor driver) (28/61)
+2026-11-07 11:23:18,578 INFO executor.Executor: Running task 30.0 in stage 0.0 (TID 30)
+2026-11-07 11:23:18,578 INFO scheduler.TaskSetManager: Finished task 28.0 in stage 0.0 (TID 28) in 51 ms on 10.0.2.15 (executor driver) (29/61)
+2026-11-07 11:23:18,599 INFO executor.Executor: Finished task 29.0 in stage 0.0 (TID 29). 7356 bytes result sent to driver
+2026-11-07 11:23:18,609 INFO scheduler.TaskSetManager: Starting task 31.0 in stage 0.0 (TID 31) (10.0.2.15, executor driver, partition 31, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,611 INFO scheduler.TaskSetManager: Finished task 29.0 in stage 0.0 (TID 29) in 43 ms on 10.0.2.15 (executor driver) (30/61)
+2026-11-07 11:23:18,615 INFO executor.Executor: Running task 31.0 in stage 0.0 (TID 31)
+2026-11-07 11:23:18,621 INFO executor.Executor: Finished task 30.0 in stage 0.0 (TID 30). 7356 bytes result sent to driver
+2026-11-07 11:23:18,643 INFO scheduler.TaskSetManager: Starting task 32.0 in stage 0.0 (TID 32) (10.0.2.15, executor driver, partition 32, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,644 INFO executor.Executor: Running task 32.0 in stage 0.0 (TID 32)
+2026-11-07 11:23:18,644 INFO scheduler.TaskSetManager: Finished task 30.0 in stage 0.0 (TID 30) in 72 ms on 10.0.2.15 (executor driver) (31/61)
+2026-11-07 11:23:18,654 INFO executor.Executor: Finished task 31.0 in stage 0.0 (TID 31). 1929 bytes result sent to driver
+2026-11-07 11:23:18,671 INFO scheduler.TaskSetManager: Starting task 33.0 in stage 0.0 (TID 33) (10.0.2.15, executor driver, partition 33, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,673 INFO executor.Executor: Running task 33.0 in stage 0.0 (TID 33)
+2026-11-07 11:23:18,675 INFO executor.Executor: Finished task 32.0 in stage 0.0 (TID 32). 1929 bytes result sent to driver
+2026-11-07 11:23:18,676 INFO scheduler.TaskSetManager: Starting task 34.0 in stage 0.0 (TID 34) (10.0.2.15, executor driver, partition 34, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,677 INFO executor.Executor: Running task 34.0 in stage 0.0 (TID 34)
+2026-11-07 11:23:18,678 INFO scheduler.TaskSetManager: Finished task 32.0 in stage 0.0 (TID 32) in 51 ms on 10.0.2.15 (executor driver) (32/61)
+2026-11-07 11:23:18,709 INFO scheduler.TaskSetManager: Finished task 31.0 in stage 0.0 (TID 31) in 101 ms on 10.0.2.15 (executor driver) (33/61)
+2026-11-07 11:23:18,728 INFO executor.Executor: Finished task 34.0 in stage 0.0 (TID 34). 1929 bytes result sent to driver
+2026-11-07 11:23:18,728 INFO executor.Executor: Finished task 33.0 in stage 0.0 (TID 33). 1929 bytes result sent to driver
+2026-11-07 11:23:18,730 INFO scheduler.TaskSetManager: Starting task 35.0 in stage 0.0 (TID 35) (10.0.2.15, executor driver, partition 35, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,734 INFO executor.Executor: Running task 35.0 in stage 0.0 (TID 35)
+2026-11-07 11:23:18,734 INFO scheduler.TaskSetManager: Starting task 36.0 in stage 0.0 (TID 36) (10.0.2.15, executor driver, partition 36, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,739 INFO scheduler.TaskSetManager: Finished task 33.0 in stage 0.0 (TID 33) in 83 ms on 10.0.2.15 (executor driver) (34/61)
+2026-11-07 11:23:18,745 INFO executor.Executor: Running task 36.0 in stage 0.0 (TID 36)
+2026-11-07 11:23:18,746 INFO scheduler.TaskSetManager: Finished task 34.0 in stage 0.0 (TID 34) in 70 ms on 10.0.2.15 (executor driver) (35/61)
+2026-11-07 11:23:18,781 INFO executor.Executor: Finished task 35.0 in stage 0.0 (TID 35). 1929 bytes result sent to driver
+2026-11-07 11:23:18,784 INFO scheduler.TaskSetManager: Starting task 37.0 in stage 0.0 (TID 37) (10.0.2.15, executor driver, partition 37, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,786 INFO scheduler.TaskSetManager: Finished task 35.0 in stage 0.0 (TID 35) in 56 ms on 10.0.2.15 (executor driver) (36/61)
+2026-11-07 11:23:18,790 INFO executor.Executor: Running task 37.0 in stage 0.0 (TID 37)
+2026-11-07 11:23:18,793 INFO executor.Executor: Finished task 36.0 in stage 0.0 (TID 36). 1929 bytes result sent to driver
+2026-11-07 11:23:18,799 INFO scheduler.TaskSetManager: Starting task 38.0 in stage 0.0 (TID 38) (10.0.2.15, executor driver, partition 38, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,801 INFO scheduler.TaskSetManager: Finished task 36.0 in stage 0.0 (TID 36) in 67 ms on 10.0.2.15 (executor driver) (37/61)
+2026-11-07 11:23:18,801 INFO executor.Executor: Running task 38.0 in stage 0.0 (TID 38)
+2026-11-07 11:23:18,813 INFO executor.Executor: Finished task 38.0 in stage 0.0 (TID 38). 1929 bytes result sent to driver
+2026-11-07 11:23:18,813 INFO executor.Executor: Finished task 37.0 in stage 0.0 (TID 37). 1929 bytes result sent to driver
+2026-11-07 11:23:18,816 INFO scheduler.TaskSetManager: Starting task 39.0 in stage 0.0 (TID 39) (10.0.2.15, executor driver, partition 39, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,818 INFO executor.Executor: Running task 39.0 in stage 0.0 (TID 39)
+2026-11-07 11:23:18,819 INFO scheduler.TaskSetManager: Starting task 40.0 in stage 0.0 (TID 40) (10.0.2.15, executor driver, partition 40, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,820 INFO executor.Executor: Running task 40.0 in stage 0.0 (TID 40)
+2026-11-07 11:23:18,820 INFO scheduler.TaskSetManager: Finished task 38.0 in stage 0.0 (TID 38) in 22 ms on 10.0.2.15 (executor driver) (38/61)
+2026-11-07 11:23:18,820 INFO scheduler.TaskSetManager: Finished task 37.0 in stage 0.0 (TID 37) in 36 ms on 10.0.2.15 (executor driver) (39/61)
+2026-11-07 11:23:18,833 INFO executor.Executor: Finished task 40.0 in stage 0.0 (TID 40). 1929 bytes result sent to driver
+2026-11-07 11:23:18,852 INFO executor.Executor: Finished task 39.0 in stage 0.0 (TID 39). 1929 bytes result sent to driver
+2026-11-07 11:23:18,853 INFO scheduler.TaskSetManager: Starting task 41.0 in stage 0.0 (TID 41) (10.0.2.15, executor driver, partition 41, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,854 INFO scheduler.TaskSetManager: Finished task 40.0 in stage 0.0 (TID 40) in 36 ms on 10.0.2.15 (executor driver) (40/61)
+2026-11-07 11:23:18,855 INFO executor.Executor: Running task 41.0 in stage 0.0 (TID 41)
+2026-11-07 11:23:18,855 INFO scheduler.TaskSetManager: Finished task 39.0 in stage 0.0 (TID 39) in 39 ms on 10.0.2.15 (executor driver) (41/61)
+2026-11-07 11:23:18,860 INFO scheduler.TaskSetManager: Starting task 42.0 in stage 0.0 (TID 42) (10.0.2.15, executor driver, partition 42, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,860 INFO executor.Executor: Running task 42.0 in stage 0.0 (TID 42)
+2026-11-07 11:23:18,881 INFO executor.Executor: Finished task 41.0 in stage 0.0 (TID 41). 1929 bytes result sent to driver
+2026-11-07 11:23:18,883 INFO scheduler.TaskSetManager: Starting task 43.0 in stage 0.0 (TID 43) (10.0.2.15, executor driver, partition 43, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,884 INFO executor.Executor: Running task 43.0 in stage 0.0 (TID 43)
+2026-11-07 11:23:18,884 INFO scheduler.TaskSetManager: Finished task 41.0 in stage 0.0 (TID 41) in 31 ms on 10.0.2.15 (executor driver) (42/61)
+2026-11-07 11:23:18,886 INFO executor.Executor: Finished task 42.0 in stage 0.0 (TID 42). 1929 bytes result sent to driver
+2026-11-07 11:23:18,893 INFO scheduler.TaskSetManager: Starting task 44.0 in stage 0.0 (TID 44) (10.0.2.15, executor driver, partition 44, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,895 INFO executor.Executor: Running task 44.0 in stage 0.0 (TID 44)
+2026-11-07 11:23:18,895 INFO scheduler.TaskSetManager: Finished task 42.0 in stage 0.0 (TID 42) in 36 ms on 10.0.2.15 (executor driver) (43/61)
+2026-11-07 11:23:18,900 INFO executor.Executor: Finished task 43.0 in stage 0.0 (TID 43). 1929 bytes result sent to driver
+2026-11-07 11:23:18,901 INFO scheduler.TaskSetManager: Starting task 45.0 in stage 0.0 (TID 45) (10.0.2.15, executor driver, partition 45, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,902 INFO executor.Executor: Running task 45.0 in stage 0.0 (TID 45)
+2026-11-07 11:23:18,902 INFO scheduler.TaskSetManager: Finished task 43.0 in stage 0.0 (TID 43) in 19 ms on 10.0.2.15 (executor driver) (44/61)
+2026-11-07 11:23:18,912 INFO executor.Executor: Finished task 44.0 in stage 0.0 (TID 44). 1981 bytes result sent to driver
+2026-11-07 11:23:18,917 INFO scheduler.TaskSetManager: Starting task 46.0 in stage 0.0 (TID 46) (10.0.2.15, executor driver, partition 46, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,918 INFO scheduler.TaskSetManager: Finished task 44.0 in stage 0.0 (TID 44) in 25 ms on 10.0.2.15 (executor driver) (45/61)
+2026-11-07 11:23:18,921 INFO executor.Executor: Finished task 45.0 in stage 0.0 (TID 45). 2140 bytes result sent to driver
+2026-11-07 11:23:18,922 INFO executor.Executor: Running task 46.0 in stage 0.0 (TID 46)
+2026-11-07 11:23:18,923 INFO scheduler.TaskSetManager: Starting task 47.0 in stage 0.0 (TID 47) (10.0.2.15, executor driver, partition 47, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,927 INFO executor.Executor: Running task 47.0 in stage 0.0 (TID 47)
+2026-11-07 11:23:18,927 INFO scheduler.TaskSetManager: Finished task 45.0 in stage 0.0 (TID 45) in 26 ms on 10.0.2.15 (executor driver) (46/61)
+2026-11-07 11:23:18,940 INFO executor.Executor: Finished task 46.0 in stage 0.0 (TID 46). 2140 bytes result sent to driver
+2026-11-07 11:23:18,941 INFO scheduler.TaskSetManager: Starting task 48.0 in stage 0.0 (TID 48) (10.0.2.15, executor driver, partition 48, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,942 INFO scheduler.TaskSetManager: Finished task 46.0 in stage 0.0 (TID 46) in 26 ms on 10.0.2.15 (executor driver) (47/61)
+2026-11-07 11:23:18,945 INFO executor.Executor: Finished task 47.0 in stage 0.0 (TID 47). 2140 bytes result sent to driver
+2026-11-07 11:23:18,946 INFO executor.Executor: Running task 48.0 in stage 0.0 (TID 48)
+2026-11-07 11:23:18,951 INFO scheduler.TaskSetManager: Starting task 49.0 in stage 0.0 (TID 49) (10.0.2.15, executor driver, partition 49, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,952 INFO executor.Executor: Running task 49.0 in stage 0.0 (TID 49)
+2026-11-07 11:23:18,954 INFO scheduler.TaskSetManager: Finished task 47.0 in stage 0.0 (TID 47) in 31 ms on 10.0.2.15 (executor driver) (48/61)
+2026-11-07 11:23:18,965 INFO executor.Executor: Finished task 48.0 in stage 0.0 (TID 48). 1929 bytes result sent to driver
+2026-11-07 11:23:18,967 INFO scheduler.TaskSetManager: Starting task 50.0 in stage 0.0 (TID 50) (10.0.2.15, executor driver, partition 50, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,968 INFO executor.Executor: Running task 50.0 in stage 0.0 (TID 50)
+2026-11-07 11:23:18,969 INFO scheduler.TaskSetManager: Finished task 48.0 in stage 0.0 (TID 48) in 28 ms on 10.0.2.15 (executor driver) (49/61)
+2026-11-07 11:23:18,976 INFO executor.Executor: Finished task 49.0 in stage 0.0 (TID 49). 1929 bytes result sent to driver
+2026-11-07 11:23:18,982 INFO scheduler.TaskSetManager: Starting task 51.0 in stage 0.0 (TID 51) (10.0.2.15, executor driver, partition 51, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,983 INFO executor.Executor: Running task 51.0 in stage 0.0 (TID 51)
+2026-11-07 11:23:18,984 INFO scheduler.TaskSetManager: Finished task 49.0 in stage 0.0 (TID 49) in 33 ms on 10.0.2.15 (executor driver) (50/61)
+2026-11-07 11:23:18,994 INFO executor.Executor: Finished task 50.0 in stage 0.0 (TID 50). 1929 bytes result sent to driver
+2026-11-07 11:23:18,998 INFO scheduler.TaskSetManager: Starting task 52.0 in stage 0.0 (TID 52) (10.0.2.15, executor driver, partition 52, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:18,998 INFO scheduler.TaskSetManager: Finished task 50.0 in stage 0.0 (TID 50) in 31 ms on 10.0.2.15 (executor driver) (51/61)
+2026-11-07 11:23:18,998 INFO executor.Executor: Running task 52.0 in stage 0.0 (TID 52)
+2026-11-07 11:23:18,999 INFO executor.Executor: Finished task 51.0 in stage 0.0 (TID 51). 1929 bytes result sent to driver
+2026-11-07 11:23:19,004 INFO scheduler.TaskSetManager: Starting task 53.0 in stage 0.0 (TID 53) (10.0.2.15, executor driver, partition 53, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:19,006 INFO scheduler.TaskSetManager: Finished task 51.0 in stage 0.0 (TID 51) in 29 ms on 10.0.2.15 (executor driver) (52/61)
+2026-11-07 11:23:19,006 INFO executor.Executor: Running task 53.0 in stage 0.0 (TID 53)
+2026-11-07 11:23:19,016 INFO executor.Executor: Finished task 52.0 in stage 0.0 (TID 52). 1929 bytes result sent to driver
+2026-11-07 11:23:19,021 INFO scheduler.TaskSetManager: Starting task 54.0 in stage 0.0 (TID 54) (10.0.2.15, executor driver, partition 54, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:19,022 INFO executor.Executor: Running task 54.0 in stage 0.0 (TID 54)
+2026-11-07 11:23:19,022 INFO scheduler.TaskSetManager: Finished task 52.0 in stage 0.0 (TID 52) in 25 ms on 10.0.2.15 (executor driver) (53/61)
+2026-11-07 11:23:19,023 INFO executor.Executor: Finished task 53.0 in stage 0.0 (TID 53). 1929 bytes result sent to driver
+2026-11-07 11:23:19,027 INFO scheduler.TaskSetManager: Starting task 55.0 in stage 0.0 (TID 55) (10.0.2.15, executor driver, partition 55, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:19,032 INFO scheduler.TaskSetManager: Finished task 53.0 in stage 0.0 (TID 53) in 27 ms on 10.0.2.15 (executor driver) (54/61)
+2026-11-07 11:23:19,034 INFO executor.Executor: Running task 55.0 in stage 0.0 (TID 55)
+2026-11-07 11:23:19,042 INFO executor.Executor: Finished task 54.0 in stage 0.0 (TID 54). 1929 bytes result sent to driver
+2026-11-07 11:23:19,043 INFO scheduler.TaskSetManager: Starting task 56.0 in stage 0.0 (TID 56) (10.0.2.15, executor driver, partition 56, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:19,043 INFO executor.Executor: Running task 56.0 in stage 0.0 (TID 56)
+2026-11-07 11:23:19,044 INFO scheduler.TaskSetManager: Finished task 54.0 in stage 0.0 (TID 54) in 26 ms on 10.0.2.15 (executor driver) (55/61)
+2026-11-07 11:23:19,044 INFO executor.Executor: Finished task 55.0 in stage 0.0 (TID 55). 1929 bytes result sent to driver
+2026-11-07 11:23:19,050 INFO scheduler.TaskSetManager: Starting task 57.0 in stage 0.0 (TID 57) (10.0.2.15, executor driver, partition 57, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:19,051 INFO executor.Executor: Running task 57.0 in stage 0.0 (TID 57)
+2026-11-07 11:23:19,060 INFO scheduler.TaskSetManager: Finished task 55.0 in stage 0.0 (TID 55) in 33 ms on 10.0.2.15 (executor driver) (56/61)
+2026-11-07 11:23:19,062 INFO executor.Executor: Finished task 56.0 in stage 0.0 (TID 56). 1929 bytes result sent to driver
+2026-11-07 11:23:19,068 INFO scheduler.TaskSetManager: Starting task 58.0 in stage 0.0 (TID 58) (10.0.2.15, executor driver, partition 58, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:19,069 INFO executor.Executor: Running task 58.0 in stage 0.0 (TID 58)
+2026-11-07 11:23:19,069 INFO scheduler.TaskSetManager: Finished task 56.0 in stage 0.0 (TID 56) in 26 ms on 10.0.2.15 (executor driver) (57/61)
+2026-11-07 11:23:19,070 INFO executor.Executor: Finished task 57.0 in stage 0.0 (TID 57). 1929 bytes result sent to driver
+2026-11-07 11:23:19,079 INFO scheduler.TaskSetManager: Starting task 59.0 in stage 0.0 (TID 59) (10.0.2.15, executor driver, partition 59, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:19,080 INFO executor.Executor: Running task 59.0 in stage 0.0 (TID 59)
+2026-11-07 11:23:19,080 INFO scheduler.TaskSetManager: Finished task 57.0 in stage 0.0 (TID 57) in 31 ms on 10.0.2.15 (executor driver) (58/61)
+2026-11-07 11:23:19,089 INFO executor.Executor: Finished task 58.0 in stage 0.0 (TID 58). 1929 bytes result sent to driver
+2026-11-07 11:23:19,091 INFO scheduler.TaskSetManager: Starting task 60.0 in stage 0.0 (TID 60) (10.0.2.15, executor driver, partition 60, PROCESS_LOCAL, 4543 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:19,095 INFO scheduler.TaskSetManager: Finished task 58.0 in stage 0.0 (TID 58) in 29 ms on 10.0.2.15 (executor driver) (59/61)
+2026-11-07 11:23:19,095 INFO executor.Executor: Running task 60.0 in stage 0.0 (TID 60)
+2026-11-07 11:23:19,097 INFO executor.Executor: Finished task 59.0 in stage 0.0 (TID 59). 1929 bytes result sent to driver
+2026-11-07 11:23:19,110 INFO executor.Executor: Finished task 60.0 in stage 0.0 (TID 60). 1929 bytes result sent to driver
+2026-11-07 11:23:19,111 INFO scheduler.TaskSetManager: Finished task 59.0 in stage 0.0 (TID 59) in 33 ms on 10.0.2.15 (executor driver) (60/61)
+2026-11-07 11:23:19,113 INFO scheduler.TaskSetManager: Finished task 60.0 in stage 0.0 (TID 60) in 22 ms on 10.0.2.15 (executor driver) (61/61)
+2026-11-07 11:23:19,115 INFO scheduler.TaskSchedulerImpl: Removed TaskSet 0.0, whose tasks have all completed, from pool 
+2026-11-07 11:23:19,127 INFO scheduler.DAGScheduler: ResultStage 0 (parquet at NativeMethodAccessorImpl.java:0) finished in 4.502 s
+2026-11-07 11:23:19,135 INFO scheduler.DAGScheduler: Job 0 is finished. Cancelling potential speculative or zombie tasks for this job
+2026-11-07 11:23:19,140 INFO scheduler.TaskSchedulerImpl: Killing all running tasks in stage 0: Stage finished
+2026-11-07 11:23:19,149 INFO scheduler.DAGScheduler: Job 0 finished: parquet at NativeMethodAccessorImpl.java:0, took 4.672751 s
+2026-11-07 11:23:19,268 INFO datasources.InMemoryFileIndex: It took 5622 ms to list leaf files for 1 paths.
+2026-11-07 11:23:19,752 INFO spark.SparkContext: Starting job: parquet at NativeMethodAccessorImpl.java:0
+2026-11-07 11:23:19,756 INFO scheduler.DAGScheduler: Got job 1 (parquet at NativeMethodAccessorImpl.java:0) with 1 output partitions
+2026-11-07 11:23:19,757 INFO scheduler.DAGScheduler: Final stage: ResultStage 1 (parquet at NativeMethodAccessorImpl.java:0)
+2026-11-07 11:23:19,757 INFO scheduler.DAGScheduler: Parents of final stage: List()
+2026-11-07 11:23:19,757 INFO scheduler.DAGScheduler: Missing parents: List()
+2026-11-07 11:23:19,762 INFO scheduler.DAGScheduler: Submitting ResultStage 1 (MapPartitionsRDD[4] at parquet at NativeMethodAccessorImpl.java:0), which has no missing parents
+2026-11-07 11:23:19,816 INFO memory.MemoryStore: Block broadcast_1 stored as values in memory (estimated size 86.4 KiB, free 912.1 MiB)
+2026-11-07 11:23:19,860 INFO memory.MemoryStore: Block broadcast_1_piece0 stored as bytes in memory (estimated size 30.8 KiB, free 912.1 MiB)
+2026-11-07 11:23:19,864 INFO storage.BlockManagerInfo: Added broadcast_1_piece0 in memory on 10.0.2.15:40571 (size: 30.8 KiB, free: 912.2 MiB)
+2026-11-07 11:23:19,869 INFO spark.SparkContext: Created broadcast 1 from broadcast at DAGScheduler.scala:1388
+2026-11-07 11:23:19,872 INFO scheduler.DAGScheduler: Submitting 1 missing tasks from ResultStage 1 (MapPartitionsRDD[4] at parquet at NativeMethodAccessorImpl.java:0) (first 15 tasks are for partitions Vector(0))
+2026-11-07 11:23:19,872 INFO scheduler.TaskSchedulerImpl: Adding task set 1.0 with 1 tasks resource profile 0
+2026-11-07 11:23:19,883 INFO scheduler.TaskSetManager: Starting task 0.0 in stage 1.0 (TID 61) (10.0.2.15, executor driver, partition 0, PROCESS_LOCAL, 4707 bytes) taskResourceAssignments Map()
+2026-11-07 11:23:19,886 INFO executor.Executor: Running task 0.0 in stage 1.0 (TID 61)
+2026-11-07 11:23:21,521 INFO executor.Executor: Finished task 0.0 in stage 1.0 (TID 61). 2271 bytes result sent to driver
+2026-11-07 11:23:21,526 INFO scheduler.TaskSetManager: Finished task 0.0 in stage 1.0 (TID 61) in 1646 ms on 10.0.2.15 (executor driver) (1/1)
+2026-11-07 11:23:21,528 INFO scheduler.TaskSchedulerImpl: Removed TaskSet 1.0, whose tasks have all completed, from pool 
+2026-11-07 11:23:21,529 INFO scheduler.DAGScheduler: ResultStage 1 (parquet at NativeMethodAccessorImpl.java:0) finished in 1.760 s
+2026-11-07 11:23:21,531 INFO scheduler.DAGScheduler: Job 1 is finished. Cancelling potential speculative or zombie tasks for this job
+2026-11-07 11:23:21,531 INFO scheduler.TaskSchedulerImpl: Killing all running tasks in stage 1: Stage finished
+2026-11-07 11:23:21,531 INFO scheduler.DAGScheduler: Job 1 finished: parquet at NativeMethodAccessorImpl.java:0, took 1.778106 s
+2026-11-07 11:23:24,510 INFO storage.BlockManagerInfo: Removed broadcast_1_piece0 on 10.0.2.15:40571 in memory (size: 30.8 KiB, free: 912.3 MiB)
+2026-11-07 11:23:24,537 INFO storage.BlockManagerInfo: Removed broadcast_0_piece0 on 10.0.2.15:40571 in memory (size: 30.7 KiB, free: 912.3 MiB)
+
+===== PARQUET SCHEMA =====
+root
+ |-- event_time: timestamp (nullable = true)
+ |-- event_type: string (nullable = true)
+ |-- product_id: string (nullable = true)
+ |-- category_id: string (nullable = true)
+ |-- category_code: string (nullable = true)
+ |-- brand: string (nullable = true)
+ |-- price: double (nullable = true)
+ |-- user_id: string (nullable = true)
+ |-- user_session: string (nullable = true)
+ |-- reject_reason: string (nullable = true)
+ |-- event_type_rank: integer (nullable = true)
+ |-- event_sort_key: string (nullable = true)
+ |-- event_date: date (nullable = true)
+
+
+===== PARTITION COLUMN =====
+True
+
+===== NUMBER OF INPUT FILES =====
+774
+
+===== SAMPLE QUERY PLAN =====
+2026-11-07 11:23:29,306 INFO datasources.DataSourceStrategy: Pruning directories with: isnotnull(event_date#12),(event_date#12 = 18170)
+2026-11-07 11:23:29,312 INFO datasources.FileSourceStrategy: Pushed Filters: 
+2026-11-07 11:23:29,315 INFO datasources.FileSourceStrategy: Post-Scan Filters: 
+2026-11-07 11:23:29,318 INFO datasources.FileSourceStrategy: Output Data Schema: struct<event_type: string, price: double, user_id: string ... 1 more fields>
+== Physical Plan ==
+* ColumnarToRow (2)
++- Scan parquet  (1)
+
+
+(1) Scan parquet 
+Output [4]: [event_type#1, price#6, user_id#7, event_date#12]
+Batched: true
+Location: InMemoryFileIndex [hdfs://localhost:9000/data/curated/events]
+PartitionFilters: [isnotnull(event_date#12), (event_date#12 = 18170)]
+ReadSchema: struct<event_type:string,price:double,user_id:string>
+
+(2) ColumnarToRow [codegen id : 1]
+Input [4]: [event_type#1, price#6, user_id#7, event_date#12]
+
+
+2026-11-07 11:23:29,475 INFO server.AbstractConnector: Stopped Spark@753c57d5{HTTP/1.1, (http/1.1)}{0.0.0.0:4040}
+2026-11-07 11:23:29,495 INFO ui.SparkUI: Stopped Spark web UI at http://10.0.2.15:4040
+2026-11-07 11:23:29,817 INFO spark.MapOutputTrackerMasterEndpoint: MapOutputTrackerMasterEndpoint stopped!
+2026-11-07 11:23:29,898 INFO memory.MemoryStore: MemoryStore cleared
+2026-11-07 11:23:29,899 INFO storage.BlockManager: BlockManager stopped
+2026-11-07 11:23:29,916 INFO storage.BlockManagerMaster: BlockManagerMaster stopped
+2026-11-07 11:23:29,945 INFO scheduler.OutputCommitCoordinator$OutputCommitCoordinatorEndpoint: OutputCommitCoordinator stopped!
+2026-11-07 11:23:30,005 INFO spark.SparkContext: Successfully stopped SparkContext
+2026-11-07 11:23:30,271 INFO util.ShutdownHookManager: Shutdown hook called
+2026-11-07 11:23:30,275 INFO util.ShutdownHookManager: Deleting directory /tmp/spark-fcb56bc2-6803-46fe-859f-afebace8335d
+2026-11-07 11:23:30,284 INFO util.ShutdownHookManager: Deleting directory /tmp/spark-fcb56bc2-6803-46fe-859f-afebace8335d/pyspark-46048e12-389e-4b5f-b98f-89c0f48e63fc
+2026-11-07 11:23:30,295 INFO util.ShutdownHookManager: Deleting directory /tmp/spark-7ca33d01-55a7-48cb-ad52-cfdc1dd96411

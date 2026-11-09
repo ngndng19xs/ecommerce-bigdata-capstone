@@ -1,0 +1,218 @@
+2026-11-07 13:24:14,207 WARN util.Utils: Your hostname, localhost.localdomain resolves to a loopback address: 127.0.0.1, but we couldn't find any external IP address!
+2026-11-07 13:24:14,208 WARN util.Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+2026-11-07 13:24:14,533 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2026-11-07 13:24:15,745 INFO spark.SparkContext: Running Spark version 3.1.2
+2026-11-07 13:24:15,796 INFO resource.ResourceUtils: ==============================================================
+2026-11-07 13:24:15,797 INFO resource.ResourceUtils: No custom resources configured for spark.driver.
+2026-11-07 13:24:15,798 INFO resource.ResourceUtils: ==============================================================
+2026-11-07 13:24:15,798 INFO spark.SparkContext: Submitted application: A9_E2_Partition_Pruning
+2026-11-07 13:24:15,828 INFO resource.ResourceProfile: Default ResourceProfile created, executor resources: Map(cores -> name: cores, amount: 1, script: , vendor: , memory -> name: memory, amount: 1024, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+2026-11-07 13:24:15,860 INFO resource.ResourceProfile: Limiting resource is cpu
+2026-11-07 13:24:15,860 INFO resource.ResourceProfileManager: Added ResourceProfile id: 0
+2026-11-07 13:24:15,941 INFO spark.SecurityManager: Changing view acls to: student
+2026-11-07 13:24:15,942 INFO spark.SecurityManager: Changing modify acls to: student
+2026-11-07 13:24:15,943 INFO spark.SecurityManager: Changing view acls groups to: 
+2026-11-07 13:24:15,943 INFO spark.SecurityManager: Changing modify acls groups to: 
+2026-11-07 13:24:15,943 INFO spark.SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(student); groups with view permissions: Set(); users  with modify permissions: Set(student); groups with modify permissions: Set()
+2026-11-07 13:24:16,112 WARN internal.MacAddressUtil: Failed to find a usable hardware address from the network interfaces; using random bytes: aa:a9:ae:8a:ae:df:67:45
+2026-11-07 13:24:16,154 INFO util.Utils: Successfully started service 'sparkDriver' on port 44094.
+2026-11-07 13:24:16,201 INFO spark.SparkEnv: Registering MapOutputTracker
+2026-11-07 13:24:16,249 INFO spark.SparkEnv: Registering BlockManagerMaster
+2026-11-07 13:24:16,277 INFO storage.BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+2026-11-07 13:24:16,279 INFO storage.BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+2026-11-07 13:24:16,287 INFO spark.SparkEnv: Registering BlockManagerMasterHeartbeat
+2026-11-07 13:24:16,307 INFO storage.DiskBlockManager: Created local directory at /tmp/blockmgr-f222b85a-5cd4-4e0f-8d8d-41fbe8c2d172
+2026-11-07 13:24:16,335 INFO memory.MemoryStore: MemoryStore started with capacity 366.3 MiB
+2026-11-07 13:24:16,361 INFO spark.SparkEnv: Registering OutputCommitCoordinator
+2026-11-07 13:24:16,470 INFO util.log: Logging initialized @3263ms to org.sparkproject.jetty.util.log.Slf4jLog
+2026-11-07 13:24:16,556 INFO server.Server: jetty-9.4.40.v20210413; built: 2021-04-13T20:42:42.668Z; git: b881a572662e1943a14ae12e7e1207989f218b74; jvm 1.8.0_291-b10
+2026-11-07 13:24:16,597 INFO server.Server: Started @3390ms
+2026-11-07 13:24:16,646 INFO server.AbstractConnector: Started ServerConnector@fd43dca{HTTP/1.1, (http/1.1)}{0.0.0.0:4040}
+2026-11-07 13:24:16,647 INFO util.Utils: Successfully started service 'SparkUI' on port 4040.
+2026-11-07 13:24:16,683 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@5e06a2d9{/jobs,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,687 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@56493960{/jobs/json,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,687 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@4c469fbd{/jobs/job,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,696 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@498095a7{/jobs/job/json,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,698 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@3b0376df{/stages,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,699 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@5df13d95{/stages/json,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,700 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@115ba3ae{/stages/stage,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,702 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@519589f0{/stages/stage/json,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,703 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@4908a7c0{/stages/pool,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,704 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@51ace1d8{/stages/pool/json,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,705 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@78288a03{/storage,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,705 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@3bff06c5{/storage/json,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,706 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@63e2681c{/storage/rdd,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,707 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@717646d9{/storage/rdd/json,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,708 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@6aa24d15{/environment,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,708 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@7e319182{/environment/json,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,709 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@1f4ce718{/executors,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,710 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@425dff43{/executors/json,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,711 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@2b9e9cae{/executors/threadDump,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,712 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@200aa55e{/executors/threadDump/json,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,719 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@3ad64a8d{/static,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,719 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@8fecd78{/,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,721 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@598da1b5{/api,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,722 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@5e0d77ab{/jobs/job/kill,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,723 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@1a3f102{/stages/stage/kill,null,AVAILABLE,@Spark}
+2026-11-07 13:24:16,725 INFO ui.SparkUI: Bound SparkUI to 0.0.0.0, and started at http://localhost:4040
+2026-11-07 13:24:17,054 INFO executor.Executor: Starting executor ID driver on host localhost
+2026-11-07 13:24:17,091 INFO util.Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 38172.
+2026-11-07 13:24:17,091 INFO netty.NettyBlockTransferService: Server created on localhost:38172
+2026-11-07 13:24:17,094 INFO storage.BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+2026-11-07 13:24:17,100 INFO storage.BlockManagerMaster: Registering BlockManager BlockManagerId(driver, localhost, 38172, None)
+2026-11-07 13:24:17,105 INFO storage.BlockManagerMasterEndpoint: Registering block manager localhost:38172 with 366.3 MiB RAM, BlockManagerId(driver, localhost, 38172, None)
+2026-11-07 13:24:17,107 INFO storage.BlockManagerMaster: Registered BlockManager BlockManagerId(driver, localhost, 38172, None)
+2026-11-07 13:24:17,110 INFO storage.BlockManager: Initialized BlockManager: BlockManagerId(driver, localhost, 38172, None)
+2026-11-07 13:24:17,270 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@3934b92c{/metrics/json,null,AVAILABLE,@Spark}
+2026-11-07 13:24:17,588 INFO internal.SharedState: Setting hive.metastore.warehouse.dir ('/user/hive/warehouse') to the value of spark.sql.warehouse.dir ('/user/hive/warehouse').
+2026-11-07 13:24:17,588 INFO internal.SharedState: Warehouse path is '/user/hive/warehouse'.
+2026-11-07 13:24:17,613 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@61e6c4a3{/SQL,null,AVAILABLE,@Spark}
+2026-11-07 13:24:17,614 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@5d753791{/SQL/json,null,AVAILABLE,@Spark}
+2026-11-07 13:24:17,615 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@6ede1dd4{/SQL/execution,null,AVAILABLE,@Spark}
+2026-11-07 13:24:17,615 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@c2dae0f{/SQL/execution/json,null,AVAILABLE,@Spark}
+2026-11-07 13:24:17,631 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@c3eb018{/static/sql,null,AVAILABLE,@Spark}
+
+===== E2_A_event_time_only =====
+
+===== E2_A_event_time_only EXPLAIN FORMATTED =====
+== Physical Plan ==
+* Sort (9)
++- Exchange (8)
+   +- * HashAggregate (7)
+      +- Exchange (6)
+         +- * HashAggregate (5)
+            +- * Project (4)
+               +- * Filter (3)
+                  +- * ColumnarToRow (2)
+                     +- Scan parquet  (1)
+
+
+(1) Scan parquet 
+Output [3]: [event_time#0, event_type#1, event_date#12]
+Batched: true
+Location: InMemoryFileIndex [hdfs://localhost:9000/data/curated/events]
+PushedFilters: [IsNotNull(event_time), GreaterThanOrEqual(event_time,2019-10-01 09:00:00.0), LessThan(event_time,2019-11-01 09:00:00.0)]
+ReadSchema: struct<event_time:timestamp,event_type:string>
+
+(2) ColumnarToRow [codegen id : 1]
+Input [3]: [event_time#0, event_type#1, event_date#12]
+
+(3) Filter [codegen id : 1]
+Input [3]: [event_time#0, event_type#1, event_date#12]
+Condition : ((isnotnull(event_time#0) AND (event_time#0 >= 1569888000000000)) AND (event_time#0 < 1572566400000000))
+
+(4) Project [codegen id : 1]
+Output [1]: [event_type#1]
+Input [3]: [event_time#0, event_type#1, event_date#12]
+
+(5) HashAggregate [codegen id : 1]
+Input [1]: [event_type#1]
+Keys [1]: [event_type#1]
+Functions [1]: [partial_count(1)]
+Aggregate Attributes [1]: [count#60L]
+Results [2]: [event_type#1, count#61L]
+
+(6) Exchange
+Input [2]: [event_type#1, count#61L]
+Arguments: hashpartitioning(event_type#1, 24), ENSURE_REQUIREMENTS, [id=#37]
+
+(7) HashAggregate [codegen id : 2]
+Input [2]: [event_type#1, count#61L]
+Keys [1]: [event_type#1]
+Functions [1]: [count(1)]
+Aggregate Attributes [1]: [count(1)#39L]
+Results [2]: [event_type#1, count(1)#39L AS event_count#40L]
+
+(8) Exchange
+Input [2]: [event_type#1, event_count#40L]
+Arguments: rangepartitioning(event_type#1 ASC NULLS FIRST, 24), ENSURE_REQUIREMENTS, [id=#41]
+
+(9) Sort [codegen id : 3]
+Input [2]: [event_type#1, event_count#40L]
+Arguments: [event_type#1 ASC NULLS FIRST], true, 0
+
+
+
+===== E2_A_event_time_only WARMUP =====
+WARMUP rows=3 result=[('cart', 926516), ('purchase', 742849), ('view', 40779399)]
+E2_A_event_time_only RUN_1: 0.044s | rows=3 | total=42448764
+E2_A_event_time_only RUN_2: 0.053s | rows=3 | total=42448764
+E2_A_event_time_only RUN_3: 0.057s | rows=3 | total=42448764
+E2_A_event_time_only MEDIAN: 0.053s
+
+===== E2_B_event_time_and_event_date =====
+
+===== E2_B_event_time_and_event_date EXPLAIN FORMATTED =====
+== Physical Plan ==
+* Sort (9)
++- Exchange (8)
+   +- * HashAggregate (7)
+      +- Exchange (6)
+         +- * HashAggregate (5)
+            +- * Project (4)
+               +- * Filter (3)
+                  +- * ColumnarToRow (2)
+                     +- Scan parquet  (1)
+
+
+(1) Scan parquet 
+Output [3]: [event_time#0, event_type#1, event_date#12]
+Batched: true
+Location: InMemoryFileIndex [hdfs://localhost:9000/data/curated/events]
+PartitionFilters: [isnotnull(event_date#12), (event_date#12 >= 18170), (event_date#12 < 18201)]
+PushedFilters: [IsNotNull(event_time), GreaterThanOrEqual(event_time,2019-10-01 09:00:00.0), LessThan(event_time,2019-11-01 09:00:00.0)]
+ReadSchema: struct<event_time:timestamp,event_type:string>
+
+(2) ColumnarToRow [codegen id : 1]
+Input [3]: [event_time#0, event_type#1, event_date#12]
+
+(3) Filter [codegen id : 1]
+Input [3]: [event_time#0, event_type#1, event_date#12]
+Condition : ((isnotnull(event_time#0) AND (event_time#0 >= 1569888000000000)) AND (event_time#0 < 1572566400000000))
+
+(4) Project [codegen id : 1]
+Output [1]: [event_type#1]
+Input [3]: [event_time#0, event_type#1, event_date#12]
+
+(5) HashAggregate [codegen id : 1]
+Input [1]: [event_type#1]
+Keys [1]: [event_type#1]
+Functions [1]: [partial_count(1)]
+Aggregate Attributes [1]: [count#62L]
+Results [2]: [event_type#1, count#63L]
+
+(6) Exchange
+Input [2]: [event_type#1, count#63L]
+Arguments: hashpartitioning(event_type#1, 24), ENSURE_REQUIREMENTS, [id=#82]
+
+(7) HashAggregate [codegen id : 2]
+Input [2]: [event_type#1, count#63L]
+Keys [1]: [event_type#1]
+Functions [1]: [count(1)]
+Aggregate Attributes [1]: [count(1)#56L]
+Results [2]: [event_type#1, count(1)#56L AS event_count#57L]
+
+(8) Exchange
+Input [2]: [event_type#1, event_count#57L]
+Arguments: rangepartitioning(event_type#1 ASC NULLS FIRST, 24), ENSURE_REQUIREMENTS, [id=#86]
+
+(9) Sort [codegen id : 3]
+Input [2]: [event_type#1, event_count#57L]
+Arguments: [event_type#1 ASC NULLS FIRST], true, 0
+
+
+
+===== E2_B_event_time_and_event_date WARMUP =====
+WARMUP rows=3 result=[('cart', 926516), ('purchase', 742849), ('view', 40779399)]
+E2_B_event_time_and_event_date RUN_1: 0.047s | rows=3 | total=42448764
+E2_B_event_time_and_event_date RUN_2: 0.048s | rows=3 | total=42448764
+E2_B_event_time_and_event_date RUN_3: 0.052s | rows=3 | total=42448764
+E2_B_event_time_and_event_date MEDIAN: 0.048s
+
+===== E2 OUTPUT PARITY =====
+E2-A: [('cart', 926516), ('purchase', 742849), ('view', 40779399)]
+E2-B: [('cart', 926516), ('purchase', 742849), ('view', 40779399)]
+MATCH: True
+HASH MATCH: True
+
+Saved: /home/student/capstone/benchmark/results/e2_results.csv
