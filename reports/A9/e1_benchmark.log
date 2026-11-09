@@ -1,0 +1,120 @@
+2026-11-07 12:41:18,910 WARN util.Utils: Your hostname, localhost.localdomain resolves to a loopback address: 127.0.0.1, but we couldn't find any external IP address!
+2026-11-07 12:41:18,913 WARN util.Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+2026-11-07 12:41:19,795 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2026-11-07 12:41:21,591 INFO spark.SparkContext: Running Spark version 3.1.2
+2026-11-07 12:41:21,637 INFO resource.ResourceUtils: ==============================================================
+2026-11-07 12:41:21,637 INFO resource.ResourceUtils: No custom resources configured for spark.driver.
+2026-11-07 12:41:21,638 INFO resource.ResourceUtils: ==============================================================
+2026-11-07 12:41:21,638 INFO spark.SparkContext: Submitted application: A9_E1_CSV_vs_Parquet_Benchmark
+2026-11-07 12:41:21,665 INFO resource.ResourceProfile: Default ResourceProfile created, executor resources: Map(cores -> name: cores, amount: 1, script: , vendor: , memory -> name: memory, amount: 1024, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+2026-11-07 12:41:21,676 INFO resource.ResourceProfile: Limiting resource is cpu
+2026-11-07 12:41:21,678 INFO resource.ResourceProfileManager: Added ResourceProfile id: 0
+2026-11-07 12:41:21,728 INFO spark.SecurityManager: Changing view acls to: student
+2026-11-07 12:41:21,728 INFO spark.SecurityManager: Changing modify acls to: student
+2026-11-07 12:41:21,728 INFO spark.SecurityManager: Changing view acls groups to: 
+2026-11-07 12:41:21,728 INFO spark.SecurityManager: Changing modify acls groups to: 
+2026-11-07 12:41:21,728 INFO spark.SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(student); groups with view permissions: Set(); users  with modify permissions: Set(student); groups with modify permissions: Set()
+2026-11-07 12:41:21,893 WARN internal.MacAddressUtil: Failed to find a usable hardware address from the network interfaces; using random bytes: c2:58:ad:c2:f3:4d:a8:98
+2026-11-07 12:41:21,960 INFO util.Utils: Successfully started service 'sparkDriver' on port 35913.
+2026-11-07 12:41:22,023 INFO spark.SparkEnv: Registering MapOutputTracker
+2026-11-07 12:41:22,081 INFO spark.SparkEnv: Registering BlockManagerMaster
+2026-11-07 12:41:22,109 INFO storage.BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+2026-11-07 12:41:22,113 INFO storage.BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+2026-11-07 12:41:22,121 INFO spark.SparkEnv: Registering BlockManagerMasterHeartbeat
+2026-11-07 12:41:22,146 INFO storage.DiskBlockManager: Created local directory at /tmp/blockmgr-fa651a73-4024-4ee5-8dec-702b69db2b58
+2026-11-07 12:41:22,171 INFO memory.MemoryStore: MemoryStore started with capacity 366.3 MiB
+2026-11-07 12:41:22,195 INFO spark.SparkEnv: Registering OutputCommitCoordinator
+2026-11-07 12:41:22,300 INFO util.log: Logging initialized @5251ms to org.sparkproject.jetty.util.log.Slf4jLog
+2026-11-07 12:41:22,467 INFO server.Server: jetty-9.4.40.v20210413; built: 2021-04-13T20:42:42.668Z; git: b881a572662e1943a14ae12e7e1207989f218b74; jvm 1.8.0_291-b10
+2026-11-07 12:41:22,520 INFO server.Server: Started @5471ms
+2026-11-07 12:41:22,577 INFO server.AbstractConnector: Started ServerConnector@105dbca7{HTTP/1.1, (http/1.1)}{0.0.0.0:4040}
+2026-11-07 12:41:22,581 INFO util.Utils: Successfully started service 'SparkUI' on port 4040.
+2026-11-07 12:41:22,627 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@78a6715c{/jobs,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,630 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@cf752b{/jobs/json,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,631 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@23420af0{/jobs/job,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,635 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@33d2eb4a{/jobs/job/json,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,635 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@223d8c61{/stages,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,636 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@25677a54{/stages/json,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,637 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@17545570{/stages/stage,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,639 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@1a7537e7{/stages/stage/json,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,640 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@5fabb38f{/stages/pool,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,641 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@3bff2687{/stages/pool/json,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,641 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@53bf14c6{/storage,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,642 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@2e1cc95f{/storage/json,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,643 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@3b79137{/storage/rdd,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,644 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@f72c037{/storage/rdd/json,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,645 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@353d9d54{/environment,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,646 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@e640cf6{/environment/json,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,647 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@3960fcb0{/executors,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,647 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@700eae8f{/executors/json,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,648 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@5e9d57b8{/executors/threadDump,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,650 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@1d571224{/executors/threadDump/json,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,659 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@7ca3b8f5{/static,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,660 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@25704804{/,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,662 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@3ddf4c61{/api,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,665 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@69623759{/jobs/job/kill,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,666 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@efb05ad{/stages/stage/kill,null,AVAILABLE,@Spark}
+2026-11-07 12:41:22,669 INFO ui.SparkUI: Bound SparkUI to 0.0.0.0, and started at http://localhost:4040
+2026-11-07 12:41:22,973 INFO executor.Executor: Starting executor ID driver on host localhost
+2026-11-07 12:41:23,024 INFO util.Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 46754.
+2026-11-07 12:41:23,025 INFO netty.NettyBlockTransferService: Server created on localhost:46754
+2026-11-07 12:41:23,027 INFO storage.BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+2026-11-07 12:41:23,034 INFO storage.BlockManagerMaster: Registering BlockManager BlockManagerId(driver, localhost, 46754, None)
+2026-11-07 12:41:23,040 INFO storage.BlockManagerMasterEndpoint: Registering block manager localhost:46754 with 366.3 MiB RAM, BlockManagerId(driver, localhost, 46754, None)
+2026-11-07 12:41:23,046 INFO storage.BlockManagerMaster: Registered BlockManager BlockManagerId(driver, localhost, 46754, None)
+2026-11-07 12:41:23,048 INFO storage.BlockManager: Initialized BlockManager: BlockManagerId(driver, localhost, 46754, None)
+2026-11-07 12:41:23,270 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@1ecf9aa9{/metrics/json,null,AVAILABLE,@Spark}
+2026-11-07 12:41:23,709 INFO internal.SharedState: Setting hive.metastore.warehouse.dir ('/user/hive/warehouse') to the value of spark.sql.warehouse.dir ('/user/hive/warehouse').
+2026-11-07 12:41:23,709 INFO internal.SharedState: Warehouse path is '/user/hive/warehouse'.
+2026-11-07 12:41:23,725 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@6eb20c48{/SQL,null,AVAILABLE,@Spark}
+2026-11-07 12:41:23,728 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@17700203{/SQL/json,null,AVAILABLE,@Spark}
+2026-11-07 12:41:23,730 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@413f43c{/SQL/execution,null,AVAILABLE,@Spark}
+2026-11-07 12:41:23,731 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@68cb00da{/SQL/execution/json,null,AVAILABLE,@Spark}
+2026-11-07 12:41:23,746 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@5cf9d86{/static/sql,null,AVAILABLE,@Spark}
+
+===== SOURCE: CSV =====
+
+--- Q1_event_count_by_type: warm-up ---
+CSV | Q1_event_count_by_type | Run 1: 0.064s
+CSV | Q1_event_count_by_type | Run 2: 0.063s
+CSV | Q1_event_count_by_type | Run 3: 0.059s
+Median CSV | Q1_event_count_by_type: 0.063s
+
+--- Q2_count_avg_price_by_type: warm-up ---
+CSV | Q2_count_avg_price_by_type | Run 1: 0.048s
+CSV | Q2_count_avg_price_by_type | Run 2: 0.054s
+CSV | Q2_count_avg_price_by_type | Run 3: 0.068s
+Median CSV | Q2_count_avg_price_by_type: 0.054s
+
+--- Q3_daily_event_count: warm-up ---
+CSV | Q3_daily_event_count | Run 1: 0.082s
+CSV | Q3_daily_event_count | Run 2: 0.109s
+CSV | Q3_daily_event_count | Run 3: 0.082s
+Median CSV | Q3_daily_event_count: 0.082s
+
+===== SOURCE: Parquet =====
+
+--- Q1_event_count_by_type: warm-up ---
+Parquet | Q1_event_count_by_type | Run 1: 0.042s
+Parquet | Q1_event_count_by_type | Run 2: 0.048s
+Parquet | Q1_event_count_by_type | Run 3: 0.053s
+Median Parquet | Q1_event_count_by_type: 0.048s
+
+--- Q2_count_avg_price_by_type: warm-up ---
+Parquet | Q2_count_avg_price_by_type | Run 1: 0.043s
+Parquet | Q2_count_avg_price_by_type | Run 2: 0.053s
+Parquet | Q2_count_avg_price_by_type | Run 3: 0.041s
+Median Parquet | Q2_count_avg_price_by_type: 0.043s
+
+--- Q3_daily_event_count: warm-up ---
+Parquet | Q3_daily_event_count | Run 1: 0.068s
+Parquet | Q3_daily_event_count | Run 2: 0.089s
+Parquet | Q3_daily_event_count | Run 3: 0.068s
+Median Parquet | Q3_daily_event_count: 0.068s
+
+===== OUTPUT PARITY =====
+Q1_event_count_by_type: MATCH = True
+Q2_count_avg_price_by_type: MATCH = True
+Q3_daily_event_count: MATCH = True
+
+Saved benchmark results: /home/student/capstone/benchmark/results/e1_results.csv

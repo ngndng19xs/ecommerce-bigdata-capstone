@@ -1,0 +1,85 @@
+2026-11-07 12:36:03,784 WARN util.Utils: Your hostname, localhost.localdomain resolves to a loopback address: 127.0.0.1, but we couldn't find any external IP address!
+2026-11-07 12:36:03,786 WARN util.Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+2026-11-07 12:36:04,681 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2026-11-07 12:36:06,529 INFO spark.SparkContext: Running Spark version 3.1.2
+2026-11-07 12:36:06,625 INFO resource.ResourceUtils: ==============================================================
+2026-11-07 12:36:06,626 INFO resource.ResourceUtils: No custom resources configured for spark.driver.
+2026-11-07 12:36:06,627 INFO resource.ResourceUtils: ==============================================================
+2026-11-07 12:36:06,629 INFO spark.SparkContext: Submitted application: A9_E1_Parity_Check
+2026-11-07 12:36:06,691 INFO resource.ResourceProfile: Default ResourceProfile created, executor resources: Map(cores -> name: cores, amount: 1, script: , vendor: , memory -> name: memory, amount: 1024, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+2026-11-07 12:36:06,724 INFO resource.ResourceProfile: Limiting resource is cpu
+2026-11-07 12:36:06,726 INFO resource.ResourceProfileManager: Added ResourceProfile id: 0
+2026-11-07 12:36:06,849 INFO spark.SecurityManager: Changing view acls to: student
+2026-11-07 12:36:06,850 INFO spark.SecurityManager: Changing modify acls to: student
+2026-11-07 12:36:06,850 INFO spark.SecurityManager: Changing view acls groups to: 
+2026-11-07 12:36:06,850 INFO spark.SecurityManager: Changing modify acls groups to: 
+2026-11-07 12:36:06,851 INFO spark.SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(student); groups with view permissions: Set(); users  with modify permissions: Set(student); groups with modify permissions: Set()
+2026-11-07 12:36:07,210 WARN internal.MacAddressUtil: Failed to find a usable hardware address from the network interfaces; using random bytes: 4f:15:96:e9:14:8f:38:eb
+2026-11-07 12:36:07,320 INFO util.Utils: Successfully started service 'sparkDriver' on port 36169.
+2026-11-07 12:36:07,399 INFO spark.SparkEnv: Registering MapOutputTracker
+2026-11-07 12:36:07,476 INFO spark.SparkEnv: Registering BlockManagerMaster
+2026-11-07 12:36:07,533 INFO storage.BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+2026-11-07 12:36:07,536 INFO storage.BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+2026-11-07 12:36:07,555 INFO spark.SparkEnv: Registering BlockManagerMasterHeartbeat
+2026-11-07 12:36:07,607 INFO storage.DiskBlockManager: Created local directory at /tmp/blockmgr-0fc3fdf8-6e95-4063-ae05-6ea99b2b0deb
+2026-11-07 12:36:07,690 INFO memory.MemoryStore: MemoryStore started with capacity 366.3 MiB
+2026-11-07 12:36:07,767 INFO spark.SparkEnv: Registering OutputCommitCoordinator
+2026-11-07 12:36:08,005 INFO util.log: Logging initialized @6162ms to org.sparkproject.jetty.util.log.Slf4jLog
+2026-11-07 12:36:08,308 INFO server.Server: jetty-9.4.40.v20210413; built: 2021-04-13T20:42:42.668Z; git: b881a572662e1943a14ae12e7e1207989f218b74; jvm 1.8.0_291-b10
+2026-11-07 12:36:08,412 INFO server.Server: Started @6568ms
+2026-11-07 12:36:08,538 INFO server.AbstractConnector: Started ServerConnector@45b01ce3{HTTP/1.1, (http/1.1)}{0.0.0.0:4040}
+2026-11-07 12:36:08,538 INFO util.Utils: Successfully started service 'SparkUI' on port 4040.
+2026-11-07 12:36:08,631 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@679395d0{/jobs,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,637 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@5fc5b9a2{/jobs/json,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,639 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@3ce3be03{/jobs/job,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,649 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@547c37c{/jobs/job/json,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,652 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@22a7597b{/stages,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,654 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@16289ac4{/stages/json,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,656 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@776379ba{/stages/stage,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,670 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@4898c78c{/stages/stage/json,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,677 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@78823e78{/stages/pool,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,679 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@4a0bde2{/stages/pool/json,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,681 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@7e58437a{/storage,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,683 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@20bfa337{/storage/json,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,685 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@d612f80{/storage/rdd,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,687 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@7b6a2971{/storage/rdd/json,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,691 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@39e1fe6f{/environment,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,696 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@39d5169f{/environment/json,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,702 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@74298d41{/executors,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,708 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@2c1d553{/executors/json,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,710 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@1012cdf2{/executors/threadDump,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,716 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@51ff3ed{/executors/threadDump/json,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,765 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@639c1120{/static,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,771 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@79e48b98{/,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,778 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@1478ef38{/api,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,787 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@34d475d5{/jobs/job/kill,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,791 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@465063d9{/stages/stage/kill,null,AVAILABLE,@Spark}
+2026-11-07 12:36:08,798 INFO ui.SparkUI: Bound SparkUI to 0.0.0.0, and started at http://localhost:4040
+2026-11-07 12:36:09,550 INFO executor.Executor: Starting executor ID driver on host localhost
+2026-11-07 12:36:09,660 INFO util.Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 44485.
+2026-11-07 12:36:09,660 INFO netty.NettyBlockTransferService: Server created on localhost:44485
+2026-11-07 12:36:09,667 INFO storage.BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+2026-11-07 12:36:09,683 INFO storage.BlockManagerMaster: Registering BlockManager BlockManagerId(driver, localhost, 44485, None)
+2026-11-07 12:36:09,715 INFO storage.BlockManagerMasterEndpoint: Registering block manager localhost:44485 with 366.3 MiB RAM, BlockManagerId(driver, localhost, 44485, None)
+2026-11-07 12:36:09,749 INFO storage.BlockManagerMaster: Registered BlockManager BlockManagerId(driver, localhost, 44485, None)
+2026-11-07 12:36:09,753 INFO storage.BlockManager: Initialized BlockManager: BlockManagerId(driver, localhost, 44485, None)
+2026-11-07 12:36:10,117 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@129f646a{/metrics/json,null,AVAILABLE,@Spark}
+2026-11-07 12:36:10,579 INFO internal.SharedState: Setting hive.metastore.warehouse.dir ('/user/hive/warehouse') to the value of spark.sql.warehouse.dir ('/user/hive/warehouse').
+2026-11-07 12:36:10,580 INFO internal.SharedState: Warehouse path is '/user/hive/warehouse'.
+2026-11-07 12:36:10,593 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@24007bda{/SQL,null,AVAILABLE,@Spark}
+2026-11-07 12:36:10,594 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@44579d56{/SQL/json,null,AVAILABLE,@Spark}
+2026-11-07 12:36:10,595 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@673f000d{/SQL/execution,null,AVAILABLE,@Spark}
+2026-11-07 12:36:10,596 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@4f9c82ca{/SQL/execution/json,null,AVAILABLE,@Spark}
+2026-11-07 12:36:10,611 INFO handler.ContextHandler: Started o.s.j.s.ServletContextHandler@105b3412{/static/sql,null,AVAILABLE,@Spark}
+===== CSV RESULT =====
+('cart', 926516)
+('purchase', 742849)
+('view', 40779399)
+===== PARQUET RESULT =====
+('cart', 926516)
+('purchase', 742849)
+('view', 40779399)
+===== PARITY CHECK =====
+CSV total: 42448764
+Parquet total: 42448764
+MATCH: True
